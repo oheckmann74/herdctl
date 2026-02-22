@@ -8,11 +8,12 @@ import type { StateCreator } from "zustand";
 import {
   createChatSession as apiCreateChatSession,
   deleteChatSession as apiDeleteChatSession,
+  fetchRecentSessions as apiFetchRecentSessions,
   renameChatSession as apiRenameChatSession,
   fetchChatSession,
   fetchChatSessions,
 } from "../lib/api";
-import type { ChatMessage, ChatSession, ChatToolCall } from "../lib/types";
+import type { ChatMessage, ChatSession, ChatToolCall, RecentChatSession } from "../lib/types";
 
 // =============================================================================
 // Types
@@ -44,6 +45,10 @@ export interface ChatState {
   sidebarSessionsLoading: boolean;
   /** Message grouping preference: "separate" shows each turn as its own bubble, "grouped" merges them */
   messageGrouping: "separate" | "grouped";
+  /** Recent sessions across all agents for the Recent Conversations view */
+  recentSessions: RecentChatSession[];
+  /** Loading state for recent sessions fetch */
+  recentSessionsLoading: boolean;
 }
 
 export interface ChatActions {
@@ -79,6 +84,10 @@ export interface ChatActions {
   clearActiveChatState: () => void;
   /** Clear all chat state */
   clearChatState: () => void;
+  /** Fetch recent sessions across all agents */
+  fetchRecentSessions: (limit?: number) => Promise<void>;
+  /** Update lastMessageAt for a session in recentSessions (for real-time ordering) */
+  touchRecentSession: (sessionId: string, agentName: string) => void;
 }
 
 export type ChatSlice = ChatState & ChatActions;
@@ -110,6 +119,8 @@ const initialChatState: ChatState = {
   sidebarSessions: {},
   sidebarSessionsLoading: false,
   messageGrouping: getStoredMessageGrouping() ?? "separate",
+  recentSessions: [],
+  recentSessionsLoading: false,
 };
 
 // =============================================================================
@@ -182,6 +193,13 @@ export const createChatSlice: StateCreator<ChatSlice, [], [], ChatSlice> = (set,
         const agentSessions = state.sidebarSessions[agentName] ?? [];
         const updatedAgentSessions = [newSession, ...agentSessions].slice(0, SIDEBAR_SESSION_LIMIT);
 
+        // Also add to recentSessions for the Recent tab
+        const newRecentSession: RecentChatSession = {
+          ...newSession,
+          agentName,
+        };
+        const recentSessions = [newRecentSession, ...state.recentSessions];
+
         return {
           chatSessions,
           activeChatSessionId: response.sessionId,
@@ -190,6 +208,7 @@ export const createChatSlice: StateCreator<ChatSlice, [], [], ChatSlice> = (set,
             ...state.sidebarSessions,
             [agentName]: updatedAgentSessions,
           },
+          recentSessions,
         };
       });
 
@@ -224,6 +243,7 @@ export const createChatSlice: StateCreator<ChatSlice, [], [], ChatSlice> = (set,
           activeChatSessionId: activeChatSessionId === sessionId ? null : activeChatSessionId,
           chatMessages: activeChatSessionId === sessionId ? [] : state.chatMessages,
           sidebarSessions: updatedSidebarSessions,
+          recentSessions: state.recentSessions.filter((s) => s.sessionId !== sessionId),
         };
       });
     } catch (error) {
@@ -255,9 +275,14 @@ export const createChatSlice: StateCreator<ChatSlice, [], [], ChatSlice> = (set,
             }
           : state.sidebarSessions;
 
+        const recentSessions = state.recentSessions.map((s) =>
+          s.sessionId === sessionId ? { ...s, customName: name } : s,
+        );
+
         return {
           chatSessions,
           sidebarSessions: updatedSidebarSessions,
+          recentSessions,
         };
       });
     } catch (error) {
@@ -419,5 +444,34 @@ export const createChatSlice: StateCreator<ChatSlice, [], [], ChatSlice> = (set,
 
   clearChatState: () => {
     set(initialChatState);
+  },
+
+  fetchRecentSessions: async (limit = 100) => {
+    set({ recentSessionsLoading: true });
+
+    try {
+      const sessions = await apiFetchRecentSessions(limit);
+      set({
+        recentSessions: sessions,
+        recentSessionsLoading: false,
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to fetch recent sessions";
+      set({
+        recentSessionsLoading: false,
+        chatError: message,
+      });
+    }
+  },
+
+  touchRecentSession: (sessionId: string, _agentName: string) => {
+    set((state) => {
+      const idx = state.recentSessions.findIndex((s) => s.sessionId === sessionId);
+      if (idx === -1) return state;
+
+      const updated = { ...state.recentSessions[idx], lastMessageAt: new Date().toISOString() };
+      const recentSessions = [updated, ...state.recentSessions.filter((_, i) => i !== idx)];
+      return { recentSessions };
+    });
   },
 });

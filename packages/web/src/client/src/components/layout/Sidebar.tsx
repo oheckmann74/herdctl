@@ -19,14 +19,18 @@ import {
   Pencil,
   Plus,
   Trash2,
+  X,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import { getAgentAvatar } from "../../lib/avatar";
 import { formatRelativeTime } from "../../lib/format";
-import { agentChatPath, agentPath } from "../../lib/paths";
+import { agentChatPath, agentPath, agentTabPath } from "../../lib/paths";
 import type { AgentInfo, ChatSession, ConnectionStatus } from "../../lib/types";
-import { useChatActions, useFleet, useSidebarSessions } from "../../store";
+import { useChatActions, useFleet, useSidebarSessions, useSidebarTab } from "../../store";
+import { RecentConversationsList } from "./RecentConversationsList";
+import { SidebarSearch } from "./SidebarSearch";
+import { SidebarTabs } from "./SidebarTabs";
 
 // =============================================================================
 // Version Info
@@ -61,6 +65,31 @@ function VersionDisplay() {
       </p>
     </div>
   );
+}
+
+// =============================================================================
+// LocalStorage Persistence
+// =============================================================================
+
+const LS_KEY_EXPANDED_FLEETS = "herdctl:sidebar:expandedFleets";
+const LS_KEY_EXPANDED_AGENTS = "herdctl:sidebar:expandedAgents";
+
+function loadExpandedSet(key: string): Set<string> | null {
+  try {
+    const raw = localStorage.getItem(key);
+    if (raw) return new Set(JSON.parse(raw));
+  } catch {
+    // Ignore corrupted data
+  }
+  return null;
+}
+
+function saveExpandedSet(key: string, set: Set<string>) {
+  try {
+    localStorage.setItem(key, JSON.stringify([...set]));
+  } catch {
+    // Ignore storage errors
+  }
 }
 
 // =============================================================================
@@ -207,6 +236,8 @@ interface AgentRowProps {
   sessions: ChatSession[];
   isActive: boolean;
   activeSessionId: string | null;
+  isExpanded: boolean;
+  onToggleExpanded: (qualifiedName: string) => void;
   onNavigate?: () => void;
   onNewChat: (qualifiedName: string) => void;
   onRenameSession: (agentQualifiedName: string, sessionId: string, name: string) => void;
@@ -219,13 +250,15 @@ function AgentRow({
   sessions,
   isActive,
   activeSessionId,
+  isExpanded,
+  onToggleExpanded,
   onNavigate,
   onNewChat,
   onRenameSession,
   onDeleteSession,
   indent = 0,
 }: AgentRowProps) {
-  const paddingLeft = indent > 0 ? `${indent * 16 + 2}px` : undefined;
+  const paddingLeft = indent > 0 ? `${indent * 8}px` : undefined;
   const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
@@ -283,17 +316,36 @@ function AgentRow({
     <div>
       {/* Agent heading row */}
       <div className="flex items-center border-b border-herd-sidebar-border bg-herd-sidebar-hover">
+        <button
+          type="button"
+          onClick={() => onToggleExpanded(agent.qualifiedName)}
+          className="flex-shrink-0 py-1 pl-1 pr-0 ml-1"
+          title={isExpanded ? "Collapse chats" : "Expand chats"}
+        >
+          <ChevronRight
+            className={`w-3 h-3 text-herd-sidebar-muted transition-transform ${isExpanded ? "rotate-90" : ""}`}
+          />
+        </button>
         <Link
           to={agentPath(agent.qualifiedName)}
           onClick={onNavigate}
-          className={`flex-1 flex items-center gap-2 py-2.5 rounded-lg text-sm font-semibold tracking-wide transition-colors min-w-0 ${
+          className={`flex-1 flex items-center gap-2 pl-1 py-2.5 rounded-lg text-sm font-semibold tracking-wide transition-colors min-w-0 ${
             isActive ? "text-herd-sidebar-fg" : "text-herd-sidebar-fg/80 hover:text-herd-sidebar-fg"
           }`}
-          style={paddingLeft ? { paddingLeft } : { paddingLeft: "12px" }}
+          style={paddingLeft ? { paddingLeft } : undefined}
         >
           <img src={getAgentAvatar(agent.name)} alt="" className="w-5 h-5 rounded flex-shrink-0" />
           <span className="truncate">{agent.name}</span>
         </Link>
+        {sessions.length > 0 && (
+          <Link
+            to={agentTabPath(agent.qualifiedName, "chats")}
+            onClick={onNavigate}
+            className="flex-shrink-0 text-[11px] text-herd-sidebar-muted/60 hover:text-herd-sidebar-fg mr-2.5 transition-colors"
+          >
+            {sessions.length} {sessions.length === 1 ? "chat" : "chats"}
+          </Link>
+        )}
         <button
           type="button"
           onClick={(e) => {
@@ -307,113 +359,115 @@ function AgentRow({
         </button>
       </div>
 
-      {/* Recent chat sessions */}
-      {sessions.length === 0 ? (
-        <p className="text-[11px] text-herd-sidebar-muted/50 text-center py-3">No chats yet</p>
-      ) : (
-        <div className="mr-1 mt-0.5 space-y-1">
-          {sessions.map((session) => {
-            const isSessionActive = session.sessionId === activeSessionId;
-            const isEditing = editingSessionId === session.sessionId;
+      {/* Recent chat sessions (collapsible) */}
+      {isExpanded &&
+        (sessions.length === 0 ? (
+          <p className="text-[11px] text-herd-sidebar-muted/50 text-center py-3">No chats yet</p>
+        ) : (
+          <div className="mr-1 mt-0.5 space-y-1">
+            {sessions.map((session) => {
+              const isSessionActive = session.sessionId === activeSessionId;
+              const isEditing = editingSessionId === session.sessionId;
 
-            if (isEditing) {
+              if (isEditing) {
+                return (
+                  <div
+                    key={session.sessionId}
+                    className="flex items-center gap-2 px-3 py-2 rounded bg-herd-sidebar-hover"
+                  >
+                    <input
+                      ref={inputRef}
+                      type="text"
+                      value={editValue}
+                      onChange={(e) => setEditValue(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleSave(session.sessionId);
+                        } else if (e.key === "Escape") {
+                          e.preventDefault();
+                          handleCancel();
+                        }
+                      }}
+                      onBlur={() => handleCancel()}
+                      className="flex-1 bg-transparent border-none outline-none text-sm text-herd-sidebar-fg focus:bg-herd-sidebar-hover transition-colors"
+                    />
+                  </div>
+                );
+              }
+
+              const isConfirmingDelete = confirmDeleteId === session.sessionId;
+              const isDeleting = deletingId === session.sessionId;
+
               return (
                 <div
                   key={session.sessionId}
-                  className="flex items-center gap-2 px-3 py-2 rounded bg-herd-sidebar-hover"
+                  className={`group flex items-center gap-2 px-3 py-2 rounded text-sm transition-colors ${
+                    isDeleting ? "opacity-50" : ""
+                  } ${
+                    isSessionActive
+                      ? "text-herd-sidebar-fg bg-herd-sidebar-active"
+                      : "text-herd-sidebar-muted hover:bg-herd-sidebar-hover hover:text-herd-sidebar-fg"
+                  }`}
                 >
-                  <input
-                    ref={inputRef}
-                    type="text"
-                    value={editValue}
-                    onChange={(e) => setEditValue(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        handleSave(session.sessionId);
-                      } else if (e.key === "Escape") {
-                        e.preventDefault();
-                        handleCancel();
-                      }
-                    }}
-                    onBlur={() => handleCancel()}
-                    className="flex-1 bg-transparent border-none outline-none text-sm text-herd-sidebar-fg focus:bg-herd-sidebar-hover transition-colors"
-                  />
+                  <Link
+                    to={agentChatPath(agent.qualifiedName, session.sessionId)}
+                    onClick={onNavigate}
+                    className="flex-1 truncate min-w-0"
+                  >
+                    {session.customName || session.preview || "New conversation"}
+                  </Link>
+                  {isConfirmingDelete ? (
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      <button
+                        type="button"
+                        onClick={handleCancelDelete}
+                        className="p-0.5 hover:bg-herd-sidebar-active rounded"
+                        title="Cancel delete"
+                      >
+                        <X className="w-3 h-3 text-herd-sidebar-muted hover:text-herd-sidebar-fg" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => handleConfirmDelete(e, session.sessionId)}
+                        className="p-0.5 hover:bg-herd-sidebar-active rounded"
+                        title="Confirm delete"
+                      >
+                        <Trash2 className="w-3 h-3 text-herd-status-error" />
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          startEditing(session);
+                        }}
+                        className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity p-0.5 hover:bg-herd-sidebar-active rounded"
+                        title="Rename chat"
+                      >
+                        <Pencil className="w-3 h-3 text-herd-sidebar-muted hover:text-herd-sidebar-fg" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => handleDeleteClick(e, session.sessionId)}
+                        className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity p-0.5 hover:bg-herd-sidebar-active rounded"
+                        title="Delete chat"
+                      >
+                        <Trash2 className="w-3 h-3 text-herd-sidebar-muted hover:text-herd-status-error" />
+                      </button>
+                    </>
+                  )}
+                  <span className="flex-shrink-0 text-herd-sidebar-muted/60 text-[10px]">
+                    {formatRelativeTime(session.lastMessageAt)}
+                  </span>
                 </div>
               );
-            }
-
-            const isConfirmingDelete = confirmDeleteId === session.sessionId;
-            const isDeleting = deletingId === session.sessionId;
-
-            return (
-              <div
-                key={session.sessionId}
-                className={`group flex items-center gap-2 px-3 py-2 rounded text-sm transition-colors ${
-                  isDeleting ? "opacity-50" : ""
-                } ${
-                  isSessionActive
-                    ? "text-herd-sidebar-fg bg-herd-sidebar-active"
-                    : "text-herd-sidebar-muted hover:bg-herd-sidebar-hover hover:text-herd-sidebar-fg"
-                }`}
-              >
-                <Link
-                  to={agentChatPath(agent.qualifiedName, session.sessionId)}
-                  onClick={onNavigate}
-                  className="flex-1 truncate min-w-0"
-                >
-                  {session.customName || session.preview || "New conversation"}
-                </Link>
-                {isConfirmingDelete ? (
-                  <div className="flex items-center gap-1 flex-shrink-0">
-                    <button
-                      type="button"
-                      onClick={(e) => handleConfirmDelete(e, session.sessionId)}
-                      className="p-0.5 hover:bg-herd-sidebar-active rounded"
-                      title="Confirm delete"
-                    >
-                      <Trash2 className="w-3 h-3 text-herd-status-error" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleCancelDelete}
-                      className="text-herd-sidebar-muted hover:text-herd-sidebar-fg text-[10px] px-0.5"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                ) : (
-                  <>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        startEditing(session);
-                      }}
-                      className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity p-0.5 hover:bg-herd-sidebar-active rounded"
-                      title="Rename chat"
-                    >
-                      <Pencil className="w-3 h-3 text-herd-sidebar-muted hover:text-herd-sidebar-fg" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={(e) => handleDeleteClick(e, session.sessionId)}
-                      className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity p-0.5 hover:bg-herd-sidebar-active rounded"
-                      title="Delete chat"
-                    >
-                      <Trash2 className="w-3 h-3 text-herd-sidebar-muted hover:text-herd-status-error" />
-                    </button>
-                  </>
-                )}
-                <span className="flex-shrink-0 text-herd-sidebar-muted/60 text-[10px]">
-                  {formatRelativeTime(session.lastMessageAt)}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      )}
+            })}
+          </div>
+        ))}
     </div>
   );
 }
@@ -423,6 +477,8 @@ interface FleetSectionProps {
   sidebarSessions: Record<string, ChatSession[]>;
   currentAgentQualifiedName: string | null;
   activeSessionId: string | null;
+  expandedAgents: Set<string>;
+  toggleAgent: (qualifiedName: string) => void;
   onNavigate?: () => void;
   onNewChat: (qualifiedName: string) => void;
   onRenameSession: (qualifiedName: string, sessionId: string, name: string) => void;
@@ -438,6 +494,8 @@ function FleetSection({
   sidebarSessions,
   currentAgentQualifiedName,
   activeSessionId,
+  expandedAgents,
+  toggleAgent,
   onNavigate,
   onNewChat,
   onRenameSession,
@@ -479,6 +537,8 @@ function FleetSection({
               sessions={sidebarSessions[agent.qualifiedName] ?? []}
               isActive={currentAgentQualifiedName === agent.qualifiedName}
               activeSessionId={activeSessionId}
+              isExpanded={expandedAgents.has(agent.qualifiedName)}
+              onToggleExpanded={toggleAgent}
               onNavigate={onNavigate}
               onNewChat={onNewChat}
               onRenameSession={onRenameSession}
@@ -495,6 +555,8 @@ function FleetSection({
               sidebarSessions={sidebarSessions}
               currentAgentQualifiedName={currentAgentQualifiedName}
               activeSessionId={activeSessionId}
+              expandedAgents={expandedAgents}
+              toggleAgent={toggleAgent}
               onNavigate={onNavigate}
               onNewChat={onNewChat}
               onRenameSession={onRenameSession}
@@ -553,30 +615,91 @@ export function Sidebar({ onNavigate }: SidebarProps = {}) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Track which fleet sections are expanded (default: all expanded)
-  const [expandedFleets, setExpandedFleets] = useState<Set<string>>(new Set());
+  // Track which fleet sections are expanded (default: all expanded, persisted)
+  const fleetExpandedFromStorage = useRef(loadExpandedSet(LS_KEY_EXPANDED_FLEETS) !== null);
+  const [expandedFleets, setExpandedFleets] = useState<Set<string>>(
+    () => loadExpandedSet(LS_KEY_EXPANDED_FLEETS) ?? new Set(),
+  );
 
-  // Build fleet hierarchy tree
-  const { rootAgents, fleetNodes } = useMemo(() => buildFleetTree(agents), [agents]);
+  // Track which agent rows are expanded (default: collapsed, persisted)
+  const [expandedAgents, setExpandedAgents] = useState<Set<string>>(
+    () => loadExpandedSet(LS_KEY_EXPANDED_AGENTS) ?? new Set(),
+  );
+
+  // Fleet search query for filtering agents
+  const [fleetSearchQuery, setFleetSearchQuery] = useState("");
+
+  // Get the active sidebar tab from the store
+  const sidebarTab = useSidebarTab();
+
+  // Filter agents based on search query
+  const filteredAgents = useMemo(() => {
+    if (!fleetSearchQuery.trim()) return agents;
+
+    const query = fleetSearchQuery.toLowerCase().trim();
+    return agents.filter((agent) => {
+      // Match against qualifiedName
+      if (agent.qualifiedName.toLowerCase().includes(query)) return true;
+      // Match against any fleetPath segment
+      if (agent.fleetPath.some((segment) => segment.toLowerCase().includes(query))) return true;
+      // Match against agent short name
+      if (agent.name.toLowerCase().includes(query)) return true;
+      return false;
+    });
+  }, [agents, fleetSearchQuery]);
+
+  // Determine if search is active (for controlling expand behavior)
+  const isSearchActive = fleetSearchQuery.trim().length > 0;
+
+  // Build fleet hierarchy tree from filtered agents
+  const { rootAgents, fleetNodes } = useMemo(
+    () => buildFleetTree(filteredAgents),
+    [filteredAgents],
+  );
 
   // Determine if we have any fleet grouping
   const hasFleetGrouping = fleetNodes.length > 0;
 
-  // Auto-expand all fleet nodes when agents change and we first see fleet grouping
-  useEffect(() => {
-    if (hasFleetGrouping && expandedFleets.size === 0) {
-      const allKeys = new Set<string>();
-      function collectKeys(nodes: FleetTreeNode[], prefix: string) {
-        for (const node of nodes) {
-          const key = prefix ? `${prefix}.${node.name}` : node.name;
-          allKeys.add(key);
-          collectKeys(node.children, key);
-        }
+  // Collect all fleet keys from current nodes
+  const allFleetKeys = useMemo(() => {
+    const keys = new Set<string>();
+    function collectKeys(nodes: FleetTreeNode[], prefix: string) {
+      for (const node of nodes) {
+        const key = prefix ? `${prefix}.${node.name}` : node.name;
+        keys.add(key);
+        collectKeys(node.children, key);
       }
-      collectKeys(fleetNodes, "");
-      setExpandedFleets(allKeys);
     }
-  }, [hasFleetGrouping, fleetNodes, expandedFleets.size]);
+    collectKeys(fleetNodes, "");
+    return keys;
+  }, [fleetNodes]);
+
+  // Auto-expand all fleet nodes on first load if no localStorage data exists
+  useEffect(() => {
+    if (hasFleetGrouping && !fleetExpandedFromStorage.current && expandedFleets.size === 0) {
+      setExpandedFleets(allFleetKeys);
+      saveExpandedSet(LS_KEY_EXPANDED_FLEETS, allFleetKeys);
+    }
+  }, [hasFleetGrouping, allFleetKeys, expandedFleets.size]);
+
+  // When search becomes active, expand all fleets to show matches
+  // Store the pre-search expanded state to restore when search is cleared
+  const preSearchExpandedRef = useRef<Set<string> | null>(null);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally exclude expandedFleets to avoid infinite loop
+  useEffect(() => {
+    if (isSearchActive) {
+      // When search starts, save current state and expand all
+      if (preSearchExpandedRef.current === null) {
+        preSearchExpandedRef.current = expandedFleets;
+      }
+      setExpandedFleets(allFleetKeys);
+    } else if (preSearchExpandedRef.current !== null) {
+      // When search is cleared, restore previous state
+      setExpandedFleets(preSearchExpandedRef.current);
+      preSearchExpandedRef.current = null;
+    }
+  }, [isSearchActive, allFleetKeys]);
 
   const toggleFleet = useCallback((fleetKey: string) => {
     setExpandedFleets((prev) => {
@@ -586,6 +709,20 @@ export function Sidebar({ onNavigate }: SidebarProps = {}) {
       } else {
         next.add(fleetKey);
       }
+      saveExpandedSet(LS_KEY_EXPANDED_FLEETS, next);
+      return next;
+    });
+  }, []);
+
+  const toggleAgent = useCallback((qualifiedName: string) => {
+    setExpandedAgents((prev) => {
+      const next = new Set(prev);
+      if (next.has(qualifiedName)) {
+        next.delete(qualifiedName);
+      } else {
+        next.add(qualifiedName);
+      }
+      saveExpandedSet(LS_KEY_EXPANDED_AGENTS, next);
       return next;
     });
   }, []);
@@ -670,51 +807,89 @@ export function Sidebar({ onNavigate }: SidebarProps = {}) {
         </div>
       </div>
 
-      {/* Agent list section (scrollable) */}
-      <div className="flex-1 overflow-auto p-2">
-        {/* Fleet-grouped agents — each fleet is a visually distinct group */}
-        {fleetNodes.length > 0 && (
-          <div className="divide-y divide-herd-sidebar-border">
-            {fleetNodes.map((node) => (
-              <div key={node.name} className="py-3 first:pt-0 last:pb-0">
-                <FleetSection
-                  node={node}
-                  sidebarSessions={sidebarSessions}
-                  currentAgentQualifiedName={currentAgentQualifiedName}
-                  activeSessionId={activeSessionId}
-                  onNavigate={onNavigate}
-                  onNewChat={handleNewChat}
-                  onRenameSession={handleRenameSession}
-                  onDeleteSession={handleDeleteSession}
-                  expandedFleets={expandedFleets}
-                  toggleFleet={toggleFleet}
-                />
-              </div>
-            ))}
-          </div>
-        )}
+      {/* Tab switcher */}
+      <div className="pt-2">
+        <SidebarTabs />
+      </div>
 
-        {/* Root-level agents (no fleet grouping) */}
-        {rootAgents.length > 0 && (
-          <div className="space-y-0.5">
-            {rootAgents.map((agent) => (
-              <AgentRow
-                key={agent.qualifiedName}
-                agent={agent}
-                sessions={sidebarSessions[agent.qualifiedName] ?? []}
-                isActive={currentAgentQualifiedName === agent.qualifiedName}
-                activeSessionId={activeSessionId}
-                onNavigate={onNavigate}
-                onNewChat={handleNewChat}
-                onRenameSession={handleRenameSession}
-                onDeleteSession={handleDeleteSession}
-              />
-            ))}
-          </div>
-        )}
+      {/* Tab content area (scrollable) */}
+      <div className="flex-1 overflow-auto">
+        {sidebarTab === "fleet" ? (
+          <>
+            {/* Fleet View: search + agent tree */}
+            <SidebarSearch
+              value={fleetSearchQuery}
+              onChange={setFleetSearchQuery}
+              placeholder="Search agents..."
+            />
 
-        {agents.length === 0 && (
-          <p className="text-xs text-herd-sidebar-muted px-3 py-2">No agents configured</p>
+            {isSearchActive && filteredAgents.length > 0 && (
+              <p className="text-[11px] text-herd-sidebar-muted px-4 pb-1">
+                {filteredAgents.length} {filteredAgents.length === 1 ? "agent" : "agents"} found
+              </p>
+            )}
+
+            <div className="p-2 pt-0">
+              {/* Fleet-grouped agents — each fleet is a visually distinct group */}
+              {fleetNodes.length > 0 && (
+                <div className="divide-y divide-herd-sidebar-border">
+                  {fleetNodes.map((node) => (
+                    <div key={node.name} className="py-3 first:pt-0 last:pb-0">
+                      <FleetSection
+                        node={node}
+                        sidebarSessions={sidebarSessions}
+                        currentAgentQualifiedName={currentAgentQualifiedName}
+                        activeSessionId={activeSessionId}
+                        expandedAgents={expandedAgents}
+                        toggleAgent={toggleAgent}
+                        onNavigate={onNavigate}
+                        onNewChat={handleNewChat}
+                        onRenameSession={handleRenameSession}
+                        onDeleteSession={handleDeleteSession}
+                        expandedFleets={expandedFleets}
+                        toggleFleet={toggleFleet}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Root-level agents (no fleet grouping) */}
+              {rootAgents.length > 0 && (
+                <div className="space-y-0.5">
+                  {rootAgents.map((agent) => (
+                    <AgentRow
+                      key={agent.qualifiedName}
+                      agent={agent}
+                      sessions={sidebarSessions[agent.qualifiedName] ?? []}
+                      isActive={currentAgentQualifiedName === agent.qualifiedName}
+                      activeSessionId={activeSessionId}
+                      isExpanded={expandedAgents.has(agent.qualifiedName)}
+                      onToggleExpanded={toggleAgent}
+                      onNavigate={onNavigate}
+                      onNewChat={handleNewChat}
+                      onRenameSession={handleRenameSession}
+                      onDeleteSession={handleDeleteSession}
+                    />
+                  ))}
+                </div>
+              )}
+
+              {/* Empty states */}
+              {agents.length === 0 && (
+                <p className="text-xs text-herd-sidebar-muted px-3 py-2">No agents configured</p>
+              )}
+
+              {/* Search with no results */}
+              {isSearchActive && filteredAgents.length === 0 && agents.length > 0 && (
+                <p className="text-xs text-herd-sidebar-muted px-3 py-2">
+                  No matches for "{fleetSearchQuery}"
+                </p>
+              )}
+            </div>
+          </>
+        ) : (
+          <RecentConversationsList onNavigate={onNavigate} />
         )}
       </div>
 
