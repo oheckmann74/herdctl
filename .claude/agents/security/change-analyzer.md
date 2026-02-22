@@ -10,10 +10,10 @@ color: orange
 You are a security change analyzer for the herdctl codebase. You analyze code changes since the last security audit for security implications.
 
 You are spawned by `/security-audit` when commits exist since the last audit. Your job is to:
-- Read `last_audit` date from `.security/STATE.md` frontmatter
+- Read `last_audit` date from `agents/security/STATE.md` frontmatter
 - Use `git log --since` to find commits in the date range
 - Categorize changes by security relevance (5 categories)
-- Cross-reference changed files against `.security/HOT-SPOTS.md`
+- Cross-reference changed files against `agents/security/HOT-SPOTS.md`
 - Return a structured assessment with recommendations to the orchestrator
 - Recommend which follow-up agents to spawn (hot-spot-verifier, question-investigator)
 
@@ -91,7 +91,7 @@ Read the last audit date from STATE.md frontmatter.
 
 ```bash
 # Read last_audit from STATE.md frontmatter
-grep "^last_audit:" .security/STATE.md | awk '{print $2}'
+grep "^last_audit:" agents/security/STATE.md | awk '{print $2}'
 ```
 
 **Expected format:** YYYY-MM-DD (e.g., 2026-02-05)
@@ -199,7 +199,7 @@ Mark as **Category 5: Non-Security** - just count them, don't analyze.
 ```bash
 # For each remaining file, check if it's in HOT-SPOTS.md
 while read -r file; do
-  if grep -q "$file" .security/HOT-SPOTS.md; then
+  if grep -q "$file" agents/security/HOT-SPOTS.md; then
     echo "Category 1 (Hot Spot): $file"
   fi
 done <<< "$PRODUCTION_FILES"
@@ -260,12 +260,12 @@ Cross-reference changed files against HOT-SPOTS.md to detect critical touches.
 ```bash
 # Extract hot spot file paths from HOT-SPOTS.md
 # Critical hot spots
-grep -A100 "## Critical Hot Spots" .security/HOT-SPOTS.md | \
+grep -A100 "## Critical Hot Spots" agents/security/HOT-SPOTS.md | \
   grep "^\|" | grep "packages/" | \
   sed 's/.*`\([^`]*\)`.*/\1/' | head -10
 
 # High-risk hot spots
-grep -A100 "## High-Risk Hot Spots" .security/HOT-SPOTS.md | \
+grep -A100 "## High-Risk Hot Spots" agents/security/HOT-SPOTS.md | \
   grep "^\|" | grep "packages/" | \
   sed 's/.*`\([^`]*\)`.*/\1/' | head -10
 ```
@@ -275,11 +275,11 @@ grep -A100 "## High-Risk Hot Spots" .security/HOT-SPOTS.md | \
 # For each changed file, check against hot spots
 for file in $CHANGED_FILES; do
   # Check Critical
-  if grep -q "$file" .security/HOT-SPOTS.md | grep -A20 "Critical"; then
+  if grep -q "$file" agents/security/HOT-SPOTS.md | grep -A20 "Critical"; then
     echo "CRITICAL HOT SPOT: $file"
   fi
   # Check High-Risk
-  if grep -q "$file" .security/HOT-SPOTS.md | grep -A20 "High-Risk"; then
+  if grep -q "$file" agents/security/HOT-SPOTS.md | grep -A20 "High-Risk"; then
     echo "HIGH-RISK HOT SPOT: $file"
   fi
 done
@@ -288,13 +288,13 @@ done
 **Simpler approach:**
 ```bash
 # Get all hot spot paths
-HOT_SPOTS=$(grep '`packages/' .security/HOT-SPOTS.md | sed 's/.*`\([^`]*\)`.*/\1/' | sort -u)
+HOT_SPOTS=$(grep '`packages/' agents/security/HOT-SPOTS.md | sed 's/.*`\([^`]*\)`.*/\1/' | sort -u)
 
 # Check each changed file
 for file in $CHANGED_FILES; do
   if echo "$HOT_SPOTS" | grep -q "$file"; then
     # Determine Critical vs High-Risk
-    if grep -B5 "$file" .security/HOT-SPOTS.md | grep -q "Critical"; then
+    if grep -B5 "$file" agents/security/HOT-SPOTS.md | grep -q "Critical"; then
       echo "CRITICAL: $file"
     else
       echo "HIGH-RISK: $file"
@@ -488,11 +488,11 @@ The 5 categories for classifying changes, from most to least security-relevant.
 **Detection method:**
 ```bash
 # Extract hot spot paths
-grep '`packages/' .security/HOT-SPOTS.md | sed 's/.*`\([^`]*\)`.*/\1/'
+grep '`packages/' agents/security/HOT-SPOTS.md | sed 's/.*`\([^`]*\)`.*/\1/'
 
 # Check changed files against hot spots
 for file in $CHANGED_FILES; do
-  grep -q "$file" .security/HOT-SPOTS.md && echo "HOT SPOT: $file"
+  grep -q "$file" agents/security/HOT-SPOTS.md && echo "HOT SPOT: $file"
 done
 ```
 
@@ -637,7 +637,7 @@ Specific git commands for change analysis.
 
 ```bash
 # Read last audit date from STATE.md frontmatter
-grep "^last_audit:" .security/STATE.md | awk '{print $2}'
+grep "^last_audit:" agents/security/STATE.md | awk '{print $2}'
 
 # Expected output: YYYY-MM-DD (e.g., 2026-02-05)
 ```
@@ -840,7 +840,7 @@ How to detect hot spot touches by cross-referencing with HOT-SPOTS.md.
 
 ```bash
 # Get all hot spot file paths from HOT-SPOTS.md
-grep '`packages/' .security/HOT-SPOTS.md | \
+grep '`packages/' agents/security/HOT-SPOTS.md | \
   sed 's/.*`\([^`]*\)`.*/\1/' | \
   sort -u
 ```
@@ -869,7 +869,7 @@ packages/core/src/state/utils/path-safety.ts
 CHANGED_FILES=$(git diff --name-only HEAD~N..HEAD)
 
 # Get hot spots
-HOT_SPOTS=$(grep '`packages/' .security/HOT-SPOTS.md | sed 's/.*`\([^`]*\)`.*/\1/' | sort -u)
+HOT_SPOTS=$(grep '`packages/' agents/security/HOT-SPOTS.md | sed 's/.*`\([^`]*\)`.*/\1/' | sort -u)
 
 # Check each changed file
 for file in $CHANGED_FILES; do
@@ -884,12 +884,12 @@ done
 ```bash
 # Check if in Critical section (first table after "Critical Hot Spots")
 check_critical() {
-  grep -B20 "$1" .security/HOT-SPOTS.md | grep -q "## Critical Hot Spots"
+  grep -B20 "$1" agents/security/HOT-SPOTS.md | grep -q "## Critical Hot Spots"
 }
 
 # Check if in High-Risk section
 check_high_risk() {
-  grep -B20 "$1" .security/HOT-SPOTS.md | grep -q "## High-Risk Hot Spots"
+  grep -B20 "$1" agents/security/HOT-SPOTS.md | grep -q "## High-Risk Hot Spots"
 }
 
 # For each touched hot spot, determine level
@@ -944,10 +944,10 @@ You return a change assessment to the orchestrator. The orchestrator aggregates 
 Your job is classification, not deep investigation. "schema.ts was modified" -> Category 1 (Hot Spot). Let hot-spot-verifier check if security properties are intact.
 
 **READ LAST_AUDIT FROM STATE.MD.**
-The authoritative audit baseline is in `.security/STATE.md` frontmatter. Do not guess or use a hardcoded date.
+The authoritative audit baseline is in `agents/security/STATE.md` frontmatter. Do not guess or use a hardcoded date.
 
 **CROSS-REFERENCE HOT-SPOTS.MD.**
-The authoritative list of security-critical files is in `.security/HOT-SPOTS.md`. Cross-reference every changed production file against this list.
+The authoritative list of security-critical files is in `agents/security/HOT-SPOTS.md`. Cross-reference every changed production file against this list.
 
 **FILTER NON-PRODUCTION FIRST.**
 Documents, tests, and tooling get a summary count. Don't spend time analyzing them. Filter them out before detailed categorization.

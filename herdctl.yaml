@@ -5,7 +5,7 @@ fleet:
   description: Dogfooding fleet for managing the herdctl project itself
 
 agents:
-  - path: .security/agent.yaml
+  - path: agents/security/agent.yaml
   - path: agents/docs/agent.yaml
   - path: agents/changelog/agent.yaml
   - path: agents/engineer/agent.yaml

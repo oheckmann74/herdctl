@@ -21,10 +21,10 @@ This orchestrator coordinates:
 4. **question-investigator** - Researches open security questions (conditional)
 
 Output artifacts:
-- `.security/intel/YYYY-MM-DD.md` - Intelligence report with aggregated findings
-- `.security/intel/FINDINGS-INDEX.md` - Updated with new/resolved findings
-- `.security/CODEBASE-UNDERSTANDING.md` - Updated question statuses
-- `.security/STATE.md` - Updated frontmatter with audit date
+- `agents/security/intel/YYYY-MM-DD.md` - Intelligence report with aggregated findings
+- `agents/security/intel/FINDINGS-INDEX.md` - Updated with new/resolved findings
+- `agents/security/CODEBASE-UNDERSTANDING.md` - Updated question statuses
+- `agents/security/STATE.md` - Updated frontmatter with audit date
 
 Use this command for:
 - Daily security audits (automated or manual)
@@ -67,7 +67,7 @@ rule applies to development work, not automated security audits.
 - Before releases or deployments
 
 **State tracking:**
-Audit baseline is tracked in `.security/STATE.md` frontmatter:
+Audit baseline is tracked in `agents/security/STATE.md` frontmatter:
 - `last_audit: YYYY-MM-DD` - Date of last audit
 - `commits_since_audit: N` - Commits since last audit
 - `open_findings: N` - Active security findings
@@ -90,10 +90,10 @@ Run the deterministic security scanner for baseline findings.
 
 ```bash
 # Run scanner with JSON output and save to file
-pnpm security --json --save 2>/dev/null || npx tsx .security/tools/scan.ts --json --save
+pnpm security --json --save 2>/dev/null || npx tsx agents/security/tools/scan.ts --json --save
 
 # If the command doesn't support --save, run and capture output manually
-SCAN_RESULT=$(pnpm security --json 2>/dev/null || npx tsx .security/tools/scan.ts --json)
+SCAN_RESULT=$(pnpm security --json 2>/dev/null || npx tsx agents/security/tools/scan.ts --json)
 echo "$SCAN_RESULT"
 ```
 
@@ -103,7 +103,7 @@ echo "$SCAN_RESULT"
 - Any new findings compared to previous scan
 
 **Store scanner results:**
-- Save to `.security/scans/YYYY-MM-DD.json` (if not already saved by --save flag)
+- Save to `agents/security/scans/YYYY-MM-DD.json` (if not already saved by --save flag)
 - Record summary for aggregation in Phase 4:
   - Check statuses (PASS/FAIL/WARN)
   - Finding counts per severity
@@ -112,7 +112,7 @@ echo "$SCAN_RESULT"
 **Compare to previous scan:**
 ```bash
 # Get most recent previous scan
-PREV_SCAN=$(ls -t .security/scans/*.json 2>/dev/null | head -2 | tail -1)
+PREV_SCAN=$(ls -t agents/security/scans/*.json 2>/dev/null | head -2 | tail -1)
 if [ -n "$PREV_SCAN" ]; then
   echo "Previous scan: $PREV_SCAN"
   # Compare finding counts
@@ -132,7 +132,7 @@ Detect changes since last audit and spawn change-analyzer if needed.
 **Read audit baseline:**
 ```bash
 # Read last audit date from STATE.md frontmatter
-LAST_AUDIT=$(grep "^last_audit:" .security/STATE.md 2>/dev/null | awk '{print $2}')
+LAST_AUDIT=$(grep "^last_audit:" agents/security/STATE.md 2>/dev/null | awk '{print $2}')
 echo "Last audit: $LAST_AUDIT"
 
 # Handle first audit scenario
@@ -175,10 +175,10 @@ You are the change-analyzer agent.
 Analyze commits since the last audit date: {LAST_AUDIT}
 
 Instructions:
-1. Read last_audit from .security/STATE.md frontmatter
+1. Read last_audit from agents/security/STATE.md frontmatter
 2. Use git log --since to find commits in the range
 3. Categorize changes by security relevance (5 categories)
-4. Cross-reference changed files against .security/HOT-SPOTS.md
+4. Cross-reference changed files against agents/security/HOT-SPOTS.md
 5. Return structured assessment with spawn recommendations
 
 Return your results directly - do NOT write to files.
@@ -235,7 +235,7 @@ Verify security properties for these modified hot spot files:
 {list of files from change-analyzer}
 
 Instructions:
-1. For each file, run the verification checks from .security/HOT-SPOTS.md
+1. For each file, run the verification checks from agents/security/HOT-SPOTS.md
 2. Report PASS/FAIL/WARN status per file
 3. Distinguish new findings from accepted risks (cross-reference STATE.md)
 
@@ -252,7 +252,7 @@ Expected output:
 IF open High priority questions exist in CODEBASE-UNDERSTANDING.md:
 ```bash
 # Check for High priority open questions
-grep -E "\| (High|Medium) \| Open\|Partial \|" .security/CODEBASE-UNDERSTANDING.md
+grep -E "\| (High|Medium) \| Open\|Partial \|" agents/security/CODEBASE-UNDERSTANDING.md
 ```
 
 IF found:
@@ -388,7 +388,7 @@ Update all living documents and commit changes.
 
 **5.1: Write intelligence report**
 
-Create `.security/intel/YYYY-MM-DD.md` using the template:
+Create `agents/security/intel/YYYY-MM-DD.md` using the template:
 
 ```markdown
 # Security Intelligence Report - {DATE}
@@ -528,7 +528,7 @@ For resolved findings:
 
 ```bash
 # Get highest existing finding ID
-HIGHEST_ID=$(grep -oE "^| [0-9]+" .security/intel/FINDINGS-INDEX.md | tail -1 | tr -d '| ')
+HIGHEST_ID=$(grep -oE "^| [0-9]+" agents/security/intel/FINDINGS-INDEX.md | tail -1 | tr -d '| ')
 NEXT_ID=$((HIGHEST_ID + 1))
 ```
 
@@ -548,15 +548,15 @@ TODAY=$(date +%Y-%m-%d)
 NOW=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 
 # Update frontmatter
-sed -i '' "s/^last_updated:.*/last_updated: $NOW/" .security/STATE.md
-sed -i '' "s/^last_audit:.*/last_audit: $TODAY/" .security/STATE.md
-sed -i '' "s/^commits_since_audit:.*/commits_since_audit: 0/" .security/STATE.md
+sed -i '' "s/^last_updated:.*/last_updated: $NOW/" agents/security/STATE.md
+sed -i '' "s/^last_audit:.*/last_audit: $TODAY/" agents/security/STATE.md
+sed -i '' "s/^commits_since_audit:.*/commits_since_audit: 0/" agents/security/STATE.md
 
 # Update counts from actual data
-OPEN_FINDINGS=$(grep -c "^\| [0-9]" .security/intel/FINDINGS-INDEX.md 2>/dev/null | head -1 || echo "0")
-OPEN_QUESTIONS=$(grep -c "| Open\|Partial |" .security/CODEBASE-UNDERSTANDING.md 2>/dev/null || echo "0")
-sed -i '' "s/^open_findings:.*/open_findings: $OPEN_FINDINGS/" .security/STATE.md
-sed -i '' "s/^open_questions:.*/open_questions: $OPEN_QUESTIONS/" .security/STATE.md
+OPEN_FINDINGS=$(grep -c "^\| [0-9]" agents/security/intel/FINDINGS-INDEX.md 2>/dev/null | head -1 || echo "0")
+OPEN_QUESTIONS=$(grep -c "| Open\|Partial |" agents/security/CODEBASE-UNDERSTANDING.md 2>/dev/null || echo "0")
+sed -i '' "s/^open_findings:.*/open_findings: $OPEN_FINDINGS/" agents/security/STATE.md
+sed -i '' "s/^open_questions:.*/open_questions: $OPEN_QUESTIONS/" agents/security/STATE.md
 ```
 
 **5.5: Commit all changes (if commit_docs=true)**
@@ -570,11 +570,11 @@ IF commit_docs is true (default):
 ```bash
 TODAY=$(date +%Y-%m-%d)
 
-git add .security/intel/${TODAY}.md
-git add .security/intel/FINDINGS-INDEX.md
-git add .security/CODEBASE-UNDERSTANDING.md
-git add .security/STATE.md
-git add .security/scans/*.json
+git add agents/security/intel/${TODAY}.md
+git add agents/security/intel/FINDINGS-INDEX.md
+git add agents/security/CODEBASE-UNDERSTANDING.md
+git add agents/security/STATE.md
+git add agents/security/scans/*.json
 
 git commit -m "security: daily audit ${TODAY}
 
@@ -620,10 +620,10 @@ After all phases complete, report the audit summary.
 
 ### Documents Updated
 
-- `.security/intel/{DATE}.md` - Intelligence report
-- `.security/intel/FINDINGS-INDEX.md` - {changes}
-- `.security/CODEBASE-UNDERSTANDING.md` - {changes}
-- `.security/STATE.md` - Updated audit baseline
+- `agents/security/intel/{DATE}.md` - Intelligence report
+- `agents/security/intel/FINDINGS-INDEX.md` - {changes}
+- `agents/security/CODEBASE-UNDERSTANDING.md` - {changes}
+- `agents/security/STATE.md` - Updated audit baseline
 
 ### Next Steps
 
@@ -641,9 +641,9 @@ After all phases complete, report the audit summary.
 The orchestrator manages context by delegating deep analysis to subagents.
 
 **What the orchestrator DOES read:**
-- `.security/STATE.md` - For routing decisions (last_audit, open_findings)
-- `.security/HOT-SPOTS.md` - For understanding verification scope (file list only)
-- `.security/CODEBASE-UNDERSTANDING.md` - For question selection (Open Questions table only)
+- `agents/security/STATE.md` - For routing decisions (last_audit, open_findings)
+- `agents/security/HOT-SPOTS.md` - For understanding verification scope (file list only)
+- `agents/security/CODEBASE-UNDERSTANDING.md` - For question selection (Open Questions table only)
 - Agent result reports - Structured summaries, not raw findings
 
 **What the orchestrator does NOT read:**
@@ -737,7 +737,7 @@ If change-analyzer doesn't recommend VERIFY:
 ### Scanner Fails
 
 If pnpm security fails:
-- Try fallback: `npx tsx .security/tools/scan.ts --json`
+- Try fallback: `npx tsx agents/security/tools/scan.ts --json`
 - If both fail, report error and skip to documentation
 - Don't fail entire audit for scanner issues
 
@@ -774,7 +774,7 @@ Checklist for complete audit:
 - [ ] Summary built with counts and status
 
 **Phase 5: Documentation**
-- [ ] Intelligence report written to .security/intel/YYYY-MM-DD.md
+- [ ] Intelligence report written to agents/security/intel/YYYY-MM-DD.md
 - [ ] FINDINGS-INDEX.md updated with new/resolved findings
 - [ ] CODEBASE-UNDERSTANDING.md updated (if investigator ran)
 - [ ] STATE.md frontmatter updated (last_audit, counts)
@@ -790,13 +790,13 @@ Checklist for complete audit:
 
 | File | Purpose | When Read |
 |------|---------|-----------|
-| `.security/STATE.md` | Audit baseline, open counts | Phase 2 (routing decision) |
-| `.security/HOT-SPOTS.md` | Critical file registry | Phase 3 (spawn decision) |
-| `.security/CODEBASE-UNDERSTANDING.md` | Open questions table | Phase 3 (spawn decision) |
-| `.security/intel/FINDINGS-INDEX.md` | Master findings tracker | Phase 5 (update) |
-| `.security/tools/scan.ts` | Deterministic scanner | Phase 1 (execution) |
-| `.security/scans/*.json` | Historical scan results | Phase 1 (comparison) |
-| `.security/intel/*.md` | Previous intelligence reports | Phase 5 (reference only) |
+| `agents/security/STATE.md` | Audit baseline, open counts | Phase 2 (routing decision) |
+| `agents/security/HOT-SPOTS.md` | Critical file registry | Phase 3 (spawn decision) |
+| `agents/security/CODEBASE-UNDERSTANDING.md` | Open questions table | Phase 3 (spawn decision) |
+| `agents/security/intel/FINDINGS-INDEX.md` | Master findings tracker | Phase 5 (update) |
+| `agents/security/tools/scan.ts` | Deterministic scanner | Phase 1 (execution) |
+| `agents/security/scans/*.json` | Historical scan results | Phase 1 (comparison) |
+| `agents/security/intel/*.md` | Previous intelligence reports | Phase 5 (reference only) |
 
 ## Agent Definitions
 

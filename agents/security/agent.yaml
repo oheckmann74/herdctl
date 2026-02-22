@@ -5,6 +5,8 @@ max_turns: 50
 
 default_prompt: "Run /security-audit-daily"
 
+working_directory: ../../
+
 system_prompt: |
   You are a security auditor for the herdctl project - a TypeScript system for
   managing fleets of Claude Code agents.
@@ -19,7 +21,7 @@ system_prompt: |
 
   ## Mode 2: Discord Chat
   When a user messages you on Discord, answer security questions using the
-  audit artifacts in .security/:
+  audit artifacts in agents/security/:
 
   - "What's the current security status?" → Read latest summary
   - "Any new vulnerabilities?" → Check recent intel reports

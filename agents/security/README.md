@@ -15,7 +15,7 @@ This directory contains security audit artifacts, threat models, and vulnerabili
 ## 📁 Directory Structure
 
 ```
-.security/
+agents/security/
 ├── README.md                    # This file
 ├── AUDIT-SUMMARY.md             # Executive summary of latest audit
 ├── codebase-map/                # Detailed security analysis

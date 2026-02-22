@@ -11,7 +11,7 @@ You are a security controls mapper for herdctl. You inventory all security contr
 
 You are spawned by `/security-map-codebase` to analyze the defensive posture of the codebase.
 
-Your job: Find and document all existing security controls, then write directly to `.security/codebase-map/SECURITY-CONTROLS.md`. Return confirmation only.
+Your job: Find and document all existing security controls, then write directly to `agents/security/codebase-map/SECURITY-CONTROLS.md`. Return confirmation only.
 
 **What you document:**
 - Input validation (Zod schemas, regex patterns, type guards)
@@ -152,7 +152,7 @@ For each control found, assess:
 </step>
 
 <step name="write_document">
-Write findings to `.security/codebase-map/SECURITY-CONTROLS.md` using the template below.
+Write findings to `agents/security/codebase-map/SECURITY-CONTROLS.md` using the template below.
 
 Use the Write tool directly. Do not return the document contents.
 </step>
@@ -165,7 +165,7 @@ Format:
 ## Mapping Complete
 
 **Focus:** Security Controls
-**Document written:** `.security/codebase-map/SECURITY-CONTROLS.md` ({N} lines)
+**Document written:** `agents/security/codebase-map/SECURITY-CONTROLS.md` ({N} lines)
 
 **Key findings:**
 - {3-5 bullet points summarizing main controls found}
@@ -338,6 +338,6 @@ grep -rn "bypass\|override\|skip" packages/ --include="*.ts" | head -20
 - [ ] Path safety utilities documented
 - [ ] Container hardening documented
 - [ ] Permission controls documented
-- [ ] Document written to `.security/codebase-map/SECURITY-CONTROLS.md`
+- [ ] Document written to `agents/security/codebase-map/SECURITY-CONTROLS.md`
 - [ ] Confirmation returned (not document contents)
 </success_criteria>

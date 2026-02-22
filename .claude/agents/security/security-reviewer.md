@@ -28,11 +28,11 @@ Your responsibilities:
 **Key principle:** This agent is a thin orchestration wrapper. The skill contains all review logic. Your job is to invoke it, verify outputs, and report results.
 
 **What you verify after running the skill:**
-- Review document created: `.security/reviews/YYYY-MM-DD.md`
+- Review document created: `agents/security/reviews/YYYY-MM-DD.md`
 - Improvements applied to process files (if any):
   - `.claude/commands/security-audit.md` (audit command improvements)
-  - `.security/HOT-SPOTS.md` (newly identified critical files)
-  - `.security/CODEBASE-UNDERSTANDING.md` (new open questions)
+  - `agents/security/HOT-SPOTS.md` (newly identified critical files)
+  - `agents/security/CODEBASE-UNDERSTANDING.md` (new open questions)
 - Overall grade assigned and documented
 - Coverage, depth, and documentation assessments completed
 
@@ -92,11 +92,11 @@ Invoke skill → Verify outputs → Report results. Three steps, done.
 Invoke the `/security-audit-review` skill to run the after-action review.
 
 The skill will:
-1. Find the most recent security audit report (in `.security/intel/`)
+1. Find the most recent security audit report (in `agents/security/intel/`)
 2. Assess coverage of hot spots and open questions
 3. Evaluate investigation depth and documentation quality
 4. Identify gaps and process improvements
-5. Create `.security/reviews/YYYY-MM-DD.md` with the review findings
+5. Create `agents/security/reviews/YYYY-MM-DD.md` with the review findings
 6. Apply improvements to process files if warranted
 
 Use the Skill tool:
@@ -114,22 +114,22 @@ After the skill completes, verify that the review document was created.
 Check for the most recent review file:
 
 ```bash
-ls -lrt .security/reviews/*.md | tail -1
+ls -lrt agents/security/reviews/*.md | tail -1
 ```
 
 **Verify structure:**
 
 ```bash
 # The review file should exist
-ls -la ".security/reviews/$(date +%Y-%m-%d).md" 2>/dev/null || \
-  ls -la .security/reviews/*.md | tail -1
+ls -la "agents/security/reviews/$(date +%Y-%m-%d).md" 2>/dev/null || \
+  ls -la agents/security/reviews/*.md | tail -1
 ```
 
 **Extract key information from the review:**
 
 ```bash
 # Read the review to extract grade and summary
-REVIEW_FILE=$(ls -rt .security/reviews/*.md | tail -1)
+REVIEW_FILE=$(ls -rt agents/security/reviews/*.md | tail -1)
 head -50 "$REVIEW_FILE"
 
 # Look for the grade (should be A/B/C/D)
@@ -159,10 +159,10 @@ Check if the skill applied any improvements to process files.
 git diff .claude/commands/security-audit.md | head -20
 
 # Check if HOT-SPOTS was updated
-git diff .security/HOT-SPOTS.md | head -20
+git diff agents/security/HOT-SPOTS.md | head -20
 
 # Check if CODEBASE-UNDERSTANDING was updated
-git diff .security/CODEBASE-UNDERSTANDING.md | head -20
+git diff agents/security/CODEBASE-UNDERSTANDING.md | head -20
 
 # Count what was modified
 echo "Process files modified since review:"
@@ -190,7 +190,7 @@ The review should include an "Overall Grade" rating:
 
 ```bash
 # Extract the grade
-REVIEW_FILE=$(ls -rt .security/reviews/*.md | tail -1)
+REVIEW_FILE=$(ls -rt agents/security/reviews/*.md | tail -1)
 grep "Overall Grade\|Grade:" "$REVIEW_FILE" | head -1
 ```
 
@@ -209,7 +209,7 @@ The review should assess:
 - **Documentation:** Poor / Adequate / Good / Excellent
 
 ```bash
-REVIEW_FILE=$(ls -rt .security/reviews/*.md | tail -1)
+REVIEW_FILE=$(ls -rt agents/security/reviews/*.md | tail -1)
 
 # Extract all three ratings
 echo "=== Assessment Ratings ==="
@@ -223,7 +223,7 @@ These ratings inform the overall grade and show what areas need improvement.
 Extract the gaps identified in the review.
 
 ```bash
-REVIEW_FILE=$(ls -rt .security/reviews/*.md | tail -1)
+REVIEW_FILE=$(ls -rt agents/security/reviews/*.md | tail -1)
 
 # Extract gaps section
 echo "=== Gaps Identified ==="
@@ -281,7 +281,7 @@ Or: "No process improvements identified in this review"
 
 ### Status
 
-- [x] Review document created: `.security/reviews/YYYY-MM-DD.md`
+- [x] Review document created: `agents/security/reviews/YYYY-MM-DD.md`
 - [x] Assessment completed
 - [x] Improvements applied (if any)
 - [ ] Changes committed (orchestrator handles this)
@@ -305,7 +305,7 @@ Or: "No process improvements identified in this review"
 
 **USE THE SKILL TOOL** - Call `/security-audit-review` using the Skill tool function, not by trying to run it as a command.
 
-**VERIFY OUTPUTS EXIST** - After skill completes, check that `.security/reviews/YYYY-MM-DD.md` was created.
+**VERIFY OUTPUTS EXIST** - After skill completes, check that `agents/security/reviews/YYYY-MM-DD.md` was created.
 
 **EXTRACT KEY DATA** - Read the review file to get: grade, coverage/depth/documentation ratings, gaps found, improvements applied.
 
@@ -324,7 +324,7 @@ Or: "No process improvements identified in this review"
 
 <success_criteria>
 - [ ] Skill invoked successfully
-- [ ] Review document created in `.security/reviews/YYYY-MM-DD.md`
+- [ ] Review document created in `agents/security/reviews/YYYY-MM-DD.md`
 - [ ] Overall grade extracted (A/B/C/D)
 - [ ] Coverage/depth/documentation ratings extracted
 - [ ] Gaps identified and listed
@@ -345,7 +345,7 @@ Or: "No process improvements identified in this review"
 
 **Outputs to:**
 - Calling context (orchestrator) receives structured summary
-- `.security/reviews/YYYY-MM-DD.md` created by the skill
+- `agents/security/reviews/YYYY-MM-DD.md` created by the skill
 - Any updated process files (skill applies them)
 
 **Does NOT write:**

@@ -14,9 +14,9 @@ allowed-tools:
 <objective>
 Analyze codebase security using 4 parallel mapper agents.
 
-Each mapper agent explores a security domain and writes documents directly to `.security/codebase-map/`. The orchestrator only receives confirmations to minimize context usage.
+Each mapper agent explores a security domain and writes documents directly to `agents/security/codebase-map/`. The orchestrator only receives confirmations to minimize context usage.
 
-Output: 4 security analysis documents in `.security/codebase-map/`:
+Output: 4 security analysis documents in `agents/security/codebase-map/`:
 - ATTACK-SURFACE.md - Entry points, trust boundaries, defenses
 - DATA-FLOWS.md - Source-to-sink data flows, validation gaps
 - SECURITY-CONTROLS.md - Defense inventory with coverage and gaps
@@ -34,7 +34,7 @@ Output: 4 security analysis documents in `.security/codebase-map/`:
 Each agent writes directly to disk and returns only confirmation. This keeps orchestrator context clean and enables thorough analysis documents.
 
 **State tracking:**
-Mapping date is tracked in `.security/STATE.md` frontmatter:
+Mapping date is tracked in `agents/security/STATE.md` frontmatter:
 - `last_mapping: YYYY-MM-DD` - Date of last mapping
 - `commits_since_mapping: N` - Commits since last mapping
 </context>
@@ -46,7 +46,7 @@ Check if mapping is needed based on staleness thresholds.
 
 ```bash
 # Read last mapping from STATE.md frontmatter
-LAST_MAPPING=$(grep "^last_mapping:" .security/STATE.md 2>/dev/null | awk '{print $2}')
+LAST_MAPPING=$(grep "^last_mapping:" agents/security/STATE.md 2>/dev/null | awk '{print $2}')
 
 # Check if never mapped
 if [ "$LAST_MAPPING" = "null" ] || [ -z "$LAST_MAPPING" ]; then
@@ -72,7 +72,7 @@ else
   else
     echo "MAPPING_CURRENT: ${DAYS_SINCE} days, ${COMMITS_SINCE} commits since last mapping"
     echo ""
-    echo "Mapping is current. To force remapping, delete last_mapping from .security/STATE.md"
+    echo "Mapping is current. To force remapping, delete last_mapping from agents/security/STATE.md"
     MAPPING_NEEDED=false
   fi
 fi
@@ -108,7 +108,7 @@ Store resolved model for agent spawning.
 Create output directory for mapping documents.
 
 ```bash
-mkdir -p .security/codebase-map
+mkdir -p agents/security/codebase-map
 ```
 
 This must run BEFORE spawning agents or they will fail with ENOENT errors.
@@ -131,7 +131,7 @@ You are the attack-surface-mapper agent.
 
 Map all entry points, APIs, and trust boundaries in the herdctl codebase.
 
-Write your analysis to `.security/codebase-map/ATTACK-SURFACE.md` using the template in your agent definition.
+Write your analysis to `agents/security/codebase-map/ATTACK-SURFACE.md` using the template in your agent definition.
 
 Return confirmation only (file path and line count), not document contents.
 ```
@@ -150,7 +150,7 @@ You are the data-flow-tracer agent.
 
 Trace how user-controlled data flows from entry points to sensitive operations in the herdctl codebase.
 
-Write your analysis to `.security/codebase-map/DATA-FLOWS.md` using the template in your agent definition.
+Write your analysis to `agents/security/codebase-map/DATA-FLOWS.md` using the template in your agent definition.
 
 Return confirmation only (file path and line count), not document contents.
 ```
@@ -169,7 +169,7 @@ You are the security-controls-mapper agent.
 
 Inventory all security controls and defenses in the herdctl codebase, documenting coverage and gaps.
 
-Write your analysis to `.security/codebase-map/SECURITY-CONTROLS.md` using the template in your agent definition.
+Write your analysis to `agents/security/codebase-map/SECURITY-CONTROLS.md` using the template in your agent definition.
 
 Return confirmation only (file path and line count), not document contents.
 ```
@@ -188,7 +188,7 @@ You are the threat-vector-analyzer agent.
 
 Identify attack patterns specifically relevant to herdctl, assessing them against actual controls.
 
-Write your analysis to `.security/codebase-map/THREAT-VECTORS.md` using the template in your agent definition.
+Write your analysis to `agents/security/codebase-map/THREAT-VECTORS.md` using the template in your agent definition.
 
 Return confirmation only (file path and line count), not document contents.
 ```
@@ -202,10 +202,10 @@ Verify all 4 mapping documents were created with substantial content.
 ```bash
 # Check all 4 files exist
 EXPECTED_FILES=(
-  ".security/codebase-map/ATTACK-SURFACE.md"
-  ".security/codebase-map/DATA-FLOWS.md"
-  ".security/codebase-map/SECURITY-CONTROLS.md"
-  ".security/codebase-map/THREAT-VECTORS.md"
+  "agents/security/codebase-map/ATTACK-SURFACE.md"
+  "agents/security/codebase-map/DATA-FLOWS.md"
+  "agents/security/codebase-map/SECURITY-CONTROLS.md"
+  "agents/security/codebase-map/THREAT-VECTORS.md"
 )
 
 MISSING=()
@@ -223,7 +223,7 @@ fi
 
 # Show line counts (should be >50 each)
 echo "Document line counts:"
-wc -l .security/codebase-map/*.md
+wc -l agents/security/codebase-map/*.md
 
 # Verify minimum content
 for f in "${EXPECTED_FILES[@]}"; do
@@ -247,16 +247,16 @@ Continue to update STATE.md.
 </step>
 
 <step name="update_state">
-Update `.security/STATE.md` frontmatter with new mapping date.
+Update `agents/security/STATE.md` frontmatter with new mapping date.
 
 ```bash
 TODAY=$(date +%Y-%m-%d)
 NOW=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 
 # Update frontmatter fields
-sed -i '' "s/^last_mapping:.*/last_mapping: $TODAY/" .security/STATE.md
-sed -i '' "s/^last_updated:.*/last_updated: $NOW/" .security/STATE.md
-sed -i '' "s/^commits_since_mapping:.*/commits_since_mapping: 0/" .security/STATE.md
+sed -i '' "s/^last_mapping:.*/last_mapping: $TODAY/" agents/security/STATE.md
+sed -i '' "s/^last_updated:.*/last_updated: $NOW/" agents/security/STATE.md
+sed -i '' "s/^commits_since_mapping:.*/commits_since_mapping: 0/" agents/security/STATE.md
 ```
 
 Also update the Coverage Status table in STATE.md:
@@ -279,11 +279,11 @@ COMMIT_DOCS=$(cat .planning/config.json 2>/dev/null | grep -o '"commit_docs"[[:s
 **If commit_docs is true (default):**
 
 ```bash
-git add .security/codebase-map/ATTACK-SURFACE.md
-git add .security/codebase-map/DATA-FLOWS.md
-git add .security/codebase-map/SECURITY-CONTROLS.md
-git add .security/codebase-map/THREAT-VECTORS.md
-git add .security/STATE.md
+git add agents/security/codebase-map/ATTACK-SURFACE.md
+git add agents/security/codebase-map/DATA-FLOWS.md
+git add agents/security/codebase-map/SECURITY-CONTROLS.md
+git add agents/security/codebase-map/THREAT-VECTORS.md
+git add agents/security/STATE.md
 
 git commit -m "security: update codebase security mapping
 
@@ -307,10 +307,10 @@ Report mapping completion with summary.
 ## Security Mapping Complete
 
 **Documents created:**
-- `.security/codebase-map/ATTACK-SURFACE.md` (N lines)
-- `.security/codebase-map/DATA-FLOWS.md` (N lines)
-- `.security/codebase-map/SECURITY-CONTROLS.md` (N lines)
-- `.security/codebase-map/THREAT-VECTORS.md` (N lines)
+- `agents/security/codebase-map/ATTACK-SURFACE.md` (N lines)
+- `agents/security/codebase-map/DATA-FLOWS.md` (N lines)
+- `agents/security/codebase-map/SECURITY-CONTROLS.md` (N lines)
+- `agents/security/codebase-map/THREAT-VECTORS.md` (N lines)
 
 **State updated:**
 - `last_mapping: YYYY-MM-DD`
@@ -328,9 +328,9 @@ Report mapping completion with summary.
 <success_criteria>
 - [ ] Staleness check correctly identifies when mapping is needed
 - [ ] All 4 mapper agents spawned in parallel
-- [ ] Each agent writes directly to `.security/codebase-map/`
+- [ ] Each agent writes directly to `agents/security/codebase-map/`
 - [ ] All 4 documents exist with substantial content (>50 lines each)
-- [ ] `.security/STATE.md` frontmatter updated with new mapping date
+- [ ] `agents/security/STATE.md` frontmatter updated with new mapping date
 - [ ] Coverage Status table updated for all 4 mapping areas
 - [ ] Changes committed (if commit_docs=true)
 - [ ] Completion report with line counts shown

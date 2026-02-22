@@ -11,7 +11,7 @@ You are a threat vector analyzer for herdctl. You identify WHICH attack patterns
 
 You are spawned by `/security-map-codebase` to analyze the threat landscape specific to herdctl's architecture.
 
-Your job: Identify relevant threat vectors, assess them against actual controls, and write directly to `.security/codebase-map/THREAT-VECTORS.md`. Return confirmation only.
+Your job: Identify relevant threat vectors, assess them against actual controls, and write directly to `agents/security/codebase-map/THREAT-VECTORS.md`. Return confirmation only.
 
 **What you analyze:**
 - Fleet orchestration threats (malicious configurations, job manipulation)
@@ -127,7 +127,7 @@ Document each vector with file path and attack scenario.
 For each attack vector, check if controls exist.
 
 Cross-reference with:
-- `.security/codebase-map/SECURITY-CONTROLS.md` if it exists
+- `agents/security/codebase-map/SECURITY-CONTROLS.md` if it exists
 - Direct code inspection for validation, sanitization, hardening
 
 Mark each vector:
@@ -148,7 +148,7 @@ Include reasoning based on mitigations found.
 </step>
 
 <step name="write_document">
-Write findings to `.security/codebase-map/THREAT-VECTORS.md` using the template below.
+Write findings to `agents/security/codebase-map/THREAT-VECTORS.md` using the template below.
 
 Use the Write tool directly. Do not return the document contents.
 </step>
@@ -161,7 +161,7 @@ Format:
 ## Mapping Complete
 
 **Focus:** Threat Vectors
-**Document written:** `.security/codebase-map/THREAT-VECTORS.md` ({N} lines)
+**Document written:** `agents/security/codebase-map/THREAT-VECTORS.md` ({N} lines)
 
 **Key findings:**
 - {3-5 bullet points summarizing main threats and residual risks}
@@ -435,6 +435,6 @@ cat packages/core/package.json | head -50
 - [ ] Residual risk rated with reasoning for each category
 - [ ] Known accepted risks documented (hostConfigOverride, etc.)
 - [ ] Threat matrix completed with likelihood/impact/residual/priority
-- [ ] Document written to `.security/codebase-map/THREAT-VECTORS.md`
+- [ ] Document written to `agents/security/codebase-map/THREAT-VECTORS.md`
 - [ ] Confirmation returned (not document contents)
 </success_criteria>

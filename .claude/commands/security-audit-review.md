@@ -11,15 +11,15 @@ This is an after-action review - be constructively critical. The goal is continu
 Find and read the most recent intelligence report:
 
 ```bash
-ls -la .security/intel/*.md | tail -5
+ls -la agents/security/intel/*.md | tail -5
 ```
 
 Read the most recent report (not FINDINGS-INDEX.md).
 
 Also read:
-- `.security/HOT-SPOTS.md` - To verify hot spots were checked
-- `.security/CODEBASE-UNDERSTANDING.md` - To verify questions were addressed
-- `.security/intel/FINDINGS-INDEX.md` - To see what was updated
+- `agents/security/HOT-SPOTS.md` - To verify hot spots were checked
+- `agents/security/CODEBASE-UNDERSTANDING.md` - To verify questions were addressed
+- `agents/security/intel/FINDINGS-INDEX.md` - To see what was updated
 
 ---
 
@@ -160,7 +160,7 @@ Should HOT-SPOTS.md be updated?
 - [ ] Update "what to check" guidance
 - [ ] Add new grep patterns
 
-**Proposed changes to `.security/HOT-SPOTS.md`**:
+**Proposed changes to `agents/security/HOT-SPOTS.md`**:
 ```markdown
 [Specific text to add or change]
 ```
@@ -181,7 +181,7 @@ Should new questions be added to CODEBASE-UNDERSTANDING.md?
 
 ## Step 6: Write the Review Summary
 
-Create a file: `.security/reviews/YYYY-MM-DD.md`
+Create a file: `agents/security/reviews/YYYY-MM-DD.md`
 
 Use this structure:
 
@@ -213,8 +213,8 @@ The following changes have been made based on this review:
 
 ### Files Updated
 - [ ] `.claude/commands/security-audit.md` - [what changed]
-- [ ] `.security/HOT-SPOTS.md` - [what changed]
-- [ ] `.security/CODEBASE-UNDERSTANDING.md` - [what changed]
+- [ ] `agents/security/HOT-SPOTS.md` - [what changed]
+- [ ] `agents/security/CODEBASE-UNDERSTANDING.md` - [what changed]
 
 ### Questions Added
 - QX: [new question]
@@ -250,7 +250,7 @@ Before finishing, verify you have:
 - [ ] Evaluated investigation depth
 - [ ] Evaluated attack ideation quality
 - [ ] Identified specific gaps
-- [ ] Written the review summary to `.security/reviews/YYYY-MM-DD.md`
+- [ ] Written the review summary to `agents/security/reviews/YYYY-MM-DD.md`
 - [ ] Applied any confident improvements to process files
 
 ---

@@ -184,7 +184,7 @@
 - **What it does**: Allows fleet operators to override any HostConfig option via `docker.host_config` in fleet config
 - **Security implications**: Can override `CapDrop`, `SecurityOpt`, `ReadonlyRootfs`, resource limits, etc.
 - **Why it exists**: Flexibility for advanced use cases requiring specific Docker configurations (documented in comment)
-- **Mitigation**: Only available at fleet-level config (not agent-level), requires fleet operator access. Fleet operators trusted to understand security implications per `.security/THREAT-MODEL.md`.
+- **Mitigation**: Only available at fleet-level config (not agent-level), requires fleet operator access. Fleet operators trusted to understand security implications per `agents/security/THREAT-MODEL.md`.
 - **Gaps**: No validation of overrides. No audit logging of overrides. Silently applies overrides without warning.
 
 ### No Seccomp/AppArmor Profiles

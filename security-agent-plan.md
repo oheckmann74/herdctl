@@ -12,7 +12,7 @@ This document tracks the implementation of an automated security scanning system
 ## Directory Structure
 
 ```
-.security/
+agents/security/
 ├── THREAT-MODEL.md           # Attack surfaces & mitigations
 ├── SECURITY-ARCHITECTURE.md  # Where security concerns live in code
 ├── CHECKLIST.md              # What each scan checks
@@ -35,7 +35,7 @@ This document tracks the implementation of an automated security scanning system
 
 ### Phase 1: Foundation ✅
 - [x] Create plan document
-- [x] Create `.security/` directory structure
+- [x] Create `agents/security/` directory structure
 - [x] Write THREAT-MODEL.md
 - [x] Write SECURITY-ARCHITECTURE.md
 - [x] Write CHECKLIST.md
@@ -53,7 +53,7 @@ This document tracks the implementation of an automated security scanning system
 - [x] Add npm script to run scanner (`pnpm security`)
 
 ### Phase 3: herdctl Integration ✅
-- [x] Create `.security/fleet.yaml` configuration
+- [x] Create `agents/security/fleet.yaml` configuration
 - [x] Write security auditor agent prompt
 - [x] Test manual execution
 - [x] Verify scan output format
@@ -72,9 +72,9 @@ This document tracks the implementation of an automated security scanning system
 pnpm security
 
 # JSON output
-npx tsx .security/tools/scan.ts --json
+npx tsx agents/security/tools/scan.ts --json
 
-# Save results to .security/scans/
+# Save results to agents/security/scans/
 pnpm security:save
 ```
 
