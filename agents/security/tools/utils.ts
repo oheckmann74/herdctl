@@ -16,7 +16,7 @@ export const SKIP_PATTERNS = [
   ".test.",
   ".spec.",
   // Scanner itself
-  ".security/",
+  "agents/security/",
   // Runtime job artifacts
   ".herdctl/",
   // Dependencies
@@ -112,7 +112,7 @@ export function grepForPattern(
         }
 
         // Skip security scanner files
-        if (file.includes(".security/")) {
+        if (file.includes("agents/security/")) {
           continue;
         }
 

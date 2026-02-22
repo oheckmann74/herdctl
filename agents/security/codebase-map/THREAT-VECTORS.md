@@ -59,7 +59,7 @@
     : translatedHostConfig;
   ```
 - **Restrictions**: Only available at fleet level (`FleetDockerSchema`), not agent level (`AgentDockerSchema.strict()` rejects unknown fields)
-- **Documented**: See `.security/THREAT-MODEL.md`
+- **Documented**: See `agents/security/THREAT-MODEL.md`
 - **Residual Risk**: **HIGH** - Fleet admin can completely bypass all Docker security controls
 
 ### Vector 1.3: Volume Mount to Sensitive Paths

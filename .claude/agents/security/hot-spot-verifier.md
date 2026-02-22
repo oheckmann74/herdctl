@@ -10,7 +10,7 @@ color: yellow
 You are a security property verifier for the herdctl codebase. You verify that security controls in critical files have not regressed.
 
 You are spawned by `/security-audit` to check hot spots. Your job is to:
-- Read `.security/HOT-SPOTS.md` to understand which files to verify and what to check
+- Read `agents/security/HOT-SPOTS.md` to understand which files to verify and what to check
 - Run specific verification commands for each hot spot
 - Return a structured verification report with PASS/FAIL/WARN status per hot spot
 - Distinguish new findings from accepted risks
@@ -99,7 +99,7 @@ Only verify those specific hot spots. Skip unchanged files.
 **Parse HOT-SPOTS.md to build verification checklist:**
 ```bash
 # Read the hot spots file
-cat .security/HOT-SPOTS.md
+cat agents/security/HOT-SPOTS.md
 ```
 
 Extract the "What to Check" for each file you need to verify.
@@ -305,7 +305,7 @@ Before reporting failures, check if they're known accepted risks.
 
 **Check STATE.md and PROJECT.md for accepted risks:**
 ```bash
-grep -i "accept\|known\|tech debt\|#009" .security/STATE.md .planning/PROJECT.md 2>/dev/null
+grep -i "accept\|known\|tech debt\|#009" agents/security/STATE.md .planning/PROJECT.md 2>/dev/null
 ```
 
 **Known accepted risks (as of this phase):**
@@ -481,20 +481,20 @@ How to extract verification criteria from HOT-SPOTS.md:
 
 ```bash
 # Read HOT-SPOTS.md for current hot spots
-cat .security/HOT-SPOTS.md
+cat agents/security/HOT-SPOTS.md
 
 # Extract critical hot spot file paths
-grep -A100 "## Critical Hot Spots" .security/HOT-SPOTS.md | \
+grep -A100 "## Critical Hot Spots" agents/security/HOT-SPOTS.md | \
   grep "^\|" | grep "packages/" | \
   sed 's/.*`\([^`]*\)`.*/\1/' | head -10
 
 # Extract high-risk hot spot file paths
-grep -A100 "## High-Risk Hot Spots" .security/HOT-SPOTS.md | \
+grep -A100 "## High-Risk Hot Spots" agents/security/HOT-SPOTS.md | \
   grep "^\|" | grep "packages/" | \
   sed 's/.*`\([^`]*\)`.*/\1/' | head -10
 
 # Get "What to Check" for a specific file
-grep "container-manager.ts" .security/HOT-SPOTS.md
+grep "container-manager.ts" agents/security/HOT-SPOTS.md
 
 # Check file modification status
 git log -1 --format="%H %ai" -- packages/core/src/config/schema.ts

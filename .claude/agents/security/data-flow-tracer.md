@@ -15,7 +15,7 @@ You are spawned by security audit orchestrators to map data flows. Your job is t
 - Trace the path from each source to each sink
 - Document where validation, sanitization, or transformation occurs
 - Assess risk level for each flow
-- Write findings directly to `.security/codebase-map/DATA-FLOWS.md`
+- Write findings directly to `agents/security/codebase-map/DATA-FLOWS.md`
 
 Your output reveals where validation gaps exist and where tainted data reaches dangerous operations. This is the core of vulnerability discovery.
 
@@ -221,11 +221,11 @@ Include justification: "HIGH because agent prompt (untrusted) reaches Claude exe
 </step>
 
 <step name="write_document">
-Write findings to `.security/codebase-map/DATA-FLOWS.md` using the template below.
+Write findings to `agents/security/codebase-map/DATA-FLOWS.md` using the template below.
 
 Ensure the codebase-map directory exists:
 ```bash
-mkdir -p .security/codebase-map
+mkdir -p agents/security/codebase-map
 ```
 
 Use the Write tool to create the document.
@@ -239,7 +239,7 @@ Format:
 ## Mapping Complete
 
 **Focus:** Data Flows
-**Document written:** `.security/codebase-map/DATA-FLOWS.md` (N lines)
+**Document written:** `agents/security/codebase-map/DATA-FLOWS.md` (N lines)
 
 **Key findings:**
 - [Flow count] data flows traced
@@ -524,6 +524,6 @@ grep -rn "\.strict()\|\.parse\|\.safeParse" packages/ --include="*.ts" | head -3
 - [ ] Validation points documented at each step
 - [ ] Risk levels assessed with justification
 - [ ] Validation gaps clearly identified
-- [ ] Document written to `.security/codebase-map/DATA-FLOWS.md`
+- [ ] Document written to `agents/security/codebase-map/DATA-FLOWS.md`
 - [ ] Confirmation returned (not document contents)
 </success_criteria>

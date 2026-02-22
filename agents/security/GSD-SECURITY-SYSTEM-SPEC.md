@@ -24,7 +24,7 @@ This system should follow GSD patterns: subagent delegation, persistent state fi
 ### What Exists
 
 ```
-.security/
+agents/security/
 ├── intel/
 │   ├── 2026-02-05.md              # Intelligence report
 │   ├── 2026-02-05-evening.md      # Another report same day
@@ -63,11 +63,11 @@ This system should follow GSD patterns: subagent delegation, persistent state fi
 ```
 /security-audit (orchestrator, 10-15% context)
     │
-    ├─→ Reads: .security/STATE.md (current position, accumulated context)
-    ├─→ Reads: .security/codebase-map/*.md (security understanding)
+    ├─→ Reads: agents/security/STATE.md (current position, accumulated context)
+    ├─→ Reads: agents/security/codebase-map/*.md (security understanding)
     │
     ├─→ Phase 1: Run deterministic scanner
-    │   └─→ Updates: .security/scans/YYYY-MM-DD.json
+    │   └─→ Updates: agents/security/scans/YYYY-MM-DD.json
     │
     ├─→ Phase 2: Spawn parallel mapper agents (if needed)
     │   ├─→ attack-surface-mapper → ATTACK-SURFACE.md
@@ -84,14 +84,14 @@ This system should follow GSD patterns: subagent delegation, persistent state fi
     │   └─→ Updates: FINDINGS-INDEX.md, CODEBASE-UNDERSTANDING.md
     │
     └─→ Phase 5: Write report, update state
-        └─→ Creates: .security/intel/YYYY-MM-DD.md
-        └─→ Updates: .security/STATE.md
+        └─→ Creates: agents/security/intel/YYYY-MM-DD.md
+        └─→ Updates: agents/security/STATE.md
 ```
 
 ### File Structure (Target)
 
 ```
-.security/
+agents/security/
 ├── STATE.md                        # Living memory (like GSD's STATE.md)
 ├── codebase-map/                   # Security-focused codebase analysis
 │   ├── ATTACK-SURFACE.md           # Entry points, APIs, trust boundaries
@@ -128,7 +128,7 @@ These spawn in parallel during initial mapping or periodic refresh.
 
 **Purpose**: Map all entry points where external input enters the system.
 
-**Writes**: `.security/codebase-map/ATTACK-SURFACE.md`
+**Writes**: `agents/security/codebase-map/ATTACK-SURFACE.md`
 
 **What it analyzes**:
 - CLI argument parsing
@@ -177,7 +177,7 @@ These spawn in parallel during initial mapping or periodic refresh.
 
 **Purpose**: Trace how user-controlled data flows through the system.
 
-**Writes**: `.security/codebase-map/DATA-FLOWS.md`
+**Writes**: `agents/security/codebase-map/DATA-FLOWS.md`
 
 **What it analyzes**:
 - Path of user input from entry to execution
@@ -212,7 +212,7 @@ These spawn in parallel during initial mapping or periodic refresh.
 
 **Purpose**: Document existing security defenses and their locations.
 
-**Writes**: `.security/codebase-map/SECURITY-CONTROLS.md`
+**Writes**: `agents/security/codebase-map/SECURITY-CONTROLS.md`
 
 **What it analyzes**:
 - Input validation (Zod schemas, regex patterns)
@@ -262,7 +262,7 @@ These spawn in parallel during initial mapping or periodic refresh.
 
 **Purpose**: Document attack patterns specifically relevant to this codebase.
 
-**Writes**: `.security/codebase-map/THREAT-VECTORS.md`
+**Writes**: `agents/security/codebase-map/THREAT-VECTORS.md`
 
 **What it analyzes**:
 - Known vulnerability patterns in similar systems
@@ -320,7 +320,7 @@ These spawn during audits for specific investigation tasks.
 
 **Purpose**: Verify security of critical code areas defined in HOT-SPOTS.md.
 
-**Reads**: `.security/HOT-SPOTS.md`
+**Reads**: `agents/security/HOT-SPOTS.md`
 **Returns**: Verification report with findings
 
 **What it does**:
@@ -333,7 +333,7 @@ These spawn during audits for specific investigation tasks.
 
 **Purpose**: Research and answer open security questions.
 
-**Reads**: `.security/CODEBASE-UNDERSTANDING.md` (Open Questions section)
+**Reads**: `agents/security/CODEBASE-UNDERSTANDING.md` (Open Questions section)
 **Returns**: Answers/progress for assigned questions
 
 **What it does**:
@@ -360,7 +360,7 @@ These spawn during audits for specific investigation tasks.
 **Purpose**: Deep dive into a specific finding.
 
 **Input**: Finding ID or description
-**Writes**: `.security/intel/findings/NNN-finding-name.md`
+**Writes**: `agents/security/intel/findings/NNN-finding-name.md`
 
 **What it does**:
 - Traces the complete attack path
@@ -616,10 +616,10 @@ Update `/security-audit` to spawn these agents.
 
 ### Keep and Integrate
 
-- `.security/tools/scan.ts` - Deterministic scanner (works well)
-- `.security/HOT-SPOTS.md` - Critical files list (enhance with agent verification)
-- `.security/CODEBASE-UNDERSTANDING.md` - Open questions (integrate with state)
-- `.security/intel/FINDINGS-INDEX.md` - Findings tracker (keep format)
+- `agents/security/tools/scan.ts` - Deterministic scanner (works well)
+- `agents/security/HOT-SPOTS.md` - Critical files list (enhance with agent verification)
+- `agents/security/CODEBASE-UNDERSTANDING.md` - Open questions (integrate with state)
+- `agents/security/intel/FINDINGS-INDEX.md` - Findings tracker (keep format)
 
 ### Refactor
 
@@ -629,8 +629,8 @@ Update `/security-audit` to spawn these agents.
 
 ### Create New
 
-- `.security/STATE.md` - Living memory
-- `.security/codebase-map/*.md` - Security-focused mapping (4 files)
+- `agents/security/STATE.md` - Living memory
+- `agents/security/codebase-map/*.md` - Security-focused mapping (4 files)
 - Subagent definitions (in `.claude/agents/security/` or similar)
 - `/security-map-codebase` command
 - `/security-deep-dive` command
@@ -649,7 +649,7 @@ This specification describes a security audit system that mirrors GSD's own arch
 The herdctl codebase is a TypeScript monorepo with:
 - `packages/core/` - Core library (FleetManager, config, scheduler, state, runner)
 - `packages/cli/` - CLI wrapper
-- Security-critical areas documented in `.security/HOT-SPOTS.md`
+- Security-critical areas documented in `agents/security/HOT-SPOTS.md`
 
 The existing security scanner (`pnpm security`) runs 6 checks and produces JSON output.
 

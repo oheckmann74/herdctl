@@ -97,9 +97,9 @@ The skill will return when all phases are done:
 Verify that the audit actually completed by checking for expected output files.
 
 **Expected files:**
-- `.security/intel/YYYY-MM-DD.md` - Intelligence report (today's date)
-- `.security/scans/YYYY-MM-DD.json` - Scanner results (today's date)
-- `.security/STATE.md` - Updated frontmatter with audit date
+- `agents/security/intel/YYYY-MM-DD.md` - Intelligence report (today's date)
+- `agents/security/scans/YYYY-MM-DD.json` - Scanner results (today's date)
+- `agents/security/STATE.md` - Updated frontmatter with audit date
 
 **Verification commands:**
 
@@ -108,13 +108,13 @@ Verify that the audit actually completed by checking for expected output files.
 TODAY=$(date +%Y-%m-%d)
 
 # Check intelligence report exists
-ls -1 ".security/intel/${TODAY}.md" 2>/dev/null && echo "✓ Intelligence report created"
+ls -1 "agents/security/intel/${TODAY}.md" 2>/dev/null && echo "✓ Intelligence report created"
 
 # Check scanner results exist
-ls -1 ".security/scans/${TODAY}.json" 2>/dev/null && echo "✓ Scanner results saved"
+ls -1 "agents/security/scans/${TODAY}.json" 2>/dev/null && echo "✓ Scanner results saved"
 
 # Check STATE.md was updated
-LAST_AUDIT=$(grep "^last_audit:" .security/STATE.md | awk '{print $2}')
+LAST_AUDIT=$(grep "^last_audit:" agents/security/STATE.md | awk '{print $2}')
 if [ "$LAST_AUDIT" = "$TODAY" ]; then
   echo "✓ STATE.md updated with today's audit date"
 else
@@ -134,26 +134,26 @@ fi
 <step name="extract_audit_results">
 Parse the audit results from the output files to build a summary.
 
-**From intelligence report (`.security/intel/YYYY-MM-DD.md`):**
+**From intelligence report (`agents/security/intel/YYYY-MM-DD.md`):**
 
 ```bash
 # Extract overall result
-grep "^**Overall Result:**" .security/intel/${TODAY}.md | sed 's/.*Result: //' | head -1
+grep "^**Overall Result:**" agents/security/intel/${TODAY}.md | sed 's/.*Result: //' | head -1
 
 # Extract scanner findings count
-grep -A1 "### Scanner" .security/intel/${TODAY}.md | grep "Findings:" | sed 's/.*Findings: //'
+grep -A1 "### Scanner" agents/security/intel/${TODAY}.md | grep "Findings:" | sed 's/.*Findings: //'
 
 # Extract commits analyzed
-grep -A2 "### Changes" .security/intel/${TODAY}.md | grep "Commits analyzed:" | sed 's/.*: //'
+grep -A2 "### Changes" agents/security/intel/${TODAY}.md | grep "Commits analyzed:" | sed 's/.*: //'
 
 # Check if verification ran
-grep -c "### Verification (if run)" .security/intel/${TODAY}.md && echo "1" || echo "0"
+grep -c "### Verification (if run)" agents/security/intel/${TODAY}.md && echo "1" || echo "0"
 
 # Check if investigation ran
-grep -c "### Investigation (if run)" .security/intel/${TODAY}.md && echo "1" || echo "0"
+grep -c "### Investigation (if run)" agents/security/intel/${TODAY}.md && echo "1" || echo "0"
 ```
 
-**From scanner results (`.security/scans/YYYY-MM-DD.json`):**
+**From scanner results (`agents/security/scans/YYYY-MM-DD.json`):**
 
 ```bash
 # Parse JSON for summary stats
@@ -167,8 +167,8 @@ grep -c "### Investigation (if run)" .security/intel/${TODAY}.md && echo "1" || 
 
 ```bash
 # Get updated counts
-grep "^open_findings:" .security/STATE.md | awk '{print $2}'
-grep "^open_questions:" .security/STATE.md | awk '{print $2}'
+grep "^open_findings:" agents/security/STATE.md | awk '{print $2}'
+grep "^open_questions:" agents/security/STATE.md | awk '{print $2}'
 ```
 
 **Record these results:**
@@ -188,15 +188,15 @@ Check for any errors or warnings in the audit output.
 
 ```bash
 # Look for FAIL status (indicates failure in some phase)
-grep -i "fail\|error\|critical" .security/intel/${TODAY}.md | head -5
+grep -i "fail\|error\|critical" agents/security/intel/${TODAY}.md | head -5
 
 # Check if any agent failed or timed out
-if grep -q "Agent timeout\|Agent failed" .security/intel/${TODAY}.md; then
+if grep -q "Agent timeout\|Agent failed" agents/security/intel/${TODAY}.md; then
   echo "⚠ Agent timeout or failure detected"
 fi
 
 # Check for missing files or unexecuted phases
-if grep -q "Hot spot verification not required" .security/intel/${TODAY}.md; then
+if grep -q "Hot spot verification not required" agents/security/intel/${TODAY}.md; then
   # This is not an error - just note it
   echo "Note: Hot spot verification not needed"
 fi
@@ -240,10 +240,10 @@ Build a structured summary of the audit for return to caller.
 
 ### Documents Updated
 
-- `.security/intel/{DATE}.md` - Intelligence report created
-- `.security/intel/FINDINGS-INDEX.md` - Updated with new/resolved findings
-- `.security/CODEBASE-UNDERSTANDING.md` - Question statuses updated
-- `.security/STATE.md` - Audit baseline refreshed
+- `agents/security/intel/{DATE}.md` - Intelligence report created
+- `agents/security/intel/FINDINGS-INDEX.md` - Updated with new/resolved findings
+- `agents/security/CODEBASE-UNDERSTANDING.md` - Question statuses updated
+- `agents/security/STATE.md` - Audit baseline refreshed
 
 ### Status Indicators
 
@@ -268,10 +268,10 @@ Build a structured summary of the audit for return to caller.
 
 ### Audit Outputs
 
-- Full report: `.security/intel/{DATE}.md`
-- Scanner data: `.security/scans/{DATE}.json`
-- Findings index: `.security/intel/FINDINGS-INDEX.md`
-- Baseline updated: `.security/STATE.md`
+- Full report: `agents/security/intel/{DATE}.md`
+- Scanner data: `agents/security/scans/{DATE}.json`
+- Findings index: `agents/security/intel/FINDINGS-INDEX.md`
+- Baseline updated: `agents/security/STATE.md`
 ```
 
 **Keep summary under 100 lines for fast parsing.**
@@ -306,9 +306,9 @@ Before reporting success, verify:
 
 - [ ] `/security-audit` skill invoked successfully
 - [ ] Skill completed (waited for full execution)
-- [ ] `.security/intel/YYYY-MM-DD.md` exists
-- [ ] `.security/scans/YYYY-MM-DD.json` exists (or marked as skipped)
-- [ ] `.security/STATE.md` updated with today's date
+- [ ] `agents/security/intel/YYYY-MM-DD.md` exists
+- [ ] `agents/security/scans/YYYY-MM-DD.json` exists (or marked as skipped)
+- [ ] `agents/security/STATE.md` updated with today's date
 - [ ] Overall audit result parsed (PASS/WARN/FAIL)
 - [ ] Metrics extracted (findings, commits, etc.)
 - [ ] Structured summary built
@@ -320,7 +320,7 @@ Handle common failure scenarios gracefully:
 
 **Skill execution failed:**
 - Report error message from skill
-- Suggest checking .security/STATE.md for baseline issues
+- Suggest checking agents/security/STATE.md for baseline issues
 - Recommend manual run of `/security-audit` for debugging
 
 **Output files missing:**
@@ -410,10 +410,10 @@ Audit orchestration succeeds when:
 
 ### Documents Updated
 
-- `.security/intel/2026-02-09.md` - Intelligence report
-- `.security/intel/FINDINGS-INDEX.md` - 1 new finding added
-- `.security/CODEBASE-UNDERSTANDING.md` - Q1 status updated
-- `.security/STATE.md` - Audit baseline refreshed
+- `agents/security/intel/2026-02-09.md` - Intelligence report
+- `agents/security/intel/FINDINGS-INDEX.md` - 1 new finding added
+- `agents/security/CODEBASE-UNDERSTANDING.md` - Q1 status updated
+- `agents/security/STATE.md` - Audit baseline refreshed
 
 ### Actionable Items
 

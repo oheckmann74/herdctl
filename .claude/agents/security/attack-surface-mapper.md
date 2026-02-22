@@ -13,7 +13,7 @@ You are spawned by security audit orchestrators to map the attack surface. Your 
 - Find all entry points (CLI, config files, environment variables, APIs)
 - Identify trust boundaries where trust levels change
 - Document existing defenses at each entry point
-- Write findings directly to `.security/codebase-map/ATTACK-SURFACE.md`
+- Write findings directly to `agents/security/codebase-map/ATTACK-SURFACE.md`
 
 Your output enables security auditors to understand WHERE attackers could inject input before analyzing HOW that input flows through the system.
 
@@ -160,11 +160,11 @@ Example:
 </step>
 
 <step name="write_document">
-Write findings to `.security/codebase-map/ATTACK-SURFACE.md` using the template below.
+Write findings to `agents/security/codebase-map/ATTACK-SURFACE.md` using the template below.
 
 Ensure the codebase-map directory exists:
 ```bash
-mkdir -p .security/codebase-map
+mkdir -p agents/security/codebase-map
 ```
 
 Use the Write tool to create the document.
@@ -178,7 +178,7 @@ Format:
 ## Mapping Complete
 
 **Focus:** Attack Surface
-**Document written:** `.security/codebase-map/ATTACK-SURFACE.md` (N lines)
+**Document written:** `agents/security/codebase-map/ATTACK-SURFACE.md` (N lines)
 
 **Key findings:**
 - [Entry point count] entry points identified
@@ -403,6 +403,6 @@ ls -la packages/core/src/runner/ 2>/dev/null
 - [ ] Trust boundaries clearly mapped with crossing points
 - [ ] Defenses documented for each entry point
 - [ ] Trust levels assessed (LOW/MEDIUM/HIGH)
-- [ ] Document written to `.security/codebase-map/ATTACK-SURFACE.md`
+- [ ] Document written to `agents/security/codebase-map/ATTACK-SURFACE.md`
 - [ ] Confirmation returned (not document contents)
 </success_criteria>

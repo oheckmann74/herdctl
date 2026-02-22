@@ -66,11 +66,11 @@ including real secrets in reports would leak them.
 Only this orchestrator manages branches. Subagents must NOT create branches or run
 git checkout. They work on whatever branch they find themselves on.
 **Key outputs:**
-- `.security/scans/YYYY-MM-DD.json` - Scanner output (from security-auditor)
-- `.security/intel/YYYY-MM-DD.md` - Intelligence report (from security-auditor)
-- `.security/reviews/YYYY-MM-DD.md` - Self-review (from security-reviewer)
-- `.security/summaries/YYYY-MM-DD.md` - Executive summary (this orchestrator)
-- `.security/STATE.md` - Audit baseline tracking (updated by subagents)
+- `agents/security/scans/YYYY-MM-DD.json` - Scanner output (from security-auditor)
+- `agents/security/intel/YYYY-MM-DD.md` - Intelligence report (from security-auditor)
+- `agents/security/reviews/YYYY-MM-DD.md` - Self-review (from security-reviewer)
+- `agents/security/summaries/YYYY-MM-DD.md` - Executive summary (this orchestrator)
+- `agents/security/STATE.md` - Audit baseline tracking (updated by subagents)
 </context>
 
 <process>
@@ -157,7 +157,7 @@ Use the Task tool with:
     3. Conditionally spawn hot-spot-verifier if critical files changed
     4. Conditionally spawn question-investigator if high-priority questions exist
     5. Aggregate all results
-    6. Write intelligence report to .security/intel/{TODAY}.md
+    6. Write intelligence report to agents/security/intel/{TODAY}.md
     7. Update FINDINGS-INDEX.md, CODEBASE-UNDERSTANDING.md, STATE.md
     8. Commit changes if configured
 
@@ -211,12 +211,12 @@ Use the Task tool with:
 - prompt: "IMPORTANT RULES: (1) NEVER include actual secret values in reports — use [REDACTED] placeholders. (2) Do NOT create branches or run git checkout — stay on the current branch.
 
     Run the /security-audit-review command. Assess today's audit quality and apply improvements:
-    1. Read the intelligence report just created at .security/intel/{TODAY}.md
+    1. Read the intelligence report just created at agents/security/intel/{TODAY}.md
     2. Assess coverage against HOT-SPOTS.md (were all hot spots checked?)
     3. Assess progress on open questions
     4. Evaluate investigation depth
     5. Identify gaps and missed opportunities
-    6. Write review to .security/reviews/{TODAY}.md
+    6. Write review to agents/security/reviews/{TODAY}.md
     7. Apply confident improvements:
        - Update HOT-SPOTS.md if new critical areas found
        - Add new questions to CODEBASE-UNDERSTANDING.md
@@ -258,27 +258,27 @@ echo "Verified on branch: $(git branch --show-current)"
 <step name="phase_4_executive_summary">
 ## Phase 4: Generate Executive Summary
 
-Create a summary at `.security/summaries/{TODAY}.md` for quick triage.
+Create a summary at `agents/security/summaries/{TODAY}.md` for quick triage.
 
 **Read results from the audit and review:**
 ```bash
 # Get audit result from today's intel report
-AUDIT_RESULT=$(grep "Overall Result" .security/intel/${TODAY}.md 2>/dev/null | head -1 | awk -F': ' '{print $2}' || echo "UNKNOWN")
+AUDIT_RESULT=$(grep "Overall Result" agents/security/intel/${TODAY}.md 2>/dev/null | head -1 | awk -F': ' '{print $2}' || echo "UNKNOWN")
 
 # Get review grade from today's review
-REVIEW_GRADE=$(grep "Overall Grade" .security/reviews/${TODAY}.md 2>/dev/null | head -1 | awk -F': ' '{print $2}' || echo "UNKNOWN")
+REVIEW_GRADE=$(grep "Overall Grade" agents/security/reviews/${TODAY}.md 2>/dev/null | head -1 | awk -F': ' '{print $2}' || echo "UNKNOWN")
 
 # Get scanner findings count
-SCANNER_FINDINGS=$(grep -A5 "Scanner Results" .security/intel/${TODAY}.md 2>/dev/null | grep -oE "[0-9]+ findings" | head -1 || echo "0 findings")
+SCANNER_FINDINGS=$(grep -A5 "Scanner Results" agents/security/intel/${TODAY}.md 2>/dev/null | grep -oE "[0-9]+ findings" | head -1 || echo "0 findings")
 
 # Get commits analyzed
-COMMITS_ANALYZED=$(grep "Commits" .security/intel/${TODAY}.md 2>/dev/null | head -1 | grep -oE "[0-9]+" | head -1 || echo "0")
+COMMITS_ANALYZED=$(grep "Commits" agents/security/intel/${TODAY}.md 2>/dev/null | head -1 | grep -oE "[0-9]+" | head -1 || echo "0")
 
 # Get open findings count from STATE.md
-OPEN_FINDINGS=$(grep "^open_findings:" .security/STATE.md 2>/dev/null | awk '{print $2}' || echo "0")
+OPEN_FINDINGS=$(grep "^open_findings:" agents/security/STATE.md 2>/dev/null | awk '{print $2}' || echo "0")
 
 # Get open questions count from STATE.md
-OPEN_QUESTIONS=$(grep "^open_questions:" .security/STATE.md 2>/dev/null | awk '{print $2}' || echo "0")
+OPEN_QUESTIONS=$(grep "^open_questions:" agents/security/STATE.md 2>/dev/null | awk '{print $2}' || echo "0")
 ```
 
 **Determine status color:**
@@ -290,7 +290,7 @@ RED: FAIL result, or grade D, or new Critical/High findings
 
 **Write executive summary:**
 
-Create `.security/summaries/{TODAY}.md`:
+Create `agents/security/summaries/{TODAY}.md`:
 
 ```markdown
 # Security Daily Summary - {TODAY}
@@ -332,9 +332,9 @@ Create `.security/summaries/{TODAY}.md`:
 
 ## Audit Details
 
-- **Intelligence Report**: `.security/intel/{TODAY}.md`
-- **Review Report**: `.security/reviews/{TODAY}.md`
-- **Scan Data**: `.security/scans/{TODAY}.json`
+- **Intelligence Report**: `agents/security/intel/{TODAY}.md`
+- **Review Report**: `agents/security/reviews/{TODAY}.md`
+- **Scan Data**: `agents/security/scans/{TODAY}.json`
 
 ---
 
@@ -360,14 +360,14 @@ Stage and commit all security artifacts to security-audits branch.
 
 **Stage any uncommitted security files:**
 ```bash
-git add .security/summaries/${TODAY}.md
-git add .security/reviews/${TODAY}.md
-git add .security/intel/${TODAY}.md
-git add .security/intel/FINDINGS-INDEX.md
-git add .security/scans/${TODAY}.json
-git add .security/STATE.md
-git add .security/CODEBASE-UNDERSTANDING.md
-git add .security/HOT-SPOTS.md
+git add agents/security/summaries/${TODAY}.md
+git add agents/security/reviews/${TODAY}.md
+git add agents/security/intel/${TODAY}.md
+git add agents/security/intel/FINDINGS-INDEX.md
+git add agents/security/scans/${TODAY}.json
+git add agents/security/STATE.md
+git add agents/security/CODEBASE-UNDERSTANDING.md
+git add agents/security/HOT-SPOTS.md
 git add .claude/commands/security-audit.md
 
 # Check what's staged
@@ -434,10 +434,10 @@ Open Findings: {count}
 Open Questions: {count}
 
 Artifacts on security-audits branch:
-  - .security/intel/{TODAY}.md
-  - .security/reviews/{TODAY}.md
-  - .security/summaries/{TODAY}.md
-  - .security/scans/{TODAY}.json
+  - agents/security/intel/{TODAY}.md
+  - agents/security/reviews/{TODAY}.md
+  - agents/security/summaries/{TODAY}.md
+  - agents/security/scans/{TODAY}.json
 
 Self-Improvement:
   - {List any files updated by review}
@@ -526,7 +526,7 @@ Checklist for complete daily audit:
 
 **Executive Summary (Phase 4)**
 - [ ] Status determined (GREEN/YELLOW/RED)
-- [ ] Summary written to .security/summaries/{TODAY}.md
+- [ ] Summary written to agents/security/summaries/{TODAY}.md
 
 **Commit/Push (Phase 5)**
 - [ ] All security artifacts staged

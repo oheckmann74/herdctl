@@ -6,11 +6,11 @@
  * Designed to be run both manually and by the security agent.
  *
  * Usage:
- *   npx tsx .security/tools/scan.ts [--json] [--save]
+ *   npx tsx agents/security/tools/scan.ts [--json] [--save]
  *
  * Options:
  *   --json    Output results as JSON instead of human-readable
- *   --save    Save results to .security/scans/YYYY-MM-DD.json
+ *   --save    Save results to agents/security/scans/YYYY-MM-DD.json
  */
 
 import { execSync } from "node:child_process";
@@ -60,7 +60,7 @@ export interface ScanResult {
 // Get project root (relative to this script)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const PROJECT_ROOT = join(__dirname, "..", "..");
+const PROJECT_ROOT = join(__dirname, "..", "..", "..");
 
 function getGitInfo(): { commit: string; branch: string } {
   try {
@@ -251,7 +251,7 @@ async function main() {
 
   // Save if requested
   if (saveResult) {
-    const scansDir = join(PROJECT_ROOT, ".security", "scans");
+    const scansDir = join(PROJECT_ROOT, "agents", "security", "scans");
     if (!existsSync(scansDir)) {
       mkdirSync(scansDir, { recursive: true });
     }

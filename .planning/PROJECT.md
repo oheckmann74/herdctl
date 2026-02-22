@@ -41,8 +41,8 @@ Shipped v1.0 with ~10,117 lines across 27 files.
 **Current state:**
 - 7 security agents in .claude/agents/security/
 - 3 orchestrator commands (security-map-codebase, security-audit, security-audit-daily)
-- 4 security mapping documents in .security/codebase-map/
-- Persistent state tracking in .security/STATE.md
+- 4 security mapping documents in agents/security/codebase-map/
+- Persistent state tracking in agents/security/STATE.md
 
 **Tech stack:**
 - TypeScript monorepo (packages/core/, packages/cli/)

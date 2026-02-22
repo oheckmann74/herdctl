@@ -140,7 +140,7 @@ export class ContainerManager {
     // to prevent untrusted agent configs from weakening container security.
     // Fleet operators are trusted to understand the security implications.
     //
-    // See .security/THREAT-MODEL.md for full security analysis.
+    // See agents/security/THREAT-MODEL.md for full security analysis.
     const finalHostConfig: HostConfig = config.hostConfigOverride
       ? { ...translatedHostConfig, ...config.hostConfigOverride }
       : translatedHostConfig;

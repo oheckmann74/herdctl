@@ -198,16 +198,16 @@ The automated scanner can't catch everything. Manually review:
 
 ```bash
 # Default human-readable output
-npx tsx .security/tools/scan.ts
+npx tsx agents/security/tools/scan.ts
 
 # JSON output (for automation)
-npx tsx .security/tools/scan.ts --json
+npx tsx agents/security/tools/scan.ts --json
 
-# Save results to .security/scans/
-npx tsx .security/tools/scan.ts --save
+# Save results to agents/security/scans/
+npx tsx agents/security/tools/scan.ts --save
 
 # Combined
-npx tsx .security/tools/scan.ts --json --save
+npx tsx agents/security/tools/scan.ts --json --save
 ```
 
 ---
@@ -216,9 +216,9 @@ npx tsx .security/tools/scan.ts --json --save
 
 To add a new security check:
 
-1. Create a new file in `.security/tools/checks/`
+1. Create a new file in `agents/security/tools/checks/`
 2. Export an async function that returns `Finding[]`
-3. Import and register in `.security/tools/scan.ts`
+3. Import and register in `agents/security/tools/scan.ts`
 4. Document in this checklist
 
 Template:
