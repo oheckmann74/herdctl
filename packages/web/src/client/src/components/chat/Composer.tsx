@@ -50,6 +50,12 @@ export function Composer({ agentName, sessionId }: ComposerProps) {
     textarea.style.height = `${newHeight}px`;
   }, []);
 
+  // Focus textarea when session changes (covers initial mount, navigation, and Spotlight flow)
+  // biome-ignore lint/correctness/useExhaustiveDependencies: sessionId triggers focus on session change
+  useEffect(() => {
+    textareaRef.current?.focus();
+  }, [sessionId]);
+
   const canSend = value.trim().length > 0 && !chatStreaming;
 
   const handleSend = useCallback(() => {

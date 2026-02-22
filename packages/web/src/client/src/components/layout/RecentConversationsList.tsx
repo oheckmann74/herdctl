@@ -34,6 +34,7 @@ export function RecentConversationsList({ onNavigate }: RecentConversationsListP
   const { setSpotlightOpen } = useUIActions();
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchFocused, setSearchFocused] = useState(false);
 
   // Fetch recent sessions on mount (skip if we already have data to avoid refetch on rapid tab switching)
   useEffect(() => {
@@ -148,22 +149,29 @@ export function RecentConversationsList({ onNavigate }: RecentConversationsListP
 
   return (
     <div className="flex flex-col">
-      {/* Search input */}
-      <SidebarSearch
-        value={searchQuery}
-        onChange={setSearchQuery}
-        placeholder="Search conversations..."
-      />
-
-      {/* New Chat button */}
-      <div className="px-2 pb-2">
+      {/* Search + New Chat row */}
+      <div className="flex items-center gap-1.5 mx-2 mb-2">
+        <SidebarSearch
+          value={searchQuery}
+          onChange={setSearchQuery}
+          onFocusChange={setSearchFocused}
+          placeholder="Search conversations..."
+          className="relative flex-1 transition-all duration-150"
+        />
         <button
           type="button"
           onClick={handleNewChat}
-          className="w-full flex items-center justify-center gap-1.5 bg-herd-primary hover:bg-herd-primary-hover text-white rounded-lg px-3 py-1.5 text-xs font-medium transition-colors"
+          className="flex-shrink-0 flex items-center gap-1.5 bg-herd-primary hover:bg-herd-primary-hover text-white rounded-lg px-2 py-1.5 text-xs font-medium"
+          title="New Chat"
         >
-          <Plus className="w-3.5 h-3.5" />
-          New Chat
+          <Plus className="w-3.5 h-3.5 flex-shrink-0" />
+          <span
+            className={`overflow-hidden whitespace-nowrap min-w-0 transition-all duration-200 ease-in-out ${
+              searchFocused ? "w-0 opacity-0" : "w-14 opacity-100"
+            }`}
+          >
+            New Chat
+          </span>
         </button>
       </div>
 

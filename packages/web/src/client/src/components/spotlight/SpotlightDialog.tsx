@@ -191,6 +191,8 @@ export function SpotlightDialog() {
       const sessionId = await createChatSession(agent.qualifiedName);
 
       if (sessionId) {
+        // Clear saved focus so it doesn't fight with the chat input's autoFocus
+        previousFocusRef.current = null;
         setSpotlightOpen(false);
         navigate(agentChatPath(agent.qualifiedName, sessionId));
       } else {

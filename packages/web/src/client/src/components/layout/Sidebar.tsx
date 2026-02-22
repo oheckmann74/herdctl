@@ -19,6 +19,7 @@ import {
   Pencil,
   Plus,
   Trash2,
+  X,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
@@ -371,18 +372,19 @@ function AgentRow({
                   <div className="flex items-center gap-1 flex-shrink-0">
                     <button
                       type="button"
+                      onClick={handleCancelDelete}
+                      className="p-0.5 hover:bg-herd-sidebar-active rounded"
+                      title="Cancel delete"
+                    >
+                      <X className="w-3 h-3 text-herd-sidebar-muted hover:text-herd-sidebar-fg" />
+                    </button>
+                    <button
+                      type="button"
                       onClick={(e) => handleConfirmDelete(e, session.sessionId)}
                       className="p-0.5 hover:bg-herd-sidebar-active rounded"
                       title="Confirm delete"
                     >
                       <Trash2 className="w-3 h-3 text-herd-status-error" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleCancelDelete}
-                      className="text-herd-sidebar-muted hover:text-herd-sidebar-fg text-[10px] px-0.5"
-                    >
-                      Cancel
                     </button>
                   </div>
                 ) : (

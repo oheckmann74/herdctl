@@ -46,7 +46,7 @@ export function SidebarTabs() {
         onClick={() => handleTabChange("fleet")}
       />
       <TabButton
-        label="Recent"
+        label="Chats"
         isActive={sidebarTab === "recent"}
         onClick={() => handleTabChange("recent")}
       />
