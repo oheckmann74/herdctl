@@ -9,61 +9,7 @@ This page describes the internal architecture of herdctl's chat integration laye
 
 The chat system follows a **shared abstraction** pattern. Common logic lives in `@herdctl/chat`, platform connectors implement the platform-specific parts, and `@herdctl/core` orchestrates everything through a minimal interface.
 
-```mermaid
-flowchart TD
-  FM["FleetManager
-  @herdctl/core"]
-
-  ICM["IChatManager Interface
-  initialize · start · stop
-  getState · getConnectedCount"]
-
-  CHAT["@herdctl/chat
-  Shared Chat Infrastructure"]
-
-  DM["DiscordManager
-  @herdctl/discord"]
-  SM["SlackManager
-  @herdctl/slack"]
-
-  DC["DiscordConnector
-  discord.js · Gateway · Slash Commands"]
-  SC["SlackConnector
-  Bolt · Socket Mode · Prefix Commands"]
-
-  DAPI(["Discord API"])
-  SAPI(["Slack API"])
-
-  AGENT["Claude Agent
-  via FleetManager.trigger()"]
-
-  FM -->|"dynamic import"| ICM
-  ICM --- DM
-  ICM --- SM
-
-  DM -->|"imports shared utilities"| CHAT
-  SM -->|"imports shared utilities"| CHAT
-
-  DM --> DC
-  SM --> SC
-
-  DC --> DAPI
-  SC --> SAPI
-
-  DM -->|"trigger()"| AGENT
-  SM -->|"trigger()"| AGENT
-
-  style FM fill:#4f46e5,color:#fff,stroke:#3730a3
-  style ICM fill:#7c3aed,color:#fff,stroke:#6d28d9
-  style CHAT fill:#1e40af,color:#fff,stroke:#1e3a8a
-  style DM fill:#7c3aed,color:#fff,stroke:#6d28d9
-  style SM fill:#7c3aed,color:#fff,stroke:#6d28d9
-  style DC fill:#059669,color:#fff,stroke:#047857
-  style SC fill:#059669,color:#fff,stroke:#047857
-  style DAPI fill:#d97706,color:#fff,stroke:#b45309
-  style SAPI fill:#d97706,color:#fff,stroke:#b45309
-  style AGENT fill:#64748b,color:#fff,stroke:#475569
-```
+<img src="/diagrams/chat-architecture.svg" alt="Chat architecture diagram showing FleetManager, IChatManager, Discord and Slack managers, connectors, and external APIs" width="100%" />
 
 ## Package Dependency Graph
 
@@ -102,83 +48,7 @@ flowchart LR
 
 The chat package contains everything that was duplicated between Discord and Slack (roughly 70-80% of the code). No platform-specific SDK imports live here.
 
-```mermaid
-flowchart TD
-  CHAT["@herdctl/chat"]
-
-  subgraph types ["Shared Types & Interfaces"]
-    IChatConnector["IChatConnector
-    connect · disconnect · isConnected · getState"]
-    IChatSession["IChatSessionManager
-    getOrCreateSession · touchSession · clearSession"]
-    ChatEvent["ChatConnectorEventMap
-    ready · disconnect · error · message
-    messageIgnored · commandExecuted · sessionLifecycle"]
-    ChatMsg["ChatMessageEvent
-    agentName · prompt · metadata
-    reply() · startProcessingIndicator()"]
-  end
-
-  subgraph utilities ["Shared Utilities"]
-    SessionMgr["ChatSessionManager
-    Per-channel session persistence
-    YAML state files · Expiry · Cleanup"]
-    Streaming["StreamingResponder
-    Message buffering · Rate limiting
-    Auto-splitting for platform limits"]
-    Splitting["Message Splitting
-    findSplitPoint · splitMessage
-    Paragraph/sentence/word boundaries"]
-    Extract["Message Extraction
-    extractMessageContent
-    Claude SDK message parsing"]
-    ToolParse["Tool Parsing
-    extractToolUseBlocks · extractToolResults
-    Tool input summaries · Emoji mapping"]
-  end
-
-  subgraph safety ["Error Handling & Filtering"]
-    Errors["ChatConnectorError Hierarchy
-    ConnectionError · AlreadyConnectedError
-    InvalidTokenError · MissingTokenError"]
-    ErrHandler["Error Handler
-    withRetry · safeExecute · ErrorCategory
-    Exponential backoff · Classification"]
-    DMFilter["DM Filtering
-    Allowlist/blocklist · Mode detection
-    shouldProcessInMode"]
-  end
-
-  subgraph formatting ["Formatting"]
-    StatusFmt["Status Formatting
-    formatTimestamp · formatDuration
-    getStatusEmoji · formatCost"]
-  end
-
-  CHAT --> types
-  CHAT --> utilities
-  CHAT --> safety
-  CHAT --> formatting
-
-  style CHAT fill:#1e40af,color:#fff,stroke:#1e3a8a
-  style types fill:#7c3aed,color:#fff,stroke:#6d28d9
-  style utilities fill:#7c3aed,color:#fff,stroke:#6d28d9
-  style safety fill:#7c3aed,color:#fff,stroke:#6d28d9
-  style formatting fill:#7c3aed,color:#fff,stroke:#6d28d9
-  style IChatConnector fill:#059669,color:#fff,stroke:#047857
-  style IChatSession fill:#059669,color:#fff,stroke:#047857
-  style ChatEvent fill:#059669,color:#fff,stroke:#047857
-  style ChatMsg fill:#059669,color:#fff,stroke:#047857
-  style SessionMgr fill:#059669,color:#fff,stroke:#047857
-  style Streaming fill:#059669,color:#fff,stroke:#047857
-  style Splitting fill:#059669,color:#fff,stroke:#047857
-  style Extract fill:#059669,color:#fff,stroke:#047857
-  style ToolParse fill:#059669,color:#fff,stroke:#047857
-  style Errors fill:#059669,color:#fff,stroke:#047857
-  style ErrHandler fill:#059669,color:#fff,stroke:#047857
-  style DMFilter fill:#059669,color:#fff,stroke:#047857
-  style StatusFmt fill:#059669,color:#fff,stroke:#047857
-```
+<img src="/diagrams/chat-infrastructure.svg" alt="Chat infrastructure components showing types, utilities, error handling, and formatting subgroups" width="100%" />
 
 ### `@herdctl/discord` -- Platform-Specific
 
@@ -211,85 +81,7 @@ The Slack package keeps only what requires `@slack/bolt` or is unique to Slack:
 
 When a user sends a message in Discord or Slack, it flows through the same pipeline -- with platform-specific entry and exit points but shared processing in between.
 
-```mermaid
-flowchart TD
-  USER(["User sends message
-  in Discord or Slack"])
-
-  subgraph platform ["Platform Layer"]
-    CONN["Platform Connector
-    Receives raw platform event"]
-    MENTION["Mention Detection
-    Discord: message.mentions
-    Slack: text pattern matching"]
-    STRIP["Strip Bot Mention
-    Extract clean prompt text"]
-    INDICATOR["Start Processing Indicator
-    Discord: typing indicator
-    Slack: hourglass reaction"]
-  end
-
-  subgraph shared ["Shared Layer (@herdctl/chat)"]
-    SESSION["Session Manager
-    getOrCreateSession(channelId)
-    Resume or create new session"]
-    STREAM["Streaming Responder
-    Buffer content · Rate limit
-    Split for platform max length"]
-    EXTRACT["Extract Message Content
-    Parse Claude SDK response blocks
-    Join text content"]
-    TOOLS["Tool Parsing
-    Extract tool_use and tool_result
-    Build human-readable summaries"]
-  end
-
-  subgraph core ["Core Layer (@herdctl/core)"]
-    TRIGGER["FleetManager.trigger()
-    Execute agent with prompt
-    Stream SDK messages back"]
-  end
-
-  subgraph reply ["Reply Path"]
-    FORMAT["Platform Formatting
-    Discord: embeds + markdown
-    Slack: mrkdwn + threads"]
-    SEND(["Send to User
-    Split messages if needed"])
-  end
-
-  USER --> CONN
-  CONN --> MENTION
-  MENTION --> STRIP
-  STRIP --> INDICATOR
-
-  INDICATOR --> SESSION
-  SESSION --> TRIGGER
-
-  TRIGGER -->|"SDK messages"| EXTRACT
-  TRIGGER -->|"tool events"| TOOLS
-  EXTRACT --> STREAM
-  TOOLS --> FORMAT
-  STREAM --> FORMAT
-  FORMAT --> SEND
-
-  style USER fill:#64748b,color:#fff,stroke:#475569
-  style platform fill:#059669,color:#fff,stroke:#047857
-  style shared fill:#1e40af,color:#fff,stroke:#1e3a8a
-  style core fill:#4f46e5,color:#fff,stroke:#3730a3
-  style reply fill:#7c3aed,color:#fff,stroke:#6d28d9
-  style CONN fill:#059669,color:#fff,stroke:#047857
-  style MENTION fill:#059669,color:#fff,stroke:#047857
-  style STRIP fill:#059669,color:#fff,stroke:#047857
-  style INDICATOR fill:#059669,color:#fff,stroke:#047857
-  style SESSION fill:#1e40af,color:#fff,stroke:#1e3a8a
-  style STREAM fill:#1e40af,color:#fff,stroke:#1e3a8a
-  style EXTRACT fill:#1e40af,color:#fff,stroke:#1e3a8a
-  style TOOLS fill:#1e40af,color:#fff,stroke:#1e3a8a
-  style TRIGGER fill:#4f46e5,color:#fff,stroke:#3730a3
-  style FORMAT fill:#7c3aed,color:#fff,stroke:#6d28d9
-  style SEND fill:#64748b,color:#fff,stroke:#475569
-```
+<img src="/diagrams/chat-message-flow.svg" alt="Chat message flow diagram showing user message through platform layer, shared layer, core execution, and reply path" width="100%" />
 
 ### Step-by-Step
 

@@ -7,64 +7,7 @@ This page describes how the `@herdctl/core` package is structured internally and
 
 ## Architecture Diagram
 
-```mermaid
-flowchart TD
-  FM["FleetManager
-  Central Orchestrator"]
-
-  CL["ConfigLoader
-  YAML parsing, validation,
-  fleet composition, env interpolation"]
-
-  SCH["Scheduler
-  Interval & cron triggers,
-  polling loop, concurrency control"]
-
-  SM["StateManager
-  .herdctl/ persistence,
-  atomic writes, JSONL logs"]
-
-  RUN["Runner
-  SDK adapter, CLI runtime,
-  Docker runtime, message processing"]
-
-  JM["JobManager
-  Job queue, lifecycle tracking,
-  priority, retention"]
-
-  WEB["Web / Chat Managers
-  Dashboard, Discord, Slack
-  (loaded dynamically)"]
-
-  SDK[("Claude Code
-  SDK / CLI")]
-
-  FS[(".herdctl/
-  state.yaml, jobs/, sessions/")]
-
-  FM --> CL
-  FM --> SCH
-  FM --> SM
-  FM --> RUN
-  FM --> JM
-  FM --> WEB
-
-  SCH -->|"triggers"| RUN
-  RUN -->|"streams output"| SM
-  RUN --> SDK
-  SM --> FS
-  JM -->|"enqueue & track"| RUN
-
-  style FM fill:#4f46e5,color:#fff,stroke:#3730a3
-  style CL fill:#1e40af,color:#fff,stroke:#1e3a8a
-  style SCH fill:#1e40af,color:#fff,stroke:#1e3a8a
-  style SM fill:#1e40af,color:#fff,stroke:#1e3a8a
-  style RUN fill:#1e40af,color:#fff,stroke:#1e3a8a
-  style JM fill:#7c3aed,color:#fff,stroke:#6d28d9
-  style WEB fill:#7c3aed,color:#fff,stroke:#6d28d9
-  style SDK fill:#d97706,color:#fff,stroke:#b45309
-  style FS fill:#059669,color:#fff,stroke:#047857
-```
+<img src="/diagrams/core-architecture.svg" alt="Core architecture diagram showing FleetManager as central orchestrator connecting ConfigLoader, Scheduler, StateManager, Runner, JobManager, Web, and Chat" width="100%" />
 
 ## Component Overview
 
