@@ -495,7 +495,7 @@ packages/discord/
 ## Related Pages
 
 - [Shared Chat Layer](/architecture/chat-infrastructure/) -- Session management, streaming responder, message splitting, and other shared infrastructure
-- [Chat Architecture (internals)](/internals/chat-architecture/) -- Internal reference for the chat system design
+- [Chat Architecture](/architecture/chat-infrastructure/) -- Shared chat infrastructure design
 - [System Architecture Overview](/architecture/overview/) -- Package dependency graph and FleetManager orchestration
 - [Agent Execution Engine](/architecture/runner/) -- How the Runner executes agents and streams output
 - [Discord Setup](/integrations/discord/) -- Discord bot configuration and usage guide
