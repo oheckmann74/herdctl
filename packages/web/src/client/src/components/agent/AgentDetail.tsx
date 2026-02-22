@@ -5,11 +5,12 @@
  * Tabs: Overview (default landing from /agents/:name), Jobs, Output
  */
 
-import { ArrowLeft, History, LayoutDashboard, Terminal } from "lucide-react";
+import { ArrowLeft, History, LayoutDashboard, MessageSquare, Terminal } from "lucide-react";
 import { Link, useParams } from "react-router";
 import { useAgentDetail } from "../../hooks/useAgentDetail";
 import { agentTabPath } from "../../lib/paths";
 import { Card, Spinner } from "../ui";
+import { AgentChats } from "./AgentChats";
 import { AgentConfig } from "./AgentConfig";
 import { AgentHeader } from "./AgentHeader";
 import { AgentJobs } from "./AgentJobs";
@@ -19,7 +20,7 @@ import { AgentOutput } from "./AgentOutput";
 // Types
 // =============================================================================
 
-type TabId = "overview" | "jobs" | "output";
+type TabId = "overview" | "jobs" | "output" | "chats";
 
 interface Tab {
   id: TabId;
@@ -33,6 +34,7 @@ interface Tab {
 
 const TABS: Tab[] = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
+  { id: "chats", label: "Chats", icon: MessageSquare },
   { id: "jobs", label: "Jobs", icon: History },
   { id: "output", label: "Output", icon: Terminal },
 ];
@@ -150,7 +152,7 @@ function ErrorState({ message, onRetry }: ErrorStateProps) {
 // Component
 // =============================================================================
 
-const VALID_TABS: Set<string> = new Set(["overview", "jobs", "output"]);
+const VALID_TABS: Set<string> = new Set(["overview", "chats", "jobs", "output"]);
 
 export function AgentDetail() {
   const { name, tab } = useParams<{ name: string; tab?: string }>();
@@ -182,6 +184,8 @@ export function AgentDetail() {
     switch (activeTab) {
       case "overview":
         return <AgentConfig agent={agent!} />;
+      case "chats":
+        return <AgentChats agent={agent!} />;
       case "jobs":
         return <AgentJobs agent={agent!} />;
       case "output":
