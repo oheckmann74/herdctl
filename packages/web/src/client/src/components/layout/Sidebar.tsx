@@ -26,7 +26,9 @@ import { getAgentAvatar } from "../../lib/avatar";
 import { formatRelativeTime } from "../../lib/format";
 import { agentChatPath, agentPath } from "../../lib/paths";
 import type { AgentInfo, ChatSession, ConnectionStatus } from "../../lib/types";
-import { useChatActions, useFleet, useSidebarSessions } from "../../store";
+import { useChatActions, useFleet, useSidebarSessions, useSidebarTab } from "../../store";
+import { SidebarSearch } from "./SidebarSearch";
+import { SidebarTabs } from "./SidebarTabs";
 
 // =============================================================================
 // Version Info
@@ -556,27 +558,80 @@ export function Sidebar({ onNavigate }: SidebarProps = {}) {
   // Track which fleet sections are expanded (default: all expanded)
   const [expandedFleets, setExpandedFleets] = useState<Set<string>>(new Set());
 
-  // Build fleet hierarchy tree
-  const { rootAgents, fleetNodes } = useMemo(() => buildFleetTree(agents), [agents]);
+  // Fleet search query for filtering agents
+  const [fleetSearchQuery, setFleetSearchQuery] = useState("");
+
+  // Get the active sidebar tab from the store
+  const sidebarTab = useSidebarTab();
+
+  // Filter agents based on search query
+  const filteredAgents = useMemo(() => {
+    if (!fleetSearchQuery.trim()) return agents;
+
+    const query = fleetSearchQuery.toLowerCase().trim();
+    return agents.filter((agent) => {
+      // Match against qualifiedName
+      if (agent.qualifiedName.toLowerCase().includes(query)) return true;
+      // Match against any fleetPath segment
+      if (agent.fleetPath.some((segment) => segment.toLowerCase().includes(query))) return true;
+      // Match against agent short name
+      if (agent.name.toLowerCase().includes(query)) return true;
+      return false;
+    });
+  }, [agents, fleetSearchQuery]);
+
+  // Determine if search is active (for controlling expand behavior)
+  const isSearchActive = fleetSearchQuery.trim().length > 0;
+
+  // Build fleet hierarchy tree from filtered agents
+  const { rootAgents, fleetNodes } = useMemo(
+    () => buildFleetTree(filteredAgents),
+    [filteredAgents],
+  );
 
   // Determine if we have any fleet grouping
   const hasFleetGrouping = fleetNodes.length > 0;
 
+  // Collect all fleet keys from current nodes
+  const allFleetKeys = useMemo(() => {
+    const keys = new Set<string>();
+    function collectKeys(nodes: FleetTreeNode[], prefix: string) {
+      for (const node of nodes) {
+        const key = prefix ? `${prefix}.${node.name}` : node.name;
+        keys.add(key);
+        collectKeys(node.children, key);
+      }
+    }
+    collectKeys(fleetNodes, "");
+    return keys;
+  }, [fleetNodes]);
+
   // Auto-expand all fleet nodes when agents change and we first see fleet grouping
+  // or when search is active (so matches are visible)
   useEffect(() => {
     if (hasFleetGrouping && expandedFleets.size === 0) {
-      const allKeys = new Set<string>();
-      function collectKeys(nodes: FleetTreeNode[], prefix: string) {
-        for (const node of nodes) {
-          const key = prefix ? `${prefix}.${node.name}` : node.name;
-          allKeys.add(key);
-          collectKeys(node.children, key);
-        }
-      }
-      collectKeys(fleetNodes, "");
-      setExpandedFleets(allKeys);
+      setExpandedFleets(allFleetKeys);
     }
-  }, [hasFleetGrouping, fleetNodes, expandedFleets.size]);
+  }, [hasFleetGrouping, allFleetKeys, expandedFleets.size]);
+
+  // When search becomes active, expand all fleets to show matches
+  // Store the pre-search expanded state to restore when search is cleared
+  const preSearchExpandedRef = useRef<Set<string> | null>(null);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally exclude expandedFleets to avoid infinite loop
+  useEffect(() => {
+    if (isSearchActive) {
+      // When search starts, save current state and expand all
+      if (preSearchExpandedRef.current === null) {
+        preSearchExpandedRef.current = expandedFleets;
+      }
+      setExpandedFleets(allFleetKeys);
+    } else if (preSearchExpandedRef.current !== null) {
+      // When search is cleared, restore previous state
+      setExpandedFleets(preSearchExpandedRef.current);
+      preSearchExpandedRef.current = null;
+    }
+  }, [isSearchActive, allFleetKeys]);
 
   const toggleFleet = useCallback((fleetKey: string) => {
     setExpandedFleets((prev) => {
@@ -670,51 +725,82 @@ export function Sidebar({ onNavigate }: SidebarProps = {}) {
         </div>
       </div>
 
-      {/* Agent list section (scrollable) */}
-      <div className="flex-1 overflow-auto p-2">
-        {/* Fleet-grouped agents — each fleet is a visually distinct group */}
-        {fleetNodes.length > 0 && (
-          <div className="divide-y divide-herd-sidebar-border">
-            {fleetNodes.map((node) => (
-              <div key={node.name} className="py-3 first:pt-0 last:pb-0">
-                <FleetSection
-                  node={node}
-                  sidebarSessions={sidebarSessions}
-                  currentAgentQualifiedName={currentAgentQualifiedName}
-                  activeSessionId={activeSessionId}
-                  onNavigate={onNavigate}
-                  onNewChat={handleNewChat}
-                  onRenameSession={handleRenameSession}
-                  onDeleteSession={handleDeleteSession}
-                  expandedFleets={expandedFleets}
-                  toggleFleet={toggleFleet}
-                />
-              </div>
-            ))}
-          </div>
-        )}
+      {/* Tab switcher */}
+      <div className="pt-2">
+        <SidebarTabs />
+      </div>
 
-        {/* Root-level agents (no fleet grouping) */}
-        {rootAgents.length > 0 && (
-          <div className="space-y-0.5">
-            {rootAgents.map((agent) => (
-              <AgentRow
-                key={agent.qualifiedName}
-                agent={agent}
-                sessions={sidebarSessions[agent.qualifiedName] ?? []}
-                isActive={currentAgentQualifiedName === agent.qualifiedName}
-                activeSessionId={activeSessionId}
-                onNavigate={onNavigate}
-                onNewChat={handleNewChat}
-                onRenameSession={handleRenameSession}
-                onDeleteSession={handleDeleteSession}
-              />
-            ))}
-          </div>
-        )}
+      {/* Tab content area (scrollable) */}
+      <div className="flex-1 overflow-auto">
+        {sidebarTab === "fleet" ? (
+          <>
+            {/* Fleet View: search + agent tree */}
+            <SidebarSearch
+              value={fleetSearchQuery}
+              onChange={setFleetSearchQuery}
+              placeholder="Search agents..."
+            />
 
-        {agents.length === 0 && (
-          <p className="text-xs text-herd-sidebar-muted px-3 py-2">No agents configured</p>
+            <div className="p-2 pt-0">
+              {/* Fleet-grouped agents — each fleet is a visually distinct group */}
+              {fleetNodes.length > 0 && (
+                <div className="divide-y divide-herd-sidebar-border">
+                  {fleetNodes.map((node) => (
+                    <div key={node.name} className="py-3 first:pt-0 last:pb-0">
+                      <FleetSection
+                        node={node}
+                        sidebarSessions={sidebarSessions}
+                        currentAgentQualifiedName={currentAgentQualifiedName}
+                        activeSessionId={activeSessionId}
+                        onNavigate={onNavigate}
+                        onNewChat={handleNewChat}
+                        onRenameSession={handleRenameSession}
+                        onDeleteSession={handleDeleteSession}
+                        expandedFleets={expandedFleets}
+                        toggleFleet={toggleFleet}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Root-level agents (no fleet grouping) */}
+              {rootAgents.length > 0 && (
+                <div className="space-y-0.5">
+                  {rootAgents.map((agent) => (
+                    <AgentRow
+                      key={agent.qualifiedName}
+                      agent={agent}
+                      sessions={sidebarSessions[agent.qualifiedName] ?? []}
+                      isActive={currentAgentQualifiedName === agent.qualifiedName}
+                      activeSessionId={activeSessionId}
+                      onNavigate={onNavigate}
+                      onNewChat={handleNewChat}
+                      onRenameSession={handleRenameSession}
+                      onDeleteSession={handleDeleteSession}
+                    />
+                  ))}
+                </div>
+              )}
+
+              {/* Empty states */}
+              {agents.length === 0 && (
+                <p className="text-xs text-herd-sidebar-muted px-3 py-2">No agents configured</p>
+              )}
+
+              {/* Search with no results */}
+              {isSearchActive && filteredAgents.length === 0 && agents.length > 0 && (
+                <p className="text-xs text-herd-sidebar-muted px-3 py-2">
+                  No matches for "{fleetSearchQuery}"
+                </p>
+              )}
+            </div>
+          </>
+        ) : (
+          /* Recent Conversations: placeholder for Phase 3 */
+          <div className="p-4">
+            <p className="text-xs text-herd-sidebar-muted">Recent conversations</p>
+          </div>
         )}
       </div>
 
