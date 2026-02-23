@@ -3,10 +3,14 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import sitemap from '@astrojs/sitemap';
 import rehypeMermaid from 'rehype-mermaid';
+import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
 	site: 'https://herdctl.dev',
+	vite: {
+		plugins: [tailwindcss()],
+	},
 	markdown: {
 		rehypePlugins: [[rehypeMermaid, { strategy: 'pre-mermaid' }]],
 	},
@@ -20,7 +24,7 @@ export default defineConfig({
 	integrations: [
 		sitemap(),
 		starlight({
-			customCss: ['./src/styles/custom.css'],
+			customCss: ['./src/styles/tailwind.css', './src/styles/custom.css'],
 			title: 'herdctl',
 			tagline: 'Autonomous Agent Fleet Management for Claude Code',
 			favicon: '/favicon.ico',
@@ -29,11 +33,39 @@ export default defineConfig({
 				alt: 'herdctl',
 			},
 			head: [
+				// Inter font for custom landing page components
+				{
+					tag: 'link',
+					attrs: {
+						rel: 'preconnect',
+						href: 'https://fonts.googleapis.com',
+					},
+				},
+				{
+					tag: 'link',
+					attrs: {
+						rel: 'preconnect',
+						href: 'https://fonts.gstatic.com',
+						crossorigin: true,
+					},
+				},
+				{
+					tag: 'link',
+					attrs: {
+						rel: 'stylesheet',
+						href: 'https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&display=swap',
+					},
+				},
 				// Mermaid client-side rendering
 				{
 					tag: 'script',
 					attrs: { type: 'module' },
 					content: `import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs'; mermaid.initialize({ startOnLoad: true, theme: 'dark' });`,
+				},
+				// PostHog analytics (proxied through Cloudflare to avoid ad blockers)
+				{
+					tag: 'script',
+					content: `!function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group identify setPersonProperties setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags resetGroups onFeatureFlags addFeatureFlagsHandler onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey getNextSurveyStep".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);posthog.init('phc_OoeRhRu0d0Smy92gZxB37fPzNrjC4wm1xi2VB6KiweC',{api_host:'https://herdctl.dev/ingest',ui_host:'https://us.posthog.com',person_profiles:'identified_only'});`,
 				},
 				// OpenGraph meta tags
 				{
