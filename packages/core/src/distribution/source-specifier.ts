@@ -24,6 +24,7 @@
 
 import * as path from "path";
 
+import { FleetManagerError } from "../fleet-manager/errors.js";
 import { AGENT_NAME_PATTERN } from "./agent-repo-metadata.js";
 
 // =============================================================================
@@ -76,12 +77,12 @@ export type SourceSpecifier = GitHubSource | LocalSource | RegistrySource;
 /**
  * Error thrown when a source specifier cannot be parsed.
  */
-export class SourceParseError extends Error {
+export class SourceParseError extends FleetManagerError {
   constructor(
     message: string,
     public readonly source: string,
   ) {
-    super(message);
+    super(message, { code: "SOURCE_PARSE_ERROR" });
     this.name = "SourceParseError";
   }
 }

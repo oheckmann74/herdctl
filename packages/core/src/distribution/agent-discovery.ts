@@ -10,6 +10,7 @@ import * as fs from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { parse as parseYaml } from "yaml";
 
+import { FleetManagerError, type FleetManagerErrorCode } from "../fleet-manager/errors.js";
 import { createLogger } from "../utils/logger.js";
 import { type InstallationMetadata, InstallationMetadataSchema } from "./installation-metadata.js";
 
@@ -62,20 +63,17 @@ export interface DiscoveryResult {
 // =============================================================================
 
 /** Error code: herdctl.yaml doesn't exist */
-export const DISCOVERY_CONFIG_NOT_FOUND = "DISCOVERY_CONFIG_NOT_FOUND";
+export const DISCOVERY_CONFIG_NOT_FOUND: FleetManagerErrorCode = "DISCOVERY_CONFIG_NOT_FOUND";
 
 /** Error code: herdctl.yaml is invalid */
-export const DISCOVERY_CONFIG_INVALID = "DISCOVERY_CONFIG_INVALID";
+export const DISCOVERY_CONFIG_INVALID: FleetManagerErrorCode = "DISCOVERY_CONFIG_INVALID";
 
 /**
  * Error thrown when agent discovery fails
  */
-export class AgentDiscoveryError extends Error {
-  constructor(
-    message: string,
-    public readonly code: string,
-  ) {
-    super(message);
+export class AgentDiscoveryError extends FleetManagerError {
+  constructor(message: string, code: FleetManagerErrorCode) {
+    super(message, { code });
     this.name = "AgentDiscoveryError";
   }
 }

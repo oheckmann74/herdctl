@@ -246,6 +246,7 @@ describe("agentAddCommand", () => {
     console.error = (...args: unknown[]) => consoleErrors.push(args.join(" "));
 
     exitCode = undefined;
+    process.exitCode = undefined;
     originalProcessExit = process.exit;
     process.exit = ((code?: number) => {
       exitCode = code ?? 0;
@@ -561,9 +562,9 @@ describe("agentAddCommand", () => {
         new AgentInstallError("Agent already exists", AGENT_ALREADY_EXISTS),
       );
 
-      await expect(agentAddCommand("github:user/repo", {})).rejects.toThrow("process.exit");
+      await agentAddCommand("github:user/repo", {});
 
-      expect(exitCode).toBe(1);
+      expect(process.exitCode).toBe(1);
       expect(consoleErrors.some((e) => e.includes("Installation failed"))).toBe(true);
       expect(consoleErrors.some((e) => e.includes("--force"))).toBe(true);
       expect(cleanupCalled).toBe(true);
@@ -601,9 +602,9 @@ describe("agentAddCommand", () => {
         warnings: [],
       });
 
-      await expect(agentAddCommand("github:user/repo", {})).rejects.toThrow("process.exit");
+      await agentAddCommand("github:user/repo", {});
 
-      expect(exitCode).toBe(1);
+      expect(process.exitCode).toBe(1);
       expect(consoleErrors.some((e) => e.includes("Validation failed"))).toBe(true);
       expect(mockedInstallAgentFiles).not.toHaveBeenCalled();
       expect(cleanupCalled).toBe(true);
@@ -669,9 +670,9 @@ describe("agentAddCommand", () => {
         new FleetConfigError("Config not found", "CONFIG_NOT_FOUND"),
       );
 
-      await expect(agentAddCommand("github:user/repo", {})).rejects.toThrow("process.exit");
+      await agentAddCommand("github:user/repo", {});
 
-      expect(exitCode).toBe(1);
+      expect(process.exitCode).toBe(1);
       expect(consoleErrors.some((e) => e.includes("Config update failed"))).toBe(true);
       expect(cleanupCalled).toBe(true);
     });
@@ -1399,7 +1400,9 @@ describe("agentRemoveCommand", () => {
     });
 
     it("handles AgentRemoveError (other errors) gracefully", async () => {
-      mockedRemoveAgent.mockRejectedValue(new AgentRemoveError("Some other error", "OTHER_ERROR"));
+      mockedRemoveAgent.mockRejectedValue(
+        new AgentRemoveError("Some other error", "AGENT_REMOVE_ERROR"),
+      );
 
       await expect(agentRemoveCommand("some-agent", {})).rejects.toThrow("process.exit");
 

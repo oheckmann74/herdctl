@@ -11,6 +11,7 @@
 import * as fs from "node:fs/promises";
 import { dirname, join } from "node:path";
 
+import { FleetManagerError, type FleetManagerErrorCode } from "../fleet-manager/errors.js";
 import { createLogger } from "../utils/logger.js";
 import { type DiscoveredAgent, discoverAgents } from "./agent-discovery.js";
 import { type EnvScanResult, scanEnvVariables } from "./env-scanner.js";
@@ -59,17 +60,14 @@ export interface RemoveResult {
 // =============================================================================
 
 /** Error code: Agent not found in fleet config */
-export const AGENT_NOT_FOUND = "AGENT_NOT_FOUND";
+export const AGENT_NOT_FOUND: FleetManagerErrorCode = "AGENT_NOT_FOUND";
 
 /**
  * Error thrown when agent removal fails
  */
-export class AgentRemoveError extends Error {
-  constructor(
-    message: string,
-    public readonly code: string,
-  ) {
-    super(message);
+export class AgentRemoveError extends FleetManagerError {
+  constructor(message: string, code: FleetManagerErrorCode) {
+    super(message, { code });
     this.name = "AgentRemoveError";
   }
 }

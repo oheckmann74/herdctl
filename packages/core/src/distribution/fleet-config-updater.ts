@@ -8,6 +8,7 @@
 import * as fs from "node:fs/promises";
 import { isMap, isSeq, parseDocument, YAMLParseError } from "yaml";
 
+import { FleetManagerError, type FleetManagerErrorCode } from "../fleet-manager/errors.js";
 import { createLogger } from "../utils/logger.js";
 
 const logger = createLogger("distribution:fleet-config");
@@ -43,23 +44,20 @@ export interface FleetConfigUpdateResult {
 // =============================================================================
 
 /** Error code: herdctl.yaml doesn't exist */
-export const CONFIG_NOT_FOUND = "CONFIG_NOT_FOUND";
+export const CONFIG_NOT_FOUND: FleetManagerErrorCode = "CONFIG_NOT_FOUND";
 
 /** Error code: herdctl.yaml is invalid YAML */
-export const CONFIG_PARSE_ERROR = "CONFIG_PARSE_ERROR";
+export const CONFIG_PARSE_ERROR: FleetManagerErrorCode = "CONFIG_PARSE_ERROR";
 
 /** Error code: couldn't write the updated config */
-export const CONFIG_WRITE_ERROR = "CONFIG_WRITE_ERROR";
+export const CONFIG_WRITE_ERROR: FleetManagerErrorCode = "CONFIG_WRITE_ERROR";
 
 /**
  * Error thrown when fleet config operations fail
  */
-export class FleetConfigError extends Error {
-  constructor(
-    message: string,
-    public readonly code: string,
-  ) {
-    super(message);
+export class FleetConfigError extends FleetManagerError {
+  constructor(message: string, code: FleetManagerErrorCode) {
+    super(message, { code });
     this.name = "FleetConfigError";
   }
 }

@@ -338,7 +338,8 @@ export async function agentAddCommand(source: string, options: AgentAddOptions):
       printValidationErrors(validationResult);
       console.log("");
       console.error("Validation failed. Cannot install agent.");
-      process.exit(1);
+      process.exitCode = 1;
+      return;
     }
 
     const agentName = validationResult.agentName!;
@@ -420,7 +421,8 @@ export async function agentAddCommand(source: string, options: AgentAddOptions):
   } catch (error) {
     // Handle known errors from validation, installation, or config update
     if (handleKnownError(error)) {
-      process.exit(1);
+      process.exitCode = 1;
+      return;
     }
     // Re-throw unknown errors
     throw error;

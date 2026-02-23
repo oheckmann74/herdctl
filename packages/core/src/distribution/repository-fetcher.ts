@@ -10,6 +10,7 @@ import { cp, mkdtemp, rm, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
+import { FleetManagerError } from "../fleet-manager/errors.js";
 import { createLogger } from "../utils/logger.js";
 
 const execFileAsync = promisify(execFile);
@@ -69,13 +70,13 @@ export interface RepositoryFetchResult {
 /**
  * Base error for repository fetching failures
  */
-export class RepositoryFetchError extends Error {
+export class RepositoryFetchError extends FleetManagerError {
   constructor(
     message: string,
     public readonly source: FetchSource,
-    public readonly cause?: Error,
+    cause?: Error,
   ) {
-    super(message);
+    super(message, { cause, code: "REPOSITORY_FETCH_ERROR" });
     this.name = "RepositoryFetchError";
   }
 }

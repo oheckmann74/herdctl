@@ -9,6 +9,7 @@ import { access, cp, mkdir, readdir, readFile, stat, writeFile } from "node:fs/p
 import { join } from "node:path";
 import { parse as parseYaml, YAMLParseError } from "yaml";
 
+import { FleetManagerError, type FleetManagerErrorCode } from "../fleet-manager/errors.js";
 import { createLogger } from "../utils/logger.js";
 import { AGENT_NAME_PATTERN } from "./agent-repo-metadata.js";
 import type { InstallationMetadata, InstallationSource } from "./installation-metadata.js";
@@ -54,20 +55,17 @@ export interface InstallResult {
 /**
  * Error codes for agent installation failures
  */
-export const AGENT_ALREADY_EXISTS = "AGENT_ALREADY_EXISTS";
-export const INVALID_AGENT_NAME = "INVALID_AGENT_NAME";
-export const MISSING_AGENT_YAML = "MISSING_AGENT_YAML";
-export const INVALID_AGENT_YAML = "INVALID_AGENT_YAML";
+export const AGENT_ALREADY_EXISTS: FleetManagerErrorCode = "AGENT_ALREADY_EXISTS";
+export const INVALID_AGENT_NAME: FleetManagerErrorCode = "INVALID_AGENT_NAME";
+export const MISSING_AGENT_YAML: FleetManagerErrorCode = "MISSING_AGENT_YAML";
+export const INVALID_AGENT_YAML: FleetManagerErrorCode = "INVALID_AGENT_YAML";
 
 /**
  * Error thrown when agent file installation fails
  */
-export class AgentInstallError extends Error {
-  constructor(
-    message: string,
-    public readonly code: string,
-  ) {
-    super(message);
+export class AgentInstallError extends FleetManagerError {
+  constructor(message: string, code: FleetManagerErrorCode) {
+    super(message, { code });
     this.name = "AgentInstallError";
   }
 }
