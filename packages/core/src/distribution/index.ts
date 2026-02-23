@@ -5,8 +5,35 @@
  * - Agent repository metadata validation (herdctl.json)
  * - Installation metadata tracking (metadata.json)
  * - Source specifier parsing and repository fetching
+ * - Agent discovery and listing
+ * - Agent detailed information
+ * - Agent removal
  */
 
+// Agent Discovery
+export {
+  AgentDiscoveryError,
+  DISCOVERY_CONFIG_INVALID,
+  DISCOVERY_CONFIG_NOT_FOUND,
+  type DiscoveredAgent,
+  type DiscoveryOptions,
+  type DiscoveryResult,
+  discoverAgents,
+} from "./agent-discovery.js";
+// Agent Info
+export {
+  type AgentDetailedInfo,
+  type AgentInfoOptions,
+  getAgentInfo,
+} from "./agent-info.js";
+// Agent Remover
+export {
+  AGENT_NOT_FOUND,
+  AgentRemoveError,
+  type RemoveOptions,
+  type RemoveResult,
+  removeAgent,
+} from "./agent-remover.js";
 // Agent Repository Metadata (herdctl.json)
 export {
   AGENT_NAME_PATTERN,

@@ -3,6 +3,9 @@
  *
  * Commands for managing installed agents:
  * - herdctl agent add <source>  Install an agent from GitHub or local path
+ * - herdctl agent list          List all discovered agents in the fleet
+ * - herdctl agent info <name>   Show detailed information about an agent
+ * - herdctl agent remove <name> Remove an installed agent
  *
  * The add command orchestrates the full agent installation flow:
  * 1. Parse source specifier (github:user/repo[@ref] or ./local/path)
@@ -17,9 +20,17 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import {
   AGENT_ALREADY_EXISTS,
+  // Agent removal
+  AGENT_NOT_FOUND,
+  type AgentDetailedInfo,
+  AgentDiscoveryError,
   AgentInstallError,
+  AgentRemoveError,
   // Fleet config update
   addAgentToFleetConfig,
+  type DiscoveredAgent,
+  // Agent discovery
+  discoverAgents,
   type EnvScanResult,
   type FetchSource,
   FleetConfigError,
@@ -27,6 +38,8 @@ import {
   fetchRepository,
   GitHubCloneAuthError,
   GitHubRepoNotFoundError,
+  // Agent info
+  getAgentInfo,
   type InstallationSource,
   // File installation
   installAgentFiles,
@@ -39,6 +52,7 @@ import {
   parseSourceSpecifier,
   RegistryNotImplementedError,
   RepositoryFetchError,
+  removeAgent,
   SourceParseError,
   type SourceSpecifier,
   // Environment variable scanning
@@ -60,6 +74,13 @@ export interface AgentAddOptions {
   dryRun?: boolean;
   /** Overwrite existing agent directory */
   force?: boolean;
+}
+
+export interface AgentRemoveOptions {
+  /** Skip confirmation (no-op for now, reserved for future interactive confirmation) */
+  force?: boolean;
+  /** Preserve workspace directory contents */
+  keepWorkspace?: boolean;
 }
 
 // =============================================================================
@@ -436,4 +457,385 @@ async function listFilesRecursive(dir: string, relativePath: string = ""): Promi
   }
 
   return files;
+}
+
+// =============================================================================
+// Agent List Command
+// =============================================================================
+
+export interface AgentListOptions {
+  /** Output as JSON for scripting */
+  json?: boolean;
+}
+
+/**
+ * Format a date string for display
+ */
+function formatDate(isoDate: string | undefined): string {
+  if (!isoDate) {
+    return "-";
+  }
+  try {
+    const date = new Date(isoDate);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  } catch {
+    return "-";
+  }
+}
+
+/**
+ * Get source description from agent metadata
+ */
+function getSourceDescription(agent: DiscoveredAgent): string {
+  if (!agent.metadata) {
+    return "manual";
+  }
+
+  const { source } = agent.metadata;
+  if (source.type === "github") {
+    // Extract owner/repo from URL
+    const match = source.url?.match(/github\.com\/([^/]+\/[^/]+)/);
+    if (match) {
+      return source.ref ? `${match[1]}@${source.ref}` : match[1];
+    }
+    return source.ref ?? "github";
+  }
+
+  if (source.type === "local") {
+    return source.url ?? "local";
+  }
+
+  return source.type;
+}
+
+/**
+ * List all agents in the fleet
+ *
+ * Discovers agents from the fleet configuration and displays them in a table
+ * showing name, source, version, installation date, and status.
+ *
+ * @param options - Command options
+ */
+export async function agentListCommand(options: AgentListOptions): Promise<void> {
+  const cwd = process.cwd();
+  const configPath = path.join(cwd, "herdctl.yaml");
+
+  try {
+    const result = await discoverAgents({ configPath });
+
+    if (options.json) {
+      console.log(JSON.stringify(result.agents, null, 2));
+      return;
+    }
+
+    if (result.agents.length === 0) {
+      console.log("No agents found in fleet configuration.");
+      console.log("");
+      console.log("To add an agent, run:");
+      console.log("  herdctl agent add <source>     Install from GitHub or local path");
+      console.log("  herdctl init agent <name>      Create a new agent manually");
+      return;
+    }
+
+    // Print table header
+    console.log("");
+    console.log("Agents in fleet:");
+    console.log("");
+
+    // Calculate column widths
+    const nameWidth = Math.max(4, ...result.agents.map((a) => a.name.length));
+    const sourceWidth = Math.max(6, ...result.agents.map((a) => getSourceDescription(a).length));
+    const versionWidth = Math.max(7, ...result.agents.map((a) => (a.version ?? "-").length));
+    const dateWidth = 12;
+    const statusWidth = 9;
+
+    // Print header row
+    const header = [
+      "Name".padEnd(nameWidth),
+      "Source".padEnd(sourceWidth),
+      "Version".padEnd(versionWidth),
+      "Installed".padEnd(dateWidth),
+      "Status".padEnd(statusWidth),
+    ].join("  ");
+    console.log(header);
+    console.log("-".repeat(header.length));
+
+    // Print each agent
+    for (const agent of result.agents) {
+      const row = [
+        agent.name.padEnd(nameWidth),
+        getSourceDescription(agent).padEnd(sourceWidth),
+        (agent.version ?? "-").padEnd(versionWidth),
+        formatDate(agent.metadata?.installed_at).padEnd(dateWidth),
+        (agent.installed ? "installed" : "manual").padEnd(statusWidth),
+      ].join("  ");
+      console.log(row);
+    }
+
+    console.log("");
+    console.log(`Total: ${result.agents.length} agent${result.agents.length === 1 ? "" : "s"}`);
+  } catch (error) {
+    if (error instanceof AgentDiscoveryError) {
+      console.error(`Discovery failed: ${error.message}`);
+      process.exit(1);
+    }
+    throw error;
+  }
+}
+
+// =============================================================================
+// Agent Info Command
+// =============================================================================
+
+export interface AgentInfoOptions {
+  /** Output as JSON for scripting */
+  json?: boolean;
+}
+
+/**
+ * Get detailed information about a specific agent
+ *
+ * Shows comprehensive agent information including:
+ * - Basic info (name, description, status)
+ * - Source and installation details
+ * - Environment variables
+ * - Schedules
+ * - Files in the agent directory
+ *
+ * @param name - Agent name to look up
+ * @param options - Command options
+ */
+export async function agentInfoCommand(name: string, options: AgentInfoOptions): Promise<void> {
+  const cwd = process.cwd();
+  const configPath = path.join(cwd, "herdctl.yaml");
+
+  try {
+    const info = await getAgentInfo({ name, configPath });
+
+    if (!info) {
+      console.error(`Agent '${name}' not found in fleet configuration.`);
+      console.error("");
+      console.error("Run 'herdctl agent list' to see available agents.");
+      process.exit(1);
+    }
+
+    if (options.json) {
+      console.log(JSON.stringify(info, null, 2));
+      return;
+    }
+
+    // Print formatted output
+    printAgentInfo(info);
+  } catch (error) {
+    if (error instanceof AgentDiscoveryError) {
+      console.error(`Discovery failed: ${error.message}`);
+      process.exit(1);
+    }
+    throw error;
+  }
+}
+
+/**
+ * Format and print agent info to console
+ */
+function printAgentInfo(info: AgentDetailedInfo): void {
+  console.log("");
+  console.log(`Agent: ${info.name}`);
+
+  if (info.description) {
+    console.log(`Description: ${info.description}`);
+  }
+
+  // Status line
+  if (info.installed) {
+    const sourceType = info.metadata?.source.type ?? "unknown";
+    const sourceLabel =
+      sourceType === "github" ? "GitHub" : sourceType === "local" ? "local path" : sourceType;
+    console.log(`Status: Installed (via ${sourceLabel})`);
+  } else {
+    console.log("Status: Manual (not installed via herdctl)");
+  }
+
+  // Source info for installed agents
+  if (info.metadata?.source.url) {
+    console.log(`Source: ${info.metadata.source.url}`);
+  }
+
+  if (info.version) {
+    console.log(`Version: ${info.version}`);
+  }
+
+  if (info.metadata?.installed_at) {
+    console.log(`Installed: ${info.metadata.installed_at}`);
+  }
+
+  // Schedules
+  if (info.schedules && Object.keys(info.schedules).length > 0) {
+    console.log("");
+    console.log("Schedules:");
+    for (const [scheduleName, scheduleConfig] of Object.entries(info.schedules)) {
+      const scheduleDesc = formatScheduleDescription(scheduleConfig);
+      console.log(`  ${scheduleName}: ${scheduleDesc}`);
+    }
+  }
+
+  // Environment variables
+  if (info.envVariables) {
+    console.log("");
+    console.log("Environment Variables:");
+
+    if (info.envVariables.required.length > 0) {
+      console.log("  Required:");
+      for (const variable of info.envVariables.required) {
+        console.log(`    ${variable.name}`);
+      }
+    }
+
+    if (info.envVariables.optional.length > 0) {
+      if (info.envVariables.required.length > 0) {
+        console.log("");
+      }
+      console.log("  Optional:");
+      for (const variable of info.envVariables.optional) {
+        console.log(`    ${variable.name} (default: ${variable.defaultValue})`);
+      }
+    }
+  }
+
+  // Files
+  if (info.files.length > 0) {
+    console.log("");
+    console.log("Files:");
+    for (const file of info.files) {
+      console.log(`  ${file}`);
+    }
+  }
+
+  // Workspace
+  console.log("");
+  if (info.hasWorkspace) {
+    const relativePath = path.relative(process.cwd(), info.path);
+    console.log(`Workspace: ${relativePath}/workspace/`);
+  } else {
+    console.log("Workspace: (not created)");
+  }
+
+  console.log("");
+}
+
+/**
+ * Format a schedule configuration for display
+ */
+function formatScheduleDescription(config: unknown): string {
+  if (!config || typeof config !== "object") {
+    return "unknown";
+  }
+
+  const scheduleObj = config as Record<string, unknown>;
+  const scheduleType = (scheduleObj.type ?? scheduleObj.cron) ? "cron" : "unknown";
+
+  if (scheduleType === "cron" && scheduleObj.cron) {
+    return `cron (${scheduleObj.cron})`;
+  }
+
+  if (scheduleObj.interval) {
+    return `interval (${scheduleObj.interval})`;
+  }
+
+  return String(scheduleType);
+}
+
+// =============================================================================
+// Agent Remove Command
+// =============================================================================
+
+/**
+ * Remove an agent from the fleet
+ *
+ * This command:
+ * 1. Finds the agent by name in the fleet configuration
+ * 2. Deletes the agent directory (optionally preserving workspace)
+ * 3. Removes the agent reference from herdctl.yaml
+ * 4. Reports environment variables that were used (for cleanup reference)
+ *
+ * @param name - Agent name to remove
+ * @param options - Command options
+ */
+export async function agentRemoveCommand(name: string, options: AgentRemoveOptions): Promise<void> {
+  const cwd = process.cwd();
+  const configPath = path.join(cwd, "herdctl.yaml");
+  const { keepWorkspace = false } = options;
+
+  try {
+    console.log(`Removing agent '${name}'...`);
+
+    const result = await removeAgent({
+      name,
+      configPath,
+      keepWorkspace,
+    });
+
+    // Print what was removed
+    const relativePath = path.relative(cwd, result.removedPath);
+
+    if (result.filesRemoved) {
+      if (result.workspacePreserved) {
+        console.log(`Deleted ${relativePath}/ (workspace preserved)`);
+      } else {
+        console.log(`Deleted ${relativePath}/`);
+      }
+    }
+
+    if (result.configUpdated) {
+      console.log("Updated herdctl.yaml (removed agent reference)");
+    }
+
+    // Print env variables summary if any were found
+    if (result.envVariables && result.envVariables.variables.length > 0) {
+      console.log("");
+      console.log("This agent used the following environment variables:");
+
+      if (result.envVariables.required.length > 0) {
+        console.log("  Required:");
+        for (const variable of result.envVariables.required) {
+          console.log(`    ${variable.name}`);
+        }
+      }
+
+      if (result.envVariables.optional.length > 0) {
+        if (result.envVariables.required.length > 0) {
+          console.log("");
+        }
+        console.log("  Optional:");
+        for (const variable of result.envVariables.optional) {
+          console.log(`    ${variable.name} (default: ${variable.defaultValue})`);
+        }
+      }
+
+      console.log("");
+      console.log("You may want to remove these from your .env file.");
+    }
+  } catch (error) {
+    if (error instanceof AgentRemoveError) {
+      if (error.code === AGENT_NOT_FOUND) {
+        console.error(`Agent '${name}' not found in fleet configuration.`);
+        console.error("");
+        console.error("Run 'herdctl agent list' to see available agents.");
+      } else {
+        console.error(`Removal failed: ${error.message}`);
+      }
+      process.exit(1);
+    }
+
+    if (error instanceof AgentDiscoveryError) {
+      console.error(`Discovery failed: ${error.message}`);
+      process.exit(1);
+    }
+
+    throw error;
+  }
 }

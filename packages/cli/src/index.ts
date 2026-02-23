@@ -33,7 +33,12 @@ import { Command } from "commander";
 const require = createRequire(import.meta.url);
 const { version: VERSION } = require("../package.json");
 
-import { agentAddCommand } from "./commands/agent.js";
+import {
+  agentAddCommand,
+  agentInfoCommand,
+  agentListCommand,
+  agentRemoveCommand,
+} from "./commands/agent.js";
 import { cancelCommand } from "./commands/cancel.js";
 import { configShowCommand, configValidateCommand } from "./commands/config.js";
 import { initRouterAction } from "./commands/init.js";
@@ -130,6 +135,55 @@ agentCmd
   .action(async (source, options) => {
     try {
       await agentAddCommand(source, options);
+    } catch (error) {
+      if (error instanceof Error && error.message.includes("User force closed")) {
+        console.log("\nAborted.");
+        process.exit(0);
+      }
+      throw error;
+    }
+  });
+
+agentCmd
+  .command("list")
+  .description("List all agents in the fleet")
+  .option("--json", "Output as JSON for scripting")
+  .action(async (options) => {
+    try {
+      await agentListCommand(options);
+    } catch (error) {
+      if (error instanceof Error && error.message.includes("User force closed")) {
+        console.log("\nAborted.");
+        process.exit(0);
+      }
+      throw error;
+    }
+  });
+
+agentCmd
+  .command("info <name>")
+  .description("Show detailed information about an agent")
+  .option("--json", "Output as JSON for scripting")
+  .action(async (name, options) => {
+    try {
+      await agentInfoCommand(name, options);
+    } catch (error) {
+      if (error instanceof Error && error.message.includes("User force closed")) {
+        console.log("\nAborted.");
+        process.exit(0);
+      }
+      throw error;
+    }
+  });
+
+agentCmd
+  .command("remove <name>")
+  .description("Remove an installed agent from the fleet")
+  .option("-f, --force", "Skip confirmation (reserved for future use)")
+  .option("--keep-workspace", "Preserve the workspace directory")
+  .action(async (name, options) => {
+    try {
+      await agentRemoveCommand(name, options);
     } catch (error) {
       if (error instanceof Error && error.message.includes("User force closed")) {
         console.log("\nAborted.");
