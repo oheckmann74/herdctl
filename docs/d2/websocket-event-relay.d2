@@ -247,3 +247,13 @@ clients.requester -> bridge.requesting: "chat:send { agentName, sessionId, messa
   style.font-size: 10
   style.italic: true
 }
+
+# --- Upward connection: FleetBridge -> FleetManager (forwarded chat request) ---
+
+bridge.requesting -> fm.chat-events: "chat:send (forwarded)" {
+  style.stroke: "#94a3b8"
+  style.stroke-width: 2
+  style.font-color: "#94a3b8"
+  style.font-size: 10
+  style.italic: true
+}
