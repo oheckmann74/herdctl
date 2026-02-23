@@ -57,6 +57,17 @@ fm: {
     style.font-size: 11
     style.bold: true
   }
+
+  chat-events: {
+    label: "chat:response\nchat:tool_call\nchat:complete"
+    style.fill: "#c4b5fd"
+    style.stroke: "#a78bfa"
+    style.stroke-width: 2
+    style.font-color: "#2e1065"
+    style.border-radius: 8
+    style.font-size: 11
+    style.bold: true
+  }
 }
 
 # --- Middle container: FleetBridge ---
@@ -179,6 +190,15 @@ fm.job-output -> bridge.subscribers: high volume {
 }
 
 fm.schedule-events -> bridge.broadcast: low volume {
+  style.stroke: "#d97706"
+  style.stroke-width: 2
+  style.stroke-dash: 8
+  style.font-color: "#d97706"
+  style.font-size: 10
+  style.italic: true
+}
+
+fm.chat-events -> bridge.requesting: targeted {
   style.stroke: "#d97706"
   style.stroke-width: 2
   style.stroke-dash: 8
