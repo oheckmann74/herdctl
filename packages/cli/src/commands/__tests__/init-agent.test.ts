@@ -11,10 +11,14 @@ vi.mock("@inquirer/prompts", () => ({
   select: vi.fn(),
 }));
 
-// Mock child_process for docker detection
-vi.mock("node:child_process", () => ({
-  execSync: vi.fn(),
-}));
+// Mock child_process for docker detection (preserve other exports for @herdctl/core)
+vi.mock("node:child_process", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("node:child_process")>();
+  return {
+    ...actual,
+    execSync: vi.fn(),
+  };
+});
 
 import { confirm, input, select } from "@inquirer/prompts";
 import { initAgentCommand } from "../init-agent.js";

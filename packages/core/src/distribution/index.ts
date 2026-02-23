@@ -15,7 +15,35 @@ export {
   type AgentRequires,
   AgentRequiresSchema,
 } from "./agent-repo-metadata.js";
-
+// Environment Variable Scanner
+export {
+  type EnvScanResult,
+  type EnvVariable,
+  scanEnvVariables,
+} from "./env-scanner.js";
+// File Installation
+export {
+  // Error codes
+  AGENT_ALREADY_EXISTS,
+  AgentInstallError,
+  INVALID_AGENT_NAME,
+  INVALID_AGENT_YAML as INSTALLER_INVALID_AGENT_YAML,
+  type InstallOptions,
+  type InstallResult,
+  installAgentFiles,
+  MISSING_AGENT_YAML as INSTALLER_MISSING_AGENT_YAML,
+} from "./file-installer.js";
+// Fleet Config Updater
+export {
+  addAgentToFleetConfig,
+  CONFIG_NOT_FOUND,
+  CONFIG_PARSE_ERROR,
+  CONFIG_WRITE_ERROR,
+  FleetConfigError,
+  type FleetConfigUpdateOptions,
+  type FleetConfigUpdateResult,
+  removeAgentFromFleetConfig,
+} from "./fleet-config-updater.js";
 // Installation Metadata (metadata.json)
 export {
   type InstallationMetadata,
@@ -26,7 +54,6 @@ export {
   type SourceType,
   SourceTypeSchema,
 } from "./installation-metadata.js";
-
 // Repository Fetching
 export {
   type FetchSource,

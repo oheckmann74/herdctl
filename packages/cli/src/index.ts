@@ -33,6 +33,7 @@ import { Command } from "commander";
 const require = createRequire(import.meta.url);
 const { version: VERSION } = require("../package.json");
 
+import { agentAddCommand } from "./commands/agent.js";
 import { cancelCommand } from "./commands/cancel.js";
 import { configShowCommand, configValidateCommand } from "./commands/config.js";
 import { initRouterAction } from "./commands/init.js";
@@ -108,6 +109,27 @@ initCmd
   .action(async (name, options) => {
     try {
       await initAgentCommand(name, options);
+    } catch (error) {
+      if (error instanceof Error && error.message.includes("User force closed")) {
+        console.log("\nAborted.");
+        process.exit(0);
+      }
+      throw error;
+    }
+  });
+
+// Agent management command group
+const agentCmd = program.command("agent").description("Manage installed agents");
+
+agentCmd
+  .command("add <source>")
+  .description("Install an agent from GitHub or a local path")
+  .option("--path <path>", "Override installation directory")
+  .option("--dry-run", "Preview changes without installing")
+  .option("-f, --force", "Overwrite existing agent directory")
+  .action(async (source, options) => {
+    try {
+      await agentAddCommand(source, options);
     } catch (error) {
       if (error instanceof Error && error.message.includes("User force closed")) {
         console.log("\nAborted.");

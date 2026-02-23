@@ -12,9 +12,8 @@
 import { execSync } from "node:child_process";
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { PermissionModeSchema } from "@herdctl/core";
+import { addAgentToFleetConfig, PermissionModeSchema } from "@herdctl/core";
 import { confirm, input, select } from "@inquirer/prompts";
-import { isSeq, parseDocument } from "yaml";
 
 export interface InitAgentOptions {
   description?: string;
@@ -130,24 +129,6 @@ function generateAgentYaml(config: AgentConfig): string {
 
   lines.push("");
   return lines.join("\n");
-}
-
-function appendAgentToFleetConfig(configPath: string, agentName: string): void {
-  const raw = fs.readFileSync(configPath, "utf-8");
-  const doc = parseDocument(raw);
-  const agentsNode = doc.get("agents", true);
-
-  const agentRef = doc.createNode({ path: `./agents/${agentName}.yaml` });
-
-  if (isSeq(agentsNode)) {
-    // Already a sequence ([] or block) — append to it
-    agentsNode.items.push(agentRef);
-  } else {
-    // No agents key or it's not a sequence — set it
-    doc.set("agents", doc.createNode([{ path: `./agents/${agentName}.yaml` }]));
-  }
-
-  fs.writeFileSync(configPath, doc.toString(), "utf-8");
 }
 
 export async function initAgentCommand(
@@ -296,7 +277,10 @@ export async function initAgentCommand(
   fs.writeFileSync(agentPath, agentYaml, "utf-8");
 
   // Append agent reference to herdctl.yaml
-  appendAgentToFleetConfig(configPath, agentName);
+  await addAgentToFleetConfig({
+    configPath,
+    agentPath: `./agents/${agentName}.yaml`,
+  });
 
   // Print success
   console.log("");
