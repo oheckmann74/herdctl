@@ -1,3 +1,8 @@
+/* Remove underlines from button-style links on the landing page */
+.landing-page a.no-underline {
+	text-decoration: none !important;
+}
+
 /*
  * Hide Starlight's auto-generated hero section on the landing page.
  * The h1 remains in the DOM for accessibility and SEO (screen readers, crawlers),
