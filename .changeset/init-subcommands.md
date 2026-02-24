@@ -22,7 +22,6 @@ Add agent distribution system and `herdctl agent` command group
 - `herdctl agent list` — List all agents in the fleet (installed + manual)
 - `herdctl agent info <name>` — Show detailed agent information
 - `herdctl agent remove <name>` — Remove an installed agent
-- `herdctl agent update <name>` — Update an installed agent to latest version
 - `herdctl init fleet` — Create herdctl.yaml template (split from `herdctl init`)
 - `herdctl init agent [name]` — Interactive agent configuration wizard
 
