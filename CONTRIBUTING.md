@@ -27,6 +27,61 @@ pnpm test
 pnpm typecheck
 ```
 
+## Running Locally
+
+To test your changes by running herdctl from the command line, you need to link the CLI package globally and start the dev watcher.
+
+### Link the CLI globally
+
+```bash
+cd packages/cli
+pnpm link --global
+```
+
+This creates a global symlink so that when you type `herdctl` anywhere on your machine, it runs the code from your local clone. You can verify it worked:
+
+```bash
+which herdctl              # should point to your pnpm global bin
+herdctl --version          # should match the version in packages/cli/package.json
+```
+
+### Start the dev watcher
+
+From the repo root:
+
+```bash
+pnpm dev
+```
+
+This runs `turbo dev`, which starts `tsc --watch` in every package simultaneously. When you edit a `.ts` file, the TypeScript compiler recompiles it to the `dist/` directory automatically.
+
+### How it all fits together
+
+The monorepo uses pnpm's `workspace:*` protocol for inter-package dependencies. This means `@herdctl/core`, `@herdctl/web`, `@herdctl/discord`, `@herdctl/slack`, and `@herdctl/chat` all resolve to the local `packages/` directories rather than npm. The full chain looks like:
+
+```
+herdctl (global symlink)
+  → packages/cli/bin/herdctl.js
+    → packages/cli/dist/index.js (compiled from src/)
+      → @herdctl/core → packages/core/dist/
+      → @herdctl/web → packages/web/dist/
+      → @herdctl/discord → packages/discord/dist/
+      → @herdctl/slack → packages/slack/dist/
+      → @herdctl/chat → packages/chat/dist/
+```
+
+Save a file, wait for `tsc --watch` to recompile, and the next `herdctl` invocation runs your new code. No manual build or reinstall step needed.
+
+### Initial build
+
+The dev watcher only recompiles files that change. On a fresh clone you need an initial full build before `pnpm dev` will work:
+
+```bash
+pnpm build
+```
+
+After that, `pnpm dev` handles incremental recompilation.
+
 ## Project Structure
 
 The repository is a pnpm monorepo with packages under `packages/`:
