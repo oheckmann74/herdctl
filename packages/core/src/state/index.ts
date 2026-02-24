@@ -78,6 +78,16 @@ export {
   validateSession,
   validateSessionWithFileCheck,
 } from "./session-validation.js";
+// Re-export tool parsing functions
+export {
+  extractToolResultContent,
+  extractToolResults,
+  extractToolUseBlocks,
+  getToolInputSummary,
+  TOOL_EMOJIS,
+  type ToolResult,
+  type ToolUseBlock,
+} from "./tool-parsing.js";
 // Re-export types
 export * from "./types.js";
 // Re-export file utilities

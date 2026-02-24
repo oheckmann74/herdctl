@@ -11,15 +11,15 @@ import { mkdir, readFile, stat, unlink, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import { createInterface } from "node:readline";
+import { type ChatConnectorLogger, ChatSessionManager, extractMessageContent } from "@herdctl/chat";
 import {
-  type ChatConnectorLogger,
-  ChatSessionManager,
-  extractMessageContent,
+  createLogger,
   extractToolResults,
   extractToolUseBlocks,
+  type FleetManager,
   getToolInputSummary,
-} from "@herdctl/chat";
-import { createLogger, type FleetManager, type WebConfig } from "@herdctl/core";
+  type WebConfig,
+} from "@herdctl/core";
 
 const logger = createLogger("web:chat");
 
