@@ -111,6 +111,7 @@ Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for development se
 
 - [Discord](https://discord.gg/d2eXZKtNrh) - Chat with the community
 - [GitHub Discussions](https://github.com/edspencer/herdctl/discussions) - Ask questions, share ideas
+- [Developer Blog](https://edspencer.net/blog/tag/herdctl) - Articles and deep dives
 - [Twitter/X](https://twitter.com/edspencer) - Updates and announcements
 
 ## License

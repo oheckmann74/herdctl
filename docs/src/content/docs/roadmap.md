@@ -9,7 +9,7 @@ This page outlines planned features and areas of active development for herdctl.
 
 Currently, agent schedules are static — defined in YAML config and fixed at fleet startup. Dynamic scheduling will allow agents to request their own next run time based on what they observe during a job.
 
-An agent writes a `metadata.json` file to its workspace at the end of a job:
+The current approach uses a `metadata.json` file that agents write to their workspace at the end of a job:
 
 ```json
 {
@@ -18,7 +18,9 @@ An agent writes a `metadata.json` file to its workspace at the end of a job:
 }
 ```
 
-herdctl reads this file and adjusts the next trigger accordingly. This enables agents to respond to real-world conditions — monitoring more frequently when something interesting is happening and backing off when things are quiet.
+herdctl reads this file and adjusts the next trigger accordingly. This works, but we're looking to replace this file-based approach with an injected MCP pattern — giving agents a dedicated tool they can call to request schedule changes directly, rather than relying on file conventions.
+
+This enables agents to respond to real-world conditions — monitoring more frequently when something interesting is happening and backing off when things are quiet.
 
 ## Persistent Agent Memory
 
@@ -55,9 +57,11 @@ This enables agents that improve themselves over time, learning from each intera
 
 Agents in a fleet currently operate independently. Agent-to-agent communication will allow agents to delegate tasks to other agents, share results, and coordinate work. For example, a triage agent could assign issues to the most appropriate specialist agent, or a monitoring agent could alert a remediation agent when it detects a problem.
 
+Like dynamic scheduling, we plan to implement this via an injected MCP pattern — agents would have tools available to send messages to and receive responses from other agents in their fleet.
+
 ## More Chat Integrations
 
-herdctl currently supports Discord, Slack, and the web dashboard for interactive chat with agents. Planned additional integrations include WhatsApp, iMessage, and Telegram, giving agents more ways to communicate with users on the platforms they already use.
+herdctl currently supports Discord, Slack, and the web dashboard for interactive chat with agents. We don't have plans to add native support for other platforms at this time, but we're working on making the chat integration layer pluggable — allowing anyone to write their own chat connector without requiring changes to herdctl itself.
 
 ## Agent Marketplace
 
