@@ -77,6 +77,13 @@ export {
   type SessionOptions,
   updateSessionInfo,
 } from "./session.js";
+// Re-export session attribution functions
+export {
+  type AttributionIndex,
+  buildAttributionIndex,
+  type SessionAttribution,
+  type SessionOrigin,
+} from "./session-attribution.js";
 // Re-export session validation functions
 export {
   cliSessionFileExists,
