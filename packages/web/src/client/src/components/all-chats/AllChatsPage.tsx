@@ -168,6 +168,7 @@ export function AllChatsPage() {
   }, [localSearchValue, setAllChatsSearchQuery]);
 
   // Auto-expand groups when searching, restore when clearing
+  // biome-ignore lint/correctness/useExhaustiveDependencies: expandedGroups is read but must not trigger this effect (causes infinite loop)
   useEffect(() => {
     if (storeSearchQuery) {
       // Starting a search - save current expansion state
@@ -180,7 +181,7 @@ export function AllChatsPage() {
       // Clearing search - expansion state is already managed by store
       preSearchExpansionRef.current = null;
     }
-  }, [storeSearchQuery, expandAllChatsGroups, expandedGroups]);
+  }, [storeSearchQuery, expandAllChatsGroups]);
 
   // Filter groups based on search query
   const filteredGroups = useMemo(() => {
