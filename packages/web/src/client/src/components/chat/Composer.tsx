@@ -49,7 +49,7 @@ export function Composer({ agentName, sessionId, isAdhoc, workingDirectory }: Co
 
     // For empty textarea, just use the single-line height directly
     if (!value) {
-      textarea.style.height = "44px";
+      textarea.style.height = "46px";
       return;
     }
 
@@ -57,7 +57,7 @@ export function Composer({ agentName, sessionId, isAdhoc, workingDirectory }: Co
     const prevMinHeight = textarea.style.minHeight;
     textarea.style.minHeight = "0px";
     textarea.style.height = "0px";
-    const newHeight = Math.min(Math.max(textarea.scrollHeight, 44), 200);
+    const newHeight = Math.min(Math.max(textarea.scrollHeight, 46), 200);
     textarea.style.minHeight = prevMinHeight;
     textarea.style.height = `${newHeight}px`;
   }, [value]);
@@ -134,7 +134,7 @@ export function Composer({ agentName, sessionId, isAdhoc, workingDirectory }: Co
             placeholder={isAdhoc ? "Send a message..." : `Send a message to ${agentName}...`}
             rows={1}
             className="flex-1 bg-herd-input-bg border border-herd-border rounded-lg px-3 py-2.5 text-base text-herd-fg placeholder:text-herd-muted focus:outline-none focus:border-herd-primary/60 transition-colors resize-none"
-            style={{ minHeight: "44px", maxHeight: "200px" }}
+            style={{ minHeight: "46px", maxHeight: "200px" }}
           />
           <button
             type="button"
