@@ -359,6 +359,15 @@ export class SessionDiscoveryService {
       }
 
       const attribution = attributionIndex.getAttribute(sessionId);
+
+      // Only show sessions that are attributed to this specific agent.
+      // When multiple agents share a working directory, this prevents the same
+      // native CLI sessions from appearing under every agent. Unattributed sessions
+      // are still visible in the global recent sessions list and All Chats view.
+      if (attribution.agentName !== agentName) {
+        continue;
+      }
+
       const customName = await this.sessionMetadataStore.getCustomName(agentName, sessionId);
       const mtimeStr = mtime.toISOString();
 

@@ -83,10 +83,13 @@ function createMockAttributionIndex(overrides?: {
     agentName: string | undefined;
     triggerType: string | undefined;
   };
+  /** Default agent name returned by getAttribute. Defaults to "my-agent". */
+  defaultAgentName?: string;
 }) {
+  const agentName = overrides?.defaultAgentName ?? "my-agent";
   const defaultGetAttribute = (sessionId: string) => ({
     origin: "native" as const,
-    agentName: undefined,
+    agentName,
     triggerType: undefined,
   });
 
@@ -207,12 +210,12 @@ describe("SessionDiscoveryService", () => {
       await mkdir(projectDir, { recursive: true });
       await createSessionFile(projectDir, "session-abc");
 
-      // Set up attribution mock to return discord origin
+      // Set up attribution mock to return discord origin attributed to the requested agent
       mockBuildAttributionIndex.mockResolvedValue(
         createMockAttributionIndex({
           getAttribute: (sessionId) => ({
             origin: "discord",
-            agentName: "discord-agent",
+            agentName: "my-agent",
             triggerType: "discord",
           }),
         }),
@@ -226,7 +229,7 @@ describe("SessionDiscoveryService", () => {
       const sessions = await service.getAgentSessions("my-agent", workingDir, false);
 
       expect(sessions[0].origin).toBe("discord");
-      expect(sessions[0].agentName).toBe("discord-agent");
+      expect(sessions[0].agentName).toBe("my-agent");
     });
 
     it("includes custom name from metadata store", async () => {
@@ -354,19 +357,19 @@ describe("SessionDiscoveryService", () => {
       expect(sessions[0].preview).toBeUndefined();
     });
 
-    it("uses agent name from attribution when attribution has agentName", async () => {
+    it("only returns sessions attributed to the requested agent", async () => {
       const workingDir = "/Users/ed/Code/myproject";
       const encodedPath = "-Users-ed-Code-myproject";
       const projectDir = join(tempClaudeHome, "projects", encodedPath);
       await mkdir(projectDir, { recursive: true });
       await createSessionFile(projectDir, "session-abc");
 
-      // Attribution has agentName
+      // Attribution points to a different agent
       mockBuildAttributionIndex.mockResolvedValue(
         createMockAttributionIndex({
           getAttribute: () => ({
             origin: "web",
-            agentName: "attributed-agent",
+            agentName: "other-agent",
             triggerType: "web",
           }),
         }),
@@ -377,19 +380,20 @@ describe("SessionDiscoveryService", () => {
         stateDir: tempStateDir,
       });
 
-      const sessions = await service.getAgentSessions("fallback-agent", workingDir, false);
+      // Requesting sessions for "my-agent" should not include sessions attributed to "other-agent"
+      const sessions = await service.getAgentSessions("my-agent", workingDir, false);
 
-      expect(sessions[0].agentName).toBe("attributed-agent");
+      expect(sessions).toHaveLength(0);
     });
 
-    it("falls back to provided agent name when attribution has no agentName", async () => {
+    it("excludes unattributed sessions from per-agent results", async () => {
       const workingDir = "/Users/ed/Code/myproject";
       const encodedPath = "-Users-ed-Code-myproject";
       const projectDir = join(tempClaudeHome, "projects", encodedPath);
       await mkdir(projectDir, { recursive: true });
       await createSessionFile(projectDir, "session-abc");
 
-      // Attribution has no agentName
+      // Attribution has no agentName (native CLI session)
       mockBuildAttributionIndex.mockResolvedValue(
         createMockAttributionIndex({
           getAttribute: () => ({
@@ -405,9 +409,10 @@ describe("SessionDiscoveryService", () => {
         stateDir: tempStateDir,
       });
 
-      const sessions = await service.getAgentSessions("fallback-agent", workingDir, false);
+      // Unattributed sessions should not appear in per-agent results
+      const sessions = await service.getAgentSessions("my-agent", workingDir, false);
 
-      expect(sessions[0].agentName).toBe("fallback-agent");
+      expect(sessions).toHaveLength(0);
     });
   });
 
@@ -798,6 +803,23 @@ describe("SessionDiscoveryService", () => {
       await createSessionFile(projectDir1, "session-a");
       await createSessionFile(projectDir2, "session-b");
 
+      // Map sessions to their owning agents so the attribution filter passes
+      const sessionAgentMap: Record<string, string> = {
+        "session-a": "agent-1",
+        "session-a2": "agent-1",
+        "session-b": "agent-2",
+        "session-b2": "agent-2",
+      };
+      mockBuildAttributionIndex.mockResolvedValue(
+        createMockAttributionIndex({
+          getAttribute: (sessionId: string) => ({
+            origin: "native" as const,
+            agentName: sessionAgentMap[sessionId],
+            triggerType: undefined,
+          }),
+        }),
+      );
+
       const service = new SessionDiscoveryService({
         claudeHomePath: tempClaudeHome,
         stateDir: tempStateDir,
@@ -878,6 +900,10 @@ describe("SessionDiscoveryService", () => {
       await mkdir(projectDir, { recursive: true });
       await createSessionFile(projectDir, "session-a");
 
+      mockBuildAttributionIndex.mockResolvedValue(
+        createMockAttributionIndex({ defaultAgentName: "agent" }),
+      );
+
       const service = new SessionDiscoveryService({
         claudeHomePath: tempClaudeHome,
         stateDir: tempStateDir,
@@ -903,6 +929,10 @@ describe("SessionDiscoveryService", () => {
       const projectDir = join(tempClaudeHome, "projects", encodedPath);
       await mkdir(projectDir, { recursive: true });
       await createSessionFile(projectDir, "session-a");
+
+      mockBuildAttributionIndex.mockResolvedValue(
+        createMockAttributionIndex({ defaultAgentName: "agent" }),
+      );
 
       const service = new SessionDiscoveryService({
         claudeHomePath: tempClaudeHome,
