@@ -121,6 +121,7 @@ function createMockDiscoveredSession(
     agentName: "test-agent",
     resumable: true,
     customName: undefined,
+    autoName: undefined,
     preview: undefined,
     ...overrides,
   };

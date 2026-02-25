@@ -53,6 +53,8 @@ export interface SessionMetadata {
   messageCount: number;
   firstMessageAt: string | undefined;
   lastMessageAt: string | undefined;
+  /** Auto-generated session summary from Claude Code (extracted from type: "summary" entries) */
+  summary: string | undefined;
 }
 
 /**
@@ -332,6 +334,7 @@ export async function extractSessionMetadata(sessionFilePath: string): Promise<S
     messageCount: 0,
     firstMessageAt: undefined,
     lastMessageAt: undefined,
+    summary: undefined,
   };
 
   if (!rl) return metadata;
@@ -351,6 +354,13 @@ export async function extractSessionMetadata(sessionFilePath: string): Promise<S
     }
 
     const type = parsed.type;
+
+    // Track summary entries (type: "summary" with top-level summary field)
+    if (type === "summary" && typeof parsed.summary === "string") {
+      metadata.summary = parsed.summary;
+      continue;
+    }
+
     if (type !== "user" && type !== "assistant") continue;
 
     const timestamp = typeof parsed.timestamp === "string" ? parsed.timestamp : undefined;
@@ -483,4 +493,44 @@ export async function extractSessionUsage(sessionFilePath: string): Promise<Sess
     turnCount: seenIds.size,
     hasData,
   };
+}
+
+// =============================================================================
+// extractLastSummary
+// =============================================================================
+
+/**
+ * Extract only the last summary from a JSONL session file.
+ *
+ * This is a lightweight alternative to extractSessionMetadata when only the
+ * auto-generated session name is needed. It streams the file and returns the
+ * last `summary` value from entries with `type: "summary"`.
+ *
+ * @param sessionFilePath - Absolute path to the .jsonl file
+ * @returns The last summary string, or undefined if none found
+ */
+export async function extractLastSummary(sessionFilePath: string): Promise<string | undefined> {
+  const rl = await createLineReader(sessionFilePath);
+  if (!rl) return undefined;
+
+  let lastSummary: string | undefined;
+
+  for await (const line of rl) {
+    const trimmed = line.trim();
+    if (trimmed.length === 0) continue;
+
+    let parsed: Record<string, unknown>;
+    try {
+      parsed = JSON.parse(trimmed) as Record<string, unknown>;
+    } catch {
+      continue;
+    }
+
+    // Only process summary entries
+    if (parsed.type === "summary" && typeof parsed.summary === "string") {
+      lastSummary = parsed.summary;
+    }
+  }
+
+  return lastSummary;
 }

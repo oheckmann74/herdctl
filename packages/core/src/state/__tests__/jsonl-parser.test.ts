@@ -6,6 +6,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
+  extractLastSummary,
   extractSessionMetadata,
   extractSessionUsage,
   parseSessionMessages,
@@ -317,5 +318,60 @@ describe("extractSessionUsage", () => {
     expect(usage.inputTokens).toBe(0);
     expect(usage.turnCount).toBe(0);
     expect(usage.hasData).toBe(false);
+  });
+});
+
+// =============================================================================
+// extractLastSummary
+// =============================================================================
+
+describe("extractLastSummary", () => {
+  it("returns the last summary from summary-session.jsonl", async () => {
+    const summary = await extractLastSummary(fixture("summary-session.jsonl"));
+
+    // The fixture has 2 summary entries; should return the second (last) one
+    expect(summary).toBe(
+      "The assistant helped configure CORS and body-parser middleware. The user then asked about database integration.",
+    );
+  });
+
+  it("returns undefined for simple-session.jsonl (no summaries)", async () => {
+    const summary = await extractLastSummary(fixture("simple-session.jsonl"));
+
+    expect(summary).toBeUndefined();
+  });
+
+  it("returns undefined for nonexistent file", async () => {
+    const summary = await extractLastSummary(fixture("does-not-exist.jsonl"));
+
+    expect(summary).toBeUndefined();
+  });
+
+  it("handles malformed-session.jsonl without throwing", async () => {
+    const summary = await extractLastSummary(fixture("malformed-session.jsonl"));
+
+    // No summary entries in this fixture
+    expect(summary).toBeUndefined();
+  });
+});
+
+// =============================================================================
+// extractSessionMetadata - summary field
+// =============================================================================
+
+describe("extractSessionMetadata - summary field", () => {
+  it("includes summary field from summary-session.jsonl", async () => {
+    const meta = await extractSessionMetadata(fixture("summary-session.jsonl"));
+
+    // Should have the last summary
+    expect(meta.summary).toBe(
+      "The assistant helped configure CORS and body-parser middleware. The user then asked about database integration.",
+    );
+  });
+
+  it("returns undefined summary for sessions without summaries", async () => {
+    const meta = await extractSessionMetadata(fixture("simple-session.jsonl"));
+
+    expect(meta.summary).toBeUndefined();
   });
 });

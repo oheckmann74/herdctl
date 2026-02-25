@@ -14,6 +14,7 @@ vi.mock("../session-attribution.js", () => ({
 
 // Mock jsonl-parser
 vi.mock("../jsonl-parser.js", () => ({
+  extractLastSummary: vi.fn(),
   extractSessionMetadata: vi.fn(),
   extractSessionUsage: vi.fn(),
   parseSessionMessages: vi.fn(),
@@ -21,15 +22,20 @@ vi.mock("../jsonl-parser.js", () => ({
 
 // Mock session-metadata - use a class for proper constructor behavior
 const mockGetCustomName = vi.fn().mockResolvedValue(undefined);
+const mockGetAutoName = vi.fn().mockResolvedValue(undefined);
+const mockBatchSetAutoNames = vi.fn().mockResolvedValue(undefined);
 vi.mock("../session-metadata.js", () => {
   return {
     SessionMetadataStore: class MockSessionMetadataStore {
       getCustomName = mockGetCustomName;
+      getAutoName = mockGetAutoName;
+      batchSetAutoNames = mockBatchSetAutoNames;
     },
   };
 });
 
 import {
+  extractLastSummary,
   extractSessionMetadata,
   extractSessionUsage,
   parseSessionMessages,
@@ -39,6 +45,7 @@ import { buildAttributionIndex } from "../session-attribution.js";
 import { SessionDiscoveryService } from "../session-discovery.js";
 
 const mockBuildAttributionIndex = vi.mocked(buildAttributionIndex);
+const mockExtractLastSummary = vi.mocked(extractLastSummary);
 const mockExtractSessionMetadata = vi.mocked(extractSessionMetadata);
 const mockExtractSessionUsage = vi.mocked(extractSessionUsage);
 const mockParseSessionMessages = vi.mocked(parseSessionMessages);
@@ -104,9 +111,17 @@ describe("SessionDiscoveryService", () => {
     // Set up default attribution mock
     mockBuildAttributionIndex.mockResolvedValue(createMockAttributionIndex());
 
-    // Reset metadata store mock to default
+    // Reset metadata store mocks to default
     mockGetCustomName.mockReset();
     mockGetCustomName.mockResolvedValue(undefined);
+    mockGetAutoName.mockReset();
+    mockGetAutoName.mockResolvedValue(undefined);
+    mockBatchSetAutoNames.mockReset();
+    mockBatchSetAutoNames.mockResolvedValue(undefined);
+
+    // Reset JSONL parser mocks
+    mockExtractLastSummary.mockReset();
+    mockExtractLastSummary.mockResolvedValue(undefined);
   });
 
   afterEach(async () => {
@@ -662,6 +677,7 @@ describe("SessionDiscoveryService", () => {
         messageCount: 10,
         firstMessageAt: "2024-01-15T10:00:00Z",
         lastMessageAt: "2024-01-15T11:00:00Z",
+        summary: undefined,
       };
       mockExtractSessionMetadata.mockResolvedValue(mockMetadata);
 
@@ -688,6 +704,7 @@ describe("SessionDiscoveryService", () => {
         messageCount: 1,
         firstMessageAt: "2024-01-15T10:00:00Z",
         lastMessageAt: "2024-01-15T10:00:00Z",
+        summary: undefined,
       };
       mockExtractSessionMetadata.mockResolvedValue(mockMetadata);
 
@@ -904,7 +921,7 @@ describe("SessionDiscoveryService", () => {
       expect(mockBuildAttributionIndex).toHaveBeenCalledTimes(2);
     });
 
-    it("does not get custom name for directories without matching agent", async () => {
+    it("uses 'adhoc' key for metadata lookups on unattributed directories", async () => {
       const projectDir = join(tempClaudeHome, "projects", "-Users-ed-Code-unmatched");
       await mkdir(projectDir, { recursive: true });
       await createSessionFile(projectDir, "session-a");
@@ -917,10 +934,10 @@ describe("SessionDiscoveryService", () => {
       // No matching agent
       const groups = await service.getAllSessions([]);
 
-      // Custom name should not be fetched for unmatched directories
+      // Custom name should still be looked up using "adhoc" key
       expect(groups[0].sessions[0].customName).toBeUndefined();
-      // The metadata store should not be called for sessions without an agent
-      expect(mockGetCustomName).not.toHaveBeenCalled();
+      // The metadata store should be called with "adhoc" key for unattributed sessions
+      expect(mockGetCustomName).toHaveBeenCalledWith("adhoc", "session-a");
     });
 
     it("gets custom name for directories with matching agent", async () => {
@@ -963,6 +980,194 @@ describe("SessionDiscoveryService", () => {
 
       expect(groups[0].sessionCount).toBe(3);
       expect(groups[0].sessions).toHaveLength(3);
+    });
+  });
+
+  // ===========================================================================
+  // autoName caching
+  // ===========================================================================
+
+  describe("autoName caching", () => {
+    it("includes autoName field in discovered sessions from getAgentSessions", async () => {
+      const workingDir = "/Users/ed/Code/myproject";
+      const encodedPath = "-Users-ed-Code-myproject";
+      const projectDir = join(tempClaudeHome, "projects", encodedPath);
+      await mkdir(projectDir, { recursive: true });
+      await createSessionFile(projectDir, "session-abc");
+
+      // Mock cache miss then extraction returns a summary
+      mockGetAutoName.mockResolvedValue(undefined);
+      mockExtractLastSummary.mockResolvedValue("Auto-generated session name");
+
+      const service = new SessionDiscoveryService({
+        claudeHomePath: tempClaudeHome,
+        stateDir: tempStateDir,
+      });
+
+      const sessions = await service.getAgentSessions("my-agent", workingDir, false);
+
+      expect(sessions[0].autoName).toBe("Auto-generated session name");
+    });
+
+    it("uses cached autoName when cache is valid", async () => {
+      const workingDir = "/Users/ed/Code/myproject";
+      const encodedPath = "-Users-ed-Code-myproject";
+      const projectDir = join(tempClaudeHome, "projects", encodedPath);
+      await mkdir(projectDir, { recursive: true });
+      await createSessionFile(projectDir, "session-abc");
+
+      // Mock cache hit - return cached value with mtime in the future to ensure validity
+      mockGetAutoName.mockResolvedValue({
+        autoName: "Cached Auto Name",
+        autoNameMtime: "2099-01-01T00:00:00.000Z",
+      });
+
+      const service = new SessionDiscoveryService({
+        claudeHomePath: tempClaudeHome,
+        stateDir: tempStateDir,
+      });
+
+      const sessions = await service.getAgentSessions("my-agent", workingDir, false);
+
+      expect(sessions[0].autoName).toBe("Cached Auto Name");
+      // Should not have called extractLastSummary since cache was valid
+      expect(mockExtractLastSummary).not.toHaveBeenCalled();
+    });
+
+    it("re-extracts autoName when cache is stale", async () => {
+      const workingDir = "/Users/ed/Code/myproject";
+      const encodedPath = "-Users-ed-Code-myproject";
+      const projectDir = join(tempClaudeHome, "projects", encodedPath);
+      await mkdir(projectDir, { recursive: true });
+      await createSessionFile(projectDir, "session-abc");
+
+      // Mock cache miss (old mtime)
+      mockGetAutoName.mockResolvedValue({
+        autoName: "Old Cached Name",
+        autoNameMtime: "1990-01-01T00:00:00.000Z",
+      });
+      mockExtractLastSummary.mockResolvedValue("Fresh Extracted Name");
+
+      const service = new SessionDiscoveryService({
+        claudeHomePath: tempClaudeHome,
+        stateDir: tempStateDir,
+      });
+
+      const sessions = await service.getAgentSessions("my-agent", workingDir, false);
+
+      expect(sessions[0].autoName).toBe("Fresh Extracted Name");
+      expect(mockExtractLastSummary).toHaveBeenCalled();
+    });
+
+    it("batch writes autoName updates for getAgentSessions", async () => {
+      const workingDir = "/Users/ed/Code/myproject";
+      const encodedPath = "-Users-ed-Code-myproject";
+      const projectDir = join(tempClaudeHome, "projects", encodedPath);
+      await mkdir(projectDir, { recursive: true });
+      await createSessionFile(projectDir, "session-1");
+      await createSessionFile(projectDir, "session-2");
+
+      // Mock cache miss for both — use implementation that returns based on path
+      mockGetAutoName.mockResolvedValue(undefined);
+      mockExtractLastSummary.mockImplementation(async (filePath: string) => {
+        if (filePath.includes("session-1")) return "Session 1 Name";
+        if (filePath.includes("session-2")) return "Session 2 Name";
+        return undefined;
+      });
+
+      const service = new SessionDiscoveryService({
+        claudeHomePath: tempClaudeHome,
+        stateDir: tempStateDir,
+      });
+
+      await service.getAgentSessions("my-agent", workingDir, false);
+
+      // Should have called batchSetAutoNames once with both sessions
+      expect(mockBatchSetAutoNames).toHaveBeenCalledTimes(1);
+      expect(mockBatchSetAutoNames).toHaveBeenCalledWith(
+        "my-agent",
+        expect.arrayContaining([
+          expect.objectContaining({ sessionId: "session-1", autoName: "Session 1 Name" }),
+          expect.objectContaining({ sessionId: "session-2", autoName: "Session 2 Name" }),
+        ]),
+      );
+    });
+
+    it("does not batch write when all autoNames are from cache", async () => {
+      const workingDir = "/Users/ed/Code/myproject";
+      const encodedPath = "-Users-ed-Code-myproject";
+      const projectDir = join(tempClaudeHome, "projects", encodedPath);
+      await mkdir(projectDir, { recursive: true });
+      await createSessionFile(projectDir, "session-abc");
+
+      // Mock cache hit
+      mockGetAutoName.mockResolvedValue({
+        autoName: "Cached Name",
+        autoNameMtime: "2099-01-01T00:00:00.000Z",
+      });
+
+      const service = new SessionDiscoveryService({
+        claudeHomePath: tempClaudeHome,
+        stateDir: tempStateDir,
+      });
+
+      await service.getAgentSessions("my-agent", workingDir, false);
+
+      // Should not have called batchSetAutoNames
+      expect(mockBatchSetAutoNames).not.toHaveBeenCalled();
+    });
+
+    it("uses 'adhoc' key for autoName caching on unattributed sessions in getAllSessions", async () => {
+      const projectDir = join(tempClaudeHome, "projects", "-Users-ed-Code-unattributed");
+      await mkdir(projectDir, { recursive: true });
+      await createSessionFile(projectDir, "session-abc");
+
+      // Mock cache miss
+      mockGetAutoName.mockResolvedValue(undefined);
+      mockExtractLastSummary.mockResolvedValue("Unattributed Session Name");
+
+      const service = new SessionDiscoveryService({
+        claudeHomePath: tempClaudeHome,
+        stateDir: tempStateDir,
+      });
+
+      const groups = await service.getAllSessions([]);
+
+      expect(groups[0].sessions[0].autoName).toBe("Unattributed Session Name");
+      // Should use "adhoc" key for unattributed sessions
+      expect(mockGetAutoName).toHaveBeenCalledWith("adhoc", "session-abc");
+      expect(mockBatchSetAutoNames).toHaveBeenCalledWith(
+        "adhoc",
+        expect.arrayContaining([
+          expect.objectContaining({
+            sessionId: "session-abc",
+            autoName: "Unattributed Session Name",
+          }),
+        ]),
+      );
+    });
+
+    it("returns undefined autoName when session has no summary", async () => {
+      const workingDir = "/Users/ed/Code/myproject";
+      const encodedPath = "-Users-ed-Code-myproject";
+      const projectDir = join(tempClaudeHome, "projects", encodedPath);
+      await mkdir(projectDir, { recursive: true });
+      await createSessionFile(projectDir, "session-abc");
+
+      // Mock cache miss and no summary
+      mockGetAutoName.mockResolvedValue(undefined);
+      mockExtractLastSummary.mockResolvedValue(undefined);
+
+      const service = new SessionDiscoveryService({
+        claudeHomePath: tempClaudeHome,
+        stateDir: tempStateDir,
+      });
+
+      const sessions = await service.getAgentSessions("my-agent", workingDir, false);
+
+      expect(sessions[0].autoName).toBeUndefined();
+      // Should not batch write when there's nothing to write
+      expect(mockBatchSetAutoNames).not.toHaveBeenCalled();
     });
   });
 });

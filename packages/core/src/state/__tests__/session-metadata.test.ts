@@ -411,4 +411,159 @@ describe("SessionMetadataStore", () => {
       expect(result).toBe("Persisted Name");
     });
   });
+
+  // ===========================================================================
+  // Auto Name Methods
+  // ===========================================================================
+
+  describe("getAutoName", () => {
+    it("returns undefined when no metadata file exists", async () => {
+      const result = await store.getAutoName("test-agent", "session-123");
+      expect(result).toBeUndefined();
+    });
+
+    it("returns undefined when session has no auto name", async () => {
+      // Create a metadata file with only a custom name
+      await store.setCustomName("test-agent", "session-123", "Custom Name");
+
+      const result = await store.getAutoName("test-agent", "session-123");
+      expect(result).toBeDefined();
+      expect(result!.autoName).toBeUndefined();
+      expect(result!.autoNameMtime).toBeUndefined();
+    });
+
+    it("returns auto name and mtime when they exist", async () => {
+      await store.setAutoName("test-agent", "session-123", "Auto Name", "2024-01-15T10:00:00.000Z");
+
+      const result = await store.getAutoName("test-agent", "session-123");
+      expect(result).toBeDefined();
+      expect(result!.autoName).toBe("Auto Name");
+      expect(result!.autoNameMtime).toBe("2024-01-15T10:00:00.000Z");
+    });
+  });
+
+  describe("setAutoName", () => {
+    it("creates file and directory on first call", async () => {
+      await store.setAutoName(
+        "test-agent",
+        "session-123",
+        "Auto Session",
+        "2024-01-15T10:00:00.000Z",
+      );
+
+      const metadataDir = join(tempDir, "session-metadata");
+      const files = await readdir(metadataDir);
+      expect(files).toContain("test-agent.json");
+
+      const content = await readFile(join(metadataDir, "test-agent.json"), "utf-8");
+      const parsed = JSON.parse(content);
+      expect(parsed.sessions["session-123"].autoName).toBe("Auto Session");
+      expect(parsed.sessions["session-123"].autoNameMtime).toBe("2024-01-15T10:00:00.000Z");
+    });
+
+    it("preserves existing customName when setting autoName", async () => {
+      await store.setCustomName("test-agent", "session-123", "Custom Name");
+      await store.setAutoName("test-agent", "session-123", "Auto Name", "2024-01-15T10:00:00.000Z");
+
+      const customName = await store.getCustomName("test-agent", "session-123");
+      expect(customName).toBe("Custom Name");
+
+      const autoName = await store.getAutoName("test-agent", "session-123");
+      expect(autoName!.autoName).toBe("Auto Name");
+    });
+
+    it("roundtrips with getAutoName correctly", async () => {
+      await store.setAutoName(
+        "test-agent",
+        "session-abc",
+        "Test Auto Name",
+        "2024-01-15T10:00:00.000Z",
+      );
+
+      const result = await store.getAutoName("test-agent", "session-abc");
+      expect(result!.autoName).toBe("Test Auto Name");
+      expect(result!.autoNameMtime).toBe("2024-01-15T10:00:00.000Z");
+    });
+
+    it("overwrites previous auto name", async () => {
+      await store.setAutoName("test-agent", "session-123", "Original", "2024-01-15T10:00:00.000Z");
+      await store.setAutoName("test-agent", "session-123", "Updated", "2024-01-15T11:00:00.000Z");
+
+      const result = await store.getAutoName("test-agent", "session-123");
+      expect(result!.autoName).toBe("Updated");
+      expect(result!.autoNameMtime).toBe("2024-01-15T11:00:00.000Z");
+    });
+  });
+
+  describe("batchSetAutoNames", () => {
+    it("writes multiple entries in a single operation", async () => {
+      await store.batchSetAutoNames("test-agent", [
+        { sessionId: "session-1", autoName: "First Session", mtime: "2024-01-15T10:00:00.000Z" },
+        { sessionId: "session-2", autoName: "Second Session", mtime: "2024-01-15T11:00:00.000Z" },
+        { sessionId: "session-3", autoName: "Third Session", mtime: "2024-01-15T12:00:00.000Z" },
+      ]);
+
+      const result1 = await store.getAutoName("test-agent", "session-1");
+      expect(result1!.autoName).toBe("First Session");
+
+      const result2 = await store.getAutoName("test-agent", "session-2");
+      expect(result2!.autoName).toBe("Second Session");
+
+      const result3 = await store.getAutoName("test-agent", "session-3");
+      expect(result3!.autoName).toBe("Third Session");
+    });
+
+    it("does nothing when entries array is empty", async () => {
+      await store.batchSetAutoNames("test-agent", []);
+
+      const metadata = await store.getAgentMetadata("test-agent");
+      expect(metadata).toBeNull();
+    });
+
+    it("preserves existing data when batch updating", async () => {
+      // Set up existing data
+      await store.setCustomName("test-agent", "session-1", "Custom One");
+      await store.setAutoName("test-agent", "session-2", "Old Auto", "2024-01-14T10:00:00.000Z");
+
+      // Batch update
+      await store.batchSetAutoNames("test-agent", [
+        { sessionId: "session-1", autoName: "New Auto One", mtime: "2024-01-15T10:00:00.000Z" },
+        { sessionId: "session-3", autoName: "New Auto Three", mtime: "2024-01-15T10:00:00.000Z" },
+      ]);
+
+      // Custom name should be preserved
+      expect(await store.getCustomName("test-agent", "session-1")).toBe("Custom One");
+
+      // Session 1 should have new auto name
+      const result1 = await store.getAutoName("test-agent", "session-1");
+      expect(result1!.autoName).toBe("New Auto One");
+
+      // Session 2 should still have old auto name (not in batch)
+      const result2 = await store.getAutoName("test-agent", "session-2");
+      expect(result2!.autoName).toBe("Old Auto");
+
+      // Session 3 should have new auto name
+      const result3 = await store.getAutoName("test-agent", "session-3");
+      expect(result3!.autoName).toBe("New Auto Three");
+    });
+  });
+
+  describe("adhoc agent key", () => {
+    it("supports 'adhoc' as agent name for unattributed sessions", async () => {
+      await store.setAutoName(
+        "adhoc",
+        "session-unattributed",
+        "Unattributed Session",
+        "2024-01-15T10:00:00.000Z",
+      );
+
+      const result = await store.getAutoName("adhoc", "session-unattributed");
+      expect(result!.autoName).toBe("Unattributed Session");
+
+      // Verify file is created
+      const metadataDir = join(tempDir, "session-metadata");
+      const files = await readdir(metadataDir);
+      expect(files).toContain("adhoc.json");
+    });
+  });
 });

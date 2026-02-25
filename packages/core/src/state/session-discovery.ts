@@ -13,6 +13,7 @@ import { encodePathForCli, getCliSessionFile } from "../runner/runtime/cli-sessi
 import { createLogger } from "../utils/logger.js";
 import {
   type ChatMessage,
+  extractLastSummary,
   extractSessionMetadata,
   extractSessionUsage,
   parseSessionMessages,
@@ -41,6 +42,8 @@ export interface DiscoveredSession {
   agentName: string | undefined;
   resumable: boolean;
   customName: string | undefined;
+  /** Auto-generated session name (extracted from JSONL summary field) */
+  autoName: string | undefined;
   preview: string | undefined; // only populated if metadata was loaded
 }
 
@@ -267,6 +270,43 @@ export class SessionDiscoveryService {
   }
 
   /**
+   * Resolve the auto-generated name for a session.
+   *
+   * Checks if the cached autoName is still valid (based on file mtime).
+   * If not, extracts a new name from the JSONL summary field.
+   *
+   * @param agentName - The agent's qualified name (use "adhoc" for unattributed sessions)
+   * @param sessionId - The session ID
+   * @param fileMtime - ISO 8601 timestamp of the session file's modification time
+   * @param workingDirectory - The session's working directory
+   * @returns Object with autoName and whether an update is needed
+   */
+  private async resolveAutoName(
+    agentName: string,
+    sessionId: string,
+    fileMtime: string,
+    workingDirectory: string,
+  ): Promise<{ autoName: string | undefined; needsUpdate: boolean }> {
+    // Check cache
+    const cached = await this.sessionMetadataStore.getAutoName(agentName, sessionId);
+
+    if (cached?.autoNameMtime && cached.autoNameMtime >= fileMtime) {
+      // Cache is valid
+      return { autoName: cached.autoName, needsUpdate: false };
+    }
+
+    // Need to extract from JSONL
+    const filePath = getCliSessionFile(workingDirectory, sessionId);
+    const summary = await extractLastSummary(filePath);
+
+    if (summary) {
+      return { autoName: summary, needsUpdate: true };
+    }
+
+    return { autoName: undefined, needsUpdate: false };
+  }
+
+  /**
    * Get sessions for a specific agent.
    *
    * Returns sessions from the agent's working directory, attributed and
@@ -296,23 +336,43 @@ export class SessionDiscoveryService {
     // Get attribution index
     const attributionIndex = await this.getAttributionIndex();
 
-    // Build discovered sessions
+    // Build discovered sessions and collect autoName updates
     const sessions: DiscoveredSession[] = [];
+    const autoNameUpdates: Array<{ sessionId: string; autoName: string; mtime: string }> = [];
 
     for (const { sessionId, mtime } of sessionFiles) {
       const attribution = attributionIndex.getAttribute(sessionId);
       const customName = await this.sessionMetadataStore.getCustomName(agentName, sessionId);
+      const mtimeStr = mtime.toISOString();
+
+      // Resolve autoName with caching
+      const { autoName, needsUpdate } = await this.resolveAutoName(
+        agentName,
+        sessionId,
+        mtimeStr,
+        workingDirectory,
+      );
+
+      if (needsUpdate && autoName) {
+        autoNameUpdates.push({ sessionId, autoName, mtime: mtimeStr });
+      }
 
       sessions.push({
         sessionId,
         workingDirectory,
-        mtime: mtime.toISOString(),
+        mtime: mtimeStr,
         origin: attribution.origin,
         agentName: attribution.agentName ?? agentName,
         resumable: !dockerEnabled,
         customName,
+        autoName,
         preview: undefined, // Lazy - loaded via getSessionMetadata
       });
+    }
+
+    // Batch write any autoName updates
+    if (autoNameUpdates.length > 0) {
+      await this.sessionMetadataStore.batchSetAutoNames(agentName, autoNameUpdates);
     }
 
     return sessions;
@@ -396,28 +456,48 @@ export class SessionDiscoveryService {
       const agentName = agentMatch?.agentName;
       const dockerEnabled = agentMatch?.dockerEnabled ?? false;
 
-      // Build sessions for this group
+      // Use "adhoc" as the metadata key for unattributed sessions
+      const metadataKey = agentName ?? "adhoc";
+
+      // Build sessions for this group and collect autoName updates
       const sessions: DiscoveredSession[] = [];
+      const autoNameUpdates: Array<{ sessionId: string; autoName: string; mtime: string }> = [];
 
       for (const { sessionId, mtime } of sessionFiles) {
         const attribution = attributionIndex.getAttribute(sessionId);
+        const mtimeStr = mtime.toISOString();
 
-        // Get custom name if we have an agent
-        let customName: string | undefined;
-        if (agentName) {
-          customName = await this.sessionMetadataStore.getCustomName(agentName, sessionId);
+        // Get custom name (now works for both attributed and unattributed sessions)
+        const customName = await this.sessionMetadataStore.getCustomName(metadataKey, sessionId);
+
+        // Resolve autoName with caching
+        const { autoName, needsUpdate } = await this.resolveAutoName(
+          metadataKey,
+          sessionId,
+          mtimeStr,
+          decodedPath,
+        );
+
+        if (needsUpdate && autoName) {
+          autoNameUpdates.push({ sessionId, autoName, mtime: mtimeStr });
         }
 
         sessions.push({
           sessionId,
           workingDirectory: decodedPath,
-          mtime: mtime.toISOString(),
+          mtime: mtimeStr,
           origin: attribution.origin,
           agentName: attribution.agentName ?? agentName,
           resumable: !dockerEnabled,
           customName,
+          autoName,
           preview: undefined,
         });
+      }
+
+      // Batch write any autoName updates for this directory
+      if (autoNameUpdates.length > 0) {
+        await this.sessionMetadataStore.batchSetAutoNames(metadataKey, autoNameUpdates);
       }
 
       groups.push({

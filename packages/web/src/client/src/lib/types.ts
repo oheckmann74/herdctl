@@ -368,6 +368,8 @@ export interface ChatSession {
   messageCount: number;
   preview: string;
   customName?: string;
+  /** Auto-generated session name (extracted from JSONL summary field) */
+  autoName?: string;
   origin: SessionOrigin;
   resumable: boolean;
 }
@@ -460,6 +462,8 @@ export interface DiscoveredSession {
   agentName: string | undefined;
   resumable: boolean;
   customName: string | undefined;
+  /** Auto-generated session name (extracted from JSONL summary field) */
+  autoName: string | undefined;
   preview: string | undefined;
 }
 

@@ -32,6 +32,7 @@ export function registerChatRoutes(
     origin: string;
     resumable: boolean;
     customName?: string;
+    autoName?: string;
     preview?: string;
   }): {
     sessionId: string;
@@ -40,6 +41,7 @@ export function registerChatRoutes(
     messageCount: number;
     preview: string;
     customName?: string;
+    autoName?: string;
     origin: string;
     resumable: boolean;
   } {
@@ -50,6 +52,7 @@ export function registerChatRoutes(
       messageCount: 0,
       preview: session.preview ?? "",
       customName: session.customName,
+      autoName: session.autoName,
       origin: session.origin,
       resumable: session.resumable,
     };
@@ -62,6 +65,7 @@ export function registerChatRoutes(
     origin: string;
     resumable: boolean;
     customName?: string;
+    autoName?: string;
     preview?: string;
     agentName?: string;
     workingDirectory: string;

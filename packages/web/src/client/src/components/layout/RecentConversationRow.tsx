@@ -45,7 +45,8 @@ export function RecentConversationRow({
     }
   }, [isEditing]);
 
-  const conversationName = session.customName || session.preview || "New conversation";
+  const conversationName =
+    session.customName || session.autoName || session.preview || "New conversation";
 
   // Route to agent chat if attributed, ad hoc chat if unattributed+resumable, or read-only otherwise
   const sessionPath =

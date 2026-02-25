@@ -58,7 +58,8 @@ export function SessionRow({ session, agentName, encodedPath }: SessionRowProps)
   const navigate = useNavigate();
 
   // Compute display name with fallback chain
-  const displayName = session.customName ?? session.preview ?? "Untitled session";
+  const displayName =
+    session.customName ?? session.autoName ?? session.preview ?? "Untitled session";
 
   // Compute relative timestamp
   const timestamp = formatRelativeTimestamp(session.mtime);

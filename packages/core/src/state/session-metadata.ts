@@ -24,6 +24,10 @@ const logger = createLogger("SessionMetadataStore");
  */
 export const SessionMetadataEntrySchema = z.object({
   customName: z.string().optional(),
+  /** Auto-generated session name (extracted from JSONL summary) */
+  autoName: z.string().optional(),
+  /** ISO 8601 timestamp of when autoName was extracted (for cache invalidation) */
+  autoNameMtime: z.string().optional(),
   // Future: pinned, archived, tags
 });
 
@@ -249,5 +253,110 @@ export class SessionMetadataStore {
    */
   async getAgentMetadata(agentName: string): Promise<SessionMetadataFile | null> {
     return this.loadMetadata(agentName);
+  }
+
+  /**
+   * Get auto-generated name and its mtime for a session
+   *
+   * @param agentName - The agent's qualified name (use "adhoc" for unattributed sessions)
+   * @param sessionId - The session ID
+   * @returns Object with autoName and autoNameMtime, or undefined if not cached
+   */
+  async getAutoName(
+    agentName: string,
+    sessionId: string,
+  ): Promise<{ autoName?: string; autoNameMtime?: string } | undefined> {
+    const metadata = await this.loadMetadata(agentName);
+    if (!metadata) {
+      return undefined;
+    }
+
+    const entry = metadata.sessions[sessionId];
+    if (!entry) {
+      return undefined;
+    }
+
+    return {
+      autoName: entry.autoName,
+      autoNameMtime: entry.autoNameMtime,
+    };
+  }
+
+  /**
+   * Set auto-generated name for a session
+   *
+   * @param agentName - The agent's qualified name (use "adhoc" for unattributed sessions)
+   * @param sessionId - The session ID
+   * @param autoName - The auto-generated name to set
+   * @param mtime - ISO 8601 timestamp of the session file when the name was extracted
+   */
+  async setAutoName(
+    agentName: string,
+    sessionId: string,
+    autoName: string,
+    mtime: string,
+  ): Promise<void> {
+    let metadata = await this.loadMetadata(agentName);
+
+    if (!metadata) {
+      metadata = this.createEmptyMetadata(agentName);
+    }
+
+    // Get or create the session entry
+    const sessionEntry = metadata.sessions[sessionId] ?? {};
+
+    // Update the auto name fields
+    metadata.sessions[sessionId] = {
+      ...sessionEntry,
+      autoName,
+      autoNameMtime: mtime,
+    };
+
+    await this.saveMetadata(agentName, metadata);
+
+    logger.debug(`Set auto name for session ${sessionId}`, {
+      agentName,
+      autoName,
+    });
+  }
+
+  /**
+   * Batch set auto-generated names for multiple sessions
+   *
+   * More efficient than calling setAutoName repeatedly since it performs
+   * a single file write for all updates.
+   *
+   * @param agentName - The agent's qualified name (use "adhoc" for unattributed sessions)
+   * @param entries - Array of { sessionId, autoName, mtime } objects
+   */
+  async batchSetAutoNames(
+    agentName: string,
+    entries: Array<{ sessionId: string; autoName: string; mtime: string }>,
+  ): Promise<void> {
+    if (entries.length === 0) {
+      return;
+    }
+
+    let metadata = await this.loadMetadata(agentName);
+
+    if (!metadata) {
+      metadata = this.createEmptyMetadata(agentName);
+    }
+
+    // Apply all updates
+    for (const { sessionId, autoName, mtime } of entries) {
+      const sessionEntry = metadata.sessions[sessionId] ?? {};
+      metadata.sessions[sessionId] = {
+        ...sessionEntry,
+        autoName,
+        autoNameMtime: mtime,
+      };
+    }
+
+    await this.saveMetadata(agentName, metadata);
+
+    logger.debug(`Batch set auto names for ${entries.length} sessions`, {
+      agentName,
+    });
   }
 }
