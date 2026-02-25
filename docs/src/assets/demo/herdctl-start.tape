@@ -1,9 +1,9 @@
 # VHS tape file for herdctl start demo
 # Renders a terminal recording of fleet startup
 #
-# Usage: cd /path/to/herdctl && vhs demo/herdctl-start.tape
+# Usage: cd /path/to/herdctl && vhs docs/src/assets/demo/herdctl-start.tape
 
-Output demo/herdctl-start.gif
+Output docs/public/demo/herdctl-start.gif
 
 Set FontSize 16
 Set FontFamily "JetBrainsMono Nerd Font"
@@ -19,7 +19,7 @@ Set CursorBlink false
 
 # Set up alias behind the scenes
 Hide
-Type `alias npx="bash demo/herdctl-start.sh #"`
+Type `alias npx="bash docs/src/assets/demo/herdctl-start.sh #"`
 Enter
 Sleep 300ms
 Type "clear"

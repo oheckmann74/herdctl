@@ -11,7 +11,7 @@
  * A warmup pass visits every page first (without recording) so all data
  * and assets are cached, eliminating loading delays in the final GIF.
  *
- * Usage: node demo/record-web-ui.cjs
+ * Usage: node docs/src/assets/demo/record-web-ui.cjs
  */
 
 const { chromium } = require("playwright");
