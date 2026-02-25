@@ -279,6 +279,7 @@ export function registerChatRoutes(
    */
   server.get("/api/chat/:agentName/sessions", async (request, reply) => {
     const { agentName } = request.params as { agentName: string };
+    const { limit } = request.query as { limit?: number };
 
     // Validate agent exists
     try {
@@ -288,7 +289,8 @@ export function registerChatRoutes(
     }
 
     try {
-      const sessions = await chatManager.listSessions(agentName);
+      const parsedLimit = limit ? Number(limit) : undefined;
+      const sessions = await chatManager.listSessions(agentName, parsedLimit);
       return { sessions: sessions.map(toFrontendSession) };
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);

@@ -338,8 +338,14 @@ export async function fetchChatConfig(): Promise<ChatConfigResponse> {
  *
  * GET /api/chat/:agentName/sessions
  */
-export async function fetchChatSessions(agentName: string): Promise<{ sessions: ChatSession[] }> {
-  return get<{ sessions: ChatSession[] }>(`/api/chat/${encodeURIComponent(agentName)}/sessions`);
+export async function fetchChatSessions(
+  agentName: string,
+  options?: { limit?: number },
+): Promise<{ sessions: ChatSession[] }> {
+  const params = options?.limit ? `?limit=${options.limit}` : "";
+  return get<{ sessions: ChatSession[] }>(
+    `/api/chat/${encodeURIComponent(agentName)}/sessions${params}`,
+  );
 }
 
 /**

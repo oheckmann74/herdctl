@@ -166,12 +166,12 @@ export class WebChatManager {
    * @param agentName - Name of the agent
    * @returns Array of discovered sessions
    */
-  async listSessions(agentName: string): Promise<DiscoveredSession[]> {
+  async listSessions(agentName: string, limit?: number): Promise<DiscoveredSession[]> {
     this.ensureInitialized();
     const agent = this.getAgentConfig(agentName);
     const workDir = this.getWorkingDirectory(agent);
     const dockerEnabled = agent.docker?.enabled ?? false;
-    return this.discoveryService!.getAgentSessions(agentName, workDir, dockerEnabled);
+    return this.discoveryService!.getAgentSessions(agentName, workDir, dockerEnabled, { limit });
   }
 
   /**
@@ -188,8 +188,8 @@ export class WebChatManager {
       workingDirectory: this.getWorkingDirectoryFromResolved(a),
       dockerEnabled: a.docker?.enabled ?? false,
     }));
-    const groups = await this.discoveryService!.getAllSessions(agentList);
-    // Flatten all sessions, sort by mtime desc, take limit
+    const groups = await this.discoveryService!.getAllSessions(agentList, { limit });
+    // Flatten and sort — getAllSessions already limited enrichment to top N
     const all = groups.flatMap((g) => g.sessions);
     all.sort((a, b) => b.mtime.localeCompare(a.mtime));
     return all.slice(0, limit);

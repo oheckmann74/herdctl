@@ -119,7 +119,7 @@ function decodePathForDisplay(encodedPath: string): string {
  */
 function isTempDirectory(decodedPath: string): boolean {
   const tmpDir = os.tmpdir();
-  const tempPatterns = ["/tmp/", "/var/folders/", tmpDir];
+  const tempPatterns = ["/tmp/", "/private/tmp/", "/var/folders/", tmpDir];
 
   for (const pattern of tempPatterns) {
     if (decodedPath.startsWith(pattern)) {
@@ -315,23 +315,29 @@ export class SessionDiscoveryService {
    * @param agentName - The agent's qualified name
    * @param workingDirectory - The agent's working directory
    * @param dockerEnabled - Whether Docker is enabled for the agent (affects resumability)
+   * @param options - Optional settings (limit for top-N optimization)
    * @returns Array of discovered sessions sorted by mtime descending
    */
   async getAgentSessions(
     agentName: string,
     workingDirectory: string,
     dockerEnabled: boolean,
+    options?: { limit?: number },
   ): Promise<DiscoveredSession[]> {
+    const limit = options?.limit;
     const encodedPath = encodePathForCli(workingDirectory);
     const sessionDir = path.join(this.claudeHomePath, "projects", encodedPath);
 
     logger.debug(`Getting sessions for agent ${agentName}`, { sessionDir });
 
-    // Get session files
+    // Get session files (already sorted by mtime descending)
     const sessionFiles = await this.listSessionFiles(sessionDir);
     if (sessionFiles.length === 0) {
       return [];
     }
+
+    // Only enrich the top N sessions when limit is set
+    const filesToEnrich = limit !== undefined ? sessionFiles.slice(0, limit) : sessionFiles;
 
     // Get attribution index
     const attributionIndex = await this.getAttributionIndex();
@@ -340,7 +346,7 @@ export class SessionDiscoveryService {
     const sessions: DiscoveredSession[] = [];
     const autoNameUpdates: Array<{ sessionId: string; autoName: string; mtime: string }> = [];
 
-    for (const { sessionId, mtime } of sessionFiles) {
+    for (const { sessionId, mtime } of filesToEnrich) {
       const attribution = attributionIndex.getAttribute(sessionId);
       const customName = await this.sessionMetadataStore.getCustomName(agentName, sessionId);
       const mtimeStr = mtime.toISOString();
@@ -385,12 +391,20 @@ export class SessionDiscoveryService {
    * working directories. Filters out temp directories and enriches
    * sessions with attribution and custom names.
    *
+   * When a limit is provided, only the most recent `limit` sessions
+   * (by mtime) are enriched with names, avoiding expensive JSONL parsing
+   * for sessions that won't be returned.
+   *
    * @param agents - Array of known agents for matching sessions
+   * @param options - Optional settings (limit for top-N optimization)
    * @returns Array of directory groups sorted by most recent session
    */
   async getAllSessions(
     agents: Array<{ name: string; workingDirectory: string; dockerEnabled: boolean }>,
+    options?: { limit?: number },
   ): Promise<DirectoryGroup[]> {
+    const limit = options?.limit;
+
     // Build agent lookup by encoded path
     const agentLookup = new Map<string, { agentName: string; dockerEnabled: boolean }>();
     for (const agent of agents) {
@@ -419,8 +433,17 @@ export class SessionDiscoveryService {
     // Get attribution index
     const attributionIndex = await this.getAttributionIndex();
 
-    // Process each directory
-    const groups: DirectoryGroup[] = [];
+    // Phase 1: Collect lightweight session entries from all directories
+    interface DirectoryInfo {
+      encodedPath: string;
+      decodedPath: string;
+      agentName: string | undefined;
+      metadataKey: string;
+      dockerEnabled: boolean;
+      sessionFiles: Array<{ sessionId: string; mtime: Date }>;
+    }
+
+    const directories: DirectoryInfo[] = [];
 
     for (const encodedPath of encodedPaths) {
       const sessionDir = path.join(projectsDir, encodedPath);
@@ -445,7 +468,7 @@ export class SessionDiscoveryService {
         continue;
       }
 
-      // Get session files
+      // Get session files (already sorted by mtime descending)
       const sessionFiles = await this.listSessionFiles(sessionDir);
       if (sessionFiles.length === 0) {
         continue;
@@ -455,27 +478,76 @@ export class SessionDiscoveryService {
       const agentMatch = agentLookup.get(encodedPath);
       const agentName = agentMatch?.agentName;
       const dockerEnabled = agentMatch?.dockerEnabled ?? false;
-
-      // Use "adhoc" as the metadata key for unattributed sessions
       const metadataKey = agentName ?? "adhoc";
 
-      // Build sessions for this group and collect autoName updates
+      directories.push({
+        encodedPath,
+        decodedPath,
+        agentName,
+        metadataKey,
+        dockerEnabled,
+        sessionFiles,
+      });
+    }
+
+    // Phase 2: If limit is set, find the top N sessions by mtime across all directories
+    // Each directory's sessionFiles are already sorted by mtime descending,
+    // so we merge-select the top N using pointers into each sorted list.
+    let selectedSessionIds: Set<string> | undefined;
+
+    if (limit !== undefined) {
+      // Merge pointers: index into each directory's sorted sessionFiles
+      const pointers = directories.map(() => 0);
+      selectedSessionIds = new Set<string>();
+
+      for (let picked = 0; picked < limit; picked++) {
+        let bestDir = -1;
+        let bestMtime: Date | null = null;
+
+        for (let d = 0; d < directories.length; d++) {
+          const dir = directories[d];
+          if (pointers[d] >= dir.sessionFiles.length) continue;
+          const candidate = dir.sessionFiles[pointers[d]];
+          if (bestMtime === null || candidate.mtime > bestMtime) {
+            bestMtime = candidate.mtime;
+            bestDir = d;
+          }
+        }
+
+        if (bestDir === -1) break; // No more sessions
+        selectedSessionIds.add(directories[bestDir].sessionFiles[pointers[bestDir]].sessionId);
+        pointers[bestDir]++;
+      }
+    }
+
+    // Phase 3: Enrich sessions (only selected ones when limit is set)
+    const groups: DirectoryGroup[] = [];
+
+    for (const dir of directories) {
       const sessions: DiscoveredSession[] = [];
       const autoNameUpdates: Array<{ sessionId: string; autoName: string; mtime: string }> = [];
 
-      for (const { sessionId, mtime } of sessionFiles) {
+      for (const { sessionId, mtime } of dir.sessionFiles) {
+        // Skip sessions not in the selected set when limit is active
+        if (selectedSessionIds && !selectedSessionIds.has(sessionId)) {
+          continue;
+        }
+
         const attribution = attributionIndex.getAttribute(sessionId);
         const mtimeStr = mtime.toISOString();
 
-        // Get custom name (now works for both attributed and unattributed sessions)
-        const customName = await this.sessionMetadataStore.getCustomName(metadataKey, sessionId);
+        // Get custom name (works for both attributed and unattributed sessions)
+        const customName = await this.sessionMetadataStore.getCustomName(
+          dir.metadataKey,
+          sessionId,
+        );
 
         // Resolve autoName with caching
         const { autoName, needsUpdate } = await this.resolveAutoName(
-          metadataKey,
+          dir.metadataKey,
           sessionId,
           mtimeStr,
-          decodedPath,
+          dir.decodedPath,
         );
 
         if (needsUpdate && autoName) {
@@ -484,11 +556,11 @@ export class SessionDiscoveryService {
 
         sessions.push({
           sessionId,
-          workingDirectory: decodedPath,
+          workingDirectory: dir.decodedPath,
           mtime: mtimeStr,
           origin: attribution.origin,
-          agentName: attribution.agentName ?? agentName,
-          resumable: !dockerEnabled,
+          agentName: attribution.agentName ?? dir.agentName,
+          resumable: !dir.dockerEnabled,
           customName,
           autoName,
           preview: undefined,
@@ -497,16 +569,18 @@ export class SessionDiscoveryService {
 
       // Batch write any autoName updates for this directory
       if (autoNameUpdates.length > 0) {
-        await this.sessionMetadataStore.batchSetAutoNames(metadataKey, autoNameUpdates);
+        await this.sessionMetadataStore.batchSetAutoNames(dir.metadataKey, autoNameUpdates);
       }
 
-      groups.push({
-        workingDirectory: decodedPath,
-        encodedPath,
-        agentName,
-        sessionCount: sessions.length,
-        sessions,
-      });
+      if (sessions.length > 0) {
+        groups.push({
+          workingDirectory: dir.decodedPath,
+          encodedPath: dir.encodedPath,
+          agentName: dir.agentName,
+          sessionCount: dir.sessionFiles.length,
+          sessions,
+        });
+      }
     }
 
     // Sort groups by most recent session mtime descending

@@ -318,6 +318,7 @@ describe("WebChatManager", () => {
         "test-agent",
         "/home/user/project",
         false,
+        { limit: undefined },
       );
       expect(sessions).toEqual([createMockDiscoveredSession()]);
     });
@@ -338,6 +339,7 @@ describe("WebChatManager", () => {
         "custom-agent",
         "/custom/path",
         true,
+        { limit: undefined },
       );
     });
 
@@ -377,13 +379,16 @@ describe("WebChatManager", () => {
     it("delegates to discoveryService.getAllSessions() with all agents", async () => {
       await manager.listAllRecentSessions();
 
-      expect(mockDiscoveryService.getAllSessions).toHaveBeenCalledWith([
-        {
-          name: "test-agent",
-          workingDirectory: "/home/user/project",
-          dockerEnabled: false,
-        },
-      ]);
+      expect(mockDiscoveryService.getAllSessions).toHaveBeenCalledWith(
+        [
+          {
+            name: "test-agent",
+            workingDirectory: "/home/user/project",
+            dockerEnabled: false,
+          },
+        ],
+        { limit: 100 },
+      );
     });
 
     it("flattens sessions from all groups", async () => {
@@ -1041,6 +1046,7 @@ describe("WebChatManager", () => {
         "test-agent",
         "/simple/path",
         false,
+        { limit: undefined },
       );
     });
 
@@ -1056,6 +1062,7 @@ describe("WebChatManager", () => {
         "test-agent",
         "/object/path",
         false,
+        { limit: undefined },
       );
     });
 

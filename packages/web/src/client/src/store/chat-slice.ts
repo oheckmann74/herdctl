@@ -327,8 +327,8 @@ export const createChatSlice: StateCreator<ChatSlice, [], [], ChatSlice> = (set,
     try {
       const results = await Promise.all(
         agentNames.map((name) =>
-          fetchChatSessions(name)
-            .then((r) => ({ name, sessions: r.sessions.slice(0, SIDEBAR_SESSION_LIMIT) }))
+          fetchChatSessions(name, { limit: SIDEBAR_SESSION_LIMIT })
+            .then((r) => ({ name, sessions: r.sessions }))
             .catch(() => ({ name, sessions: [] as ChatSession[] })),
         ),
       );
