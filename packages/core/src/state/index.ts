@@ -59,6 +59,7 @@ export {
 export {
   type ChatMessage,
   type ChatToolCall,
+  extractFirstMessagePreview,
   extractLastSummary,
   extractSessionMetadata,
   extractSessionUsage,

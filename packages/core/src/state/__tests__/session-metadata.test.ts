@@ -566,4 +566,84 @@ describe("SessionMetadataStore", () => {
       expect(files).toContain("adhoc.json");
     });
   });
+
+  describe("getPreview / setPreview", () => {
+    it("returns undefined for session with no preview", async () => {
+      const result = await store.getPreview("test-agent", "session-999");
+      expect(result).toBeUndefined();
+    });
+
+    it("roundtrips preview and previewMtime", async () => {
+      await store.setPreview(
+        "test-agent",
+        "session-123",
+        "What is TypeScript?",
+        "2024-01-15T10:00:00.000Z",
+      );
+
+      const result = await store.getPreview("test-agent", "session-123");
+      expect(result!.preview).toBe("What is TypeScript?");
+      expect(result!.previewMtime).toBe("2024-01-15T10:00:00.000Z");
+    });
+
+    it("preserves existing customName and autoName when setting preview", async () => {
+      await store.setCustomName("test-agent", "session-123", "My Custom Name");
+      await store.setAutoName(
+        "test-agent",
+        "session-123",
+        "Auto Generated",
+        "2024-01-15T10:00:00.000Z",
+      );
+      await store.setPreview(
+        "test-agent",
+        "session-123",
+        "First message text",
+        "2024-01-15T10:00:00.000Z",
+      );
+
+      expect(await store.getCustomName("test-agent", "session-123")).toBe("My Custom Name");
+      const autoResult = await store.getAutoName("test-agent", "session-123");
+      expect(autoResult!.autoName).toBe("Auto Generated");
+      const previewResult = await store.getPreview("test-agent", "session-123");
+      expect(previewResult!.preview).toBe("First message text");
+    });
+  });
+
+  describe("batchSetPreviews", () => {
+    it("writes multiple entries in a single operation", async () => {
+      await store.batchSetPreviews("test-agent", [
+        { sessionId: "session-1", preview: "First question", mtime: "2024-01-15T10:00:00.000Z" },
+        { sessionId: "session-2", preview: "Second question", mtime: "2024-01-15T11:00:00.000Z" },
+      ]);
+
+      const result1 = await store.getPreview("test-agent", "session-1");
+      expect(result1!.preview).toBe("First question");
+
+      const result2 = await store.getPreview("test-agent", "session-2");
+      expect(result2!.preview).toBe("Second question");
+    });
+
+    it("does nothing when entries array is empty", async () => {
+      await store.batchSetPreviews("test-agent", []);
+
+      const metadata = await store.getAgentMetadata("test-agent");
+      expect(metadata).toBeNull();
+    });
+
+    it("preserves existing data when batch updating", async () => {
+      await store.setCustomName("test-agent", "session-1", "Custom One");
+      await store.setAutoName("test-agent", "session-1", "Auto One", "2024-01-14T10:00:00.000Z");
+
+      await store.batchSetPreviews("test-agent", [
+        { sessionId: "session-1", preview: "Question one", mtime: "2024-01-15T10:00:00.000Z" },
+        { sessionId: "session-2", preview: "Question two", mtime: "2024-01-15T10:00:00.000Z" },
+      ]);
+
+      expect(await store.getCustomName("test-agent", "session-1")).toBe("Custom One");
+      const auto = await store.getAutoName("test-agent", "session-1");
+      expect(auto!.autoName).toBe("Auto One");
+      const preview1 = await store.getPreview("test-agent", "session-1");
+      expect(preview1!.preview).toBe("Question one");
+    });
+  });
 });

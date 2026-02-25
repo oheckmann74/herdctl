@@ -580,3 +580,54 @@ export async function extractLastSummary(sessionFilePath: string): Promise<strin
 
   return lastSummary;
 }
+
+// =============================================================================
+// extractFirstMessagePreview
+// =============================================================================
+
+/**
+ * Extract the first user message text from a JSONL session file.
+ *
+ * Streams the file and returns the text content of the first `type: "user"`
+ * entry that is not a tool result. Truncates to 100 characters. Closes the
+ * reader immediately after finding the first match, so this is O(few lines).
+ *
+ * @param sessionFilePath - Absolute path to the .jsonl file
+ * @returns The first user message preview, or undefined if none found
+ */
+export async function extractFirstMessagePreview(
+  sessionFilePath: string,
+): Promise<string | undefined> {
+  const rl = await createLineReader(sessionFilePath);
+  if (!rl) return undefined;
+
+  for await (const line of rl) {
+    const trimmed = line.trim();
+    if (trimmed.length === 0) continue;
+
+    let parsed: Record<string, unknown>;
+    try {
+      parsed = JSON.parse(trimmed) as Record<string, unknown>;
+    } catch {
+      continue;
+    }
+
+    if (parsed.type !== "user") continue;
+
+    const message = parsed.message as Record<string, unknown> | undefined;
+    if (!message) continue;
+
+    const content = message.content;
+
+    // Skip tool result messages
+    if (hasToolResultBlocks(content)) continue;
+
+    const text = extractTextContent(content);
+    if (text.length > 0) {
+      rl.close();
+      return text.length > 100 ? `${text.substring(0, 100)}...` : text;
+    }
+  }
+
+  return undefined;
+}
