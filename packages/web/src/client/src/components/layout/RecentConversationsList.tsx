@@ -108,7 +108,7 @@ export function RecentConversationsList({ onNavigate }: RecentConversationsListP
       <div className="p-2 space-y-2">
         {/* Skeleton rows */}
         {[1, 2, 3, 4, 5].map((i) => (
-          <div key={i} className="flex items-center gap-2 px-3 py-2 animate-pulse">
+          <div key={i} className="flex items-center gap-1 xl:gap-2 px-1 xl:px-3 py-2 animate-pulse">
             <div className="w-5 h-5 rounded bg-herd-sidebar-muted/20 flex-shrink-0" />
             <div className="flex-1 space-y-1">
               <div className="h-3.5 bg-herd-sidebar-muted/20 rounded w-3/4" />

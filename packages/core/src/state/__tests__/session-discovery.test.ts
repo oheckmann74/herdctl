@@ -14,6 +14,7 @@ vi.mock("../session-attribution.js", () => ({
 
 // Mock jsonl-parser
 vi.mock("../jsonl-parser.js", () => ({
+  extractFirstMessagePreview: vi.fn().mockResolvedValue(undefined),
   extractLastSummary: vi.fn(),
   extractSessionMetadata: vi.fn(),
   extractSessionUsage: vi.fn(),
@@ -25,17 +26,22 @@ vi.mock("../jsonl-parser.js", () => ({
 const mockGetCustomName = vi.fn().mockResolvedValue(undefined);
 const mockGetAutoName = vi.fn().mockResolvedValue(undefined);
 const mockBatchSetAutoNames = vi.fn().mockResolvedValue(undefined);
+const mockGetPreview = vi.fn().mockResolvedValue(undefined);
+const mockBatchSetPreviews = vi.fn().mockResolvedValue(undefined);
 vi.mock("../session-metadata.js", () => {
   return {
     SessionMetadataStore: class MockSessionMetadataStore {
       getCustomName = mockGetCustomName;
       getAutoName = mockGetAutoName;
       batchSetAutoNames = mockBatchSetAutoNames;
+      getPreview = mockGetPreview;
+      batchSetPreviews = mockBatchSetPreviews;
     },
   };
 });
 
 import {
+  extractFirstMessagePreview,
   extractLastSummary,
   extractSessionMetadata,
   extractSessionUsage,
@@ -47,6 +53,7 @@ import { buildAttributionIndex } from "../session-attribution.js";
 import { SessionDiscoveryService } from "../session-discovery.js";
 
 const mockBuildAttributionIndex = vi.mocked(buildAttributionIndex);
+const mockExtractFirstMessagePreview = vi.mocked(extractFirstMessagePreview);
 const mockExtractLastSummary = vi.mocked(extractLastSummary);
 const mockExtractSessionMetadata = vi.mocked(extractSessionMetadata);
 const mockExtractSessionUsage = vi.mocked(extractSessionUsage);
@@ -124,10 +131,16 @@ describe("SessionDiscoveryService", () => {
     mockGetAutoName.mockResolvedValue(undefined);
     mockBatchSetAutoNames.mockReset();
     mockBatchSetAutoNames.mockResolvedValue(undefined);
+    mockGetPreview.mockReset();
+    mockGetPreview.mockResolvedValue(undefined);
+    mockBatchSetPreviews.mockReset();
+    mockBatchSetPreviews.mockResolvedValue(undefined);
 
     // Reset JSONL parser mocks
     mockExtractLastSummary.mockReset();
     mockExtractLastSummary.mockResolvedValue(undefined);
+    mockExtractFirstMessagePreview.mockReset();
+    mockExtractFirstMessagePreview.mockResolvedValue(undefined);
   });
 
   afterEach(async () => {
@@ -340,7 +353,7 @@ describe("SessionDiscoveryService", () => {
       expect(sessions3).toHaveLength(2);
     });
 
-    it("preview field is always undefined (lazy loading)", async () => {
+    it("preview field is undefined when session has no user messages", async () => {
       const workingDir = "/Users/ed/Code/myproject";
       const encodedPath = "-Users-ed-Code-myproject";
       const projectDir = join(tempClaudeHome, "projects", encodedPath);

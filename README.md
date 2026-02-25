@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/public/herdctl-logo.svg" alt="herdctl" width="120" />
+  <img src="https://raw.githubusercontent.com/edspencer/herdctl/main/docs/public/herdctl-logo.svg" alt="herdctl" width="120" />
 </p>
 
 <h1 align="center">herdctl</h1>
@@ -23,6 +23,10 @@
 </p>
 
 ---
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/edspencer/herdctl/main/docs/public/demo/herdctl-demo.gif" alt="herdctl demo — fleet startup and web dashboard" width="720">
+</p>
 
 ## The Vision
 
@@ -85,7 +89,7 @@ herdctl status
 ## Web Dashboard
 
 <div align="center">
-  <img src="docs/src/assets/screenshots/fleet-overview.png" alt="herdctl web dashboard" width="800">
+  <img src="https://raw.githubusercontent.com/edspencer/herdctl/main/docs/src/assets/screenshots/fleet-overview.png" alt="herdctl web dashboard" width="800">
   <p><em>Fleet overview showing agents, status, and recent jobs</em></p>
 </div>
 

@@ -6,6 +6,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
+  extractFirstMessagePreview,
   extractLastSummary,
   extractSessionMetadata,
   extractSessionUsage,
@@ -408,5 +409,35 @@ describe("extractSessionMetadata - isSidechain field", () => {
   it("sets isSidechain false for normal sessions", async () => {
     const meta = await extractSessionMetadata(fixture("simple-session.jsonl"));
     expect(meta.isSidechain).toBe(false);
+  });
+});
+
+// =============================================================================
+// extractFirstMessagePreview
+// =============================================================================
+
+describe("extractFirstMessagePreview", () => {
+  it("returns first user message text from simple session", async () => {
+    const preview = await extractFirstMessagePreview(fixture("simple-session.jsonl"));
+    expect(preview).toBe("What is TypeScript?");
+  });
+
+  it("returns undefined for nonexistent file", async () => {
+    const preview = await extractFirstMessagePreview(fixture("does-not-exist.jsonl"));
+    expect(preview).toBeUndefined();
+  });
+
+  it("skips tool result messages and returns first text message", async () => {
+    // content-blocks-session has tool_use in assistant, tool_result in user
+    const preview = await extractFirstMessagePreview(fixture("content-blocks-session.jsonl"));
+    expect(preview).toBeDefined();
+    expect(typeof preview).toBe("string");
+    expect(preview!.length).toBeGreaterThan(0);
+  });
+
+  it("returns preview from summary session (user message before summaries)", async () => {
+    const preview = await extractFirstMessagePreview(fixture("summary-session.jsonl"));
+    expect(preview).toBeDefined();
+    expect(typeof preview).toBe("string");
   });
 });

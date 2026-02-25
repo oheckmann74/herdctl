@@ -79,7 +79,7 @@ export function RecentConversationRow({
   // Edit mode rendering
   if (isEditing) {
     return (
-      <div className="flex items-center gap-2 px-3 py-2 rounded bg-herd-sidebar-hover">
+      <div className="flex items-center gap-1 xl:gap-2 px-1 xl:px-3 py-2 rounded bg-herd-sidebar-hover">
         <img
           src={getAgentAvatar(session.agentName)}
           alt=""
@@ -108,7 +108,7 @@ export function RecentConversationRow({
 
   return (
     <div
-      className={`group flex items-center gap-2 px-3 py-2 rounded text-sm transition-colors ${
+      className={`group flex items-center gap-1 xl:gap-2 px-1 xl:px-3 py-2 rounded text-sm transition-colors ${
         !session.resumable ? "opacity-60" : ""
       } ${
         isActive

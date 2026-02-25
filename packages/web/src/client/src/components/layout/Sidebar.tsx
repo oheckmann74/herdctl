@@ -304,7 +304,7 @@ function AgentRow({
         <Link
           to={agentPath(agent.qualifiedName)}
           onClick={onNavigate}
-          className={`flex-1 flex items-center gap-2 pl-1 py-2.5 rounded-lg text-sm font-semibold tracking-wide transition-colors min-w-0 ${
+          className={`flex-1 flex items-center gap-1 xl:gap-2 pl-1 py-2.5 rounded-lg text-sm font-semibold tracking-wide transition-colors min-w-0 ${
             isActive ? "text-herd-sidebar-fg" : "text-herd-sidebar-fg/80 hover:text-herd-sidebar-fg"
           }`}
           style={paddingLeft ? { paddingLeft } : undefined}
@@ -348,7 +348,7 @@ function AgentRow({
                 return (
                   <div
                     key={session.sessionId}
-                    className="flex items-center gap-2 px-3 py-2 rounded bg-herd-sidebar-hover"
+                    className="flex items-center gap-1 xl:gap-2 px-1 xl:px-3 py-2 rounded bg-herd-sidebar-hover"
                   >
                     <input
                       ref={inputRef}
@@ -374,7 +374,7 @@ function AgentRow({
               return (
                 <div
                   key={session.sessionId}
-                  className={`group flex items-center gap-2 px-3 py-2 rounded text-sm transition-colors ${
+                  className={`group flex items-center gap-1 xl:gap-2 px-1 xl:px-3 py-2 rounded text-sm transition-colors ${
                     !session.resumable ? "opacity-60" : ""
                   } ${
                     isSessionActive
@@ -527,7 +527,7 @@ function NavItem({ to, icon, label, isActive, onNavigate }: NavItemProps) {
     <Link
       to={to}
       onClick={onNavigate}
-      className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
+      className={`flex items-center gap-1 xl:gap-2 px-1 xl:px-3 py-2 rounded-lg text-sm transition-colors ${
         isActive
           ? "text-herd-sidebar-fg bg-herd-sidebar-active font-medium"
           : "text-herd-sidebar-muted hover:bg-herd-sidebar-hover hover:text-herd-sidebar-fg"
@@ -753,7 +753,7 @@ export function Sidebar({ onNavigate }: SidebarProps = {}) {
               </p>
             )}
 
-            <div className="p-2 pt-0">
+            <div className="xl:p-2 p-0 pt-0">
               {/* Fleet-grouped agents — each fleet is a visually distinct group */}
               {fleetNodes.length > 0 && (
                 <div className="divide-y divide-herd-sidebar-border">

@@ -13,6 +13,7 @@ import { encodePathForCli, getCliSessionFile } from "../runner/runtime/cli-sessi
 import { createLogger } from "../utils/logger.js";
 import {
   type ChatMessage,
+  extractFirstMessagePreview,
   extractLastSummary,
   extractSessionMetadata,
   extractSessionUsage,
@@ -308,6 +309,40 @@ export class SessionDiscoveryService {
   }
 
   /**
+   * Resolve the preview (first user message text) for a session, using cache when valid.
+   *
+   * @param agentName - The agent's qualified name (or "adhoc" for unattributed)
+   * @param sessionId - The session ID
+   * @param fileMtime - ISO 8601 timestamp of the session file's modification time
+   * @param workingDirectory - The session's working directory
+   * @returns Object with preview and whether an update is needed
+   */
+  private async resolvePreview(
+    agentName: string,
+    sessionId: string,
+    fileMtime: string,
+    workingDirectory: string,
+  ): Promise<{ preview: string | undefined; needsUpdate: boolean }> {
+    // Check cache
+    const cached = await this.sessionMetadataStore.getPreview(agentName, sessionId);
+
+    if (cached?.previewMtime && cached.previewMtime >= fileMtime) {
+      // Cache is valid
+      return { preview: cached.preview, needsUpdate: false };
+    }
+
+    // Need to extract from JSONL
+    const filePath = getCliSessionFile(workingDirectory, sessionId);
+    const preview = await extractFirstMessagePreview(filePath);
+
+    if (preview) {
+      return { preview, needsUpdate: true };
+    }
+
+    return { preview: undefined, needsUpdate: false };
+  }
+
+  /**
    * Get sessions for a specific agent.
    *
    * Returns sessions from the agent's working directory, attributed and
@@ -343,9 +378,10 @@ export class SessionDiscoveryService {
     // Get attribution index
     const attributionIndex = await this.getAttributionIndex();
 
-    // Build discovered sessions and collect autoName updates
+    // Build discovered sessions and collect cache updates
     const sessions: DiscoveredSession[] = [];
     const autoNameUpdates: Array<{ sessionId: string; autoName: string; mtime: string }> = [];
+    const previewUpdates: Array<{ sessionId: string; preview: string; mtime: string }> = [];
 
     for (const { sessionId, mtime } of filesToEnrich) {
       // Filter out sidechain (sub-agent) sessions. Claude Code marks sessions
@@ -383,6 +419,18 @@ export class SessionDiscoveryService {
         autoNameUpdates.push({ sessionId, autoName, mtime: mtimeStr });
       }
 
+      // Resolve preview with caching
+      const { preview, needsUpdate: previewNeedsUpdate } = await this.resolvePreview(
+        agentName,
+        sessionId,
+        mtimeStr,
+        workingDirectory,
+      );
+
+      if (previewNeedsUpdate && preview) {
+        previewUpdates.push({ sessionId, preview, mtime: mtimeStr });
+      }
+
       sessions.push({
         sessionId,
         workingDirectory,
@@ -392,13 +440,16 @@ export class SessionDiscoveryService {
         resumable: !dockerEnabled,
         customName,
         autoName,
-        preview: undefined, // Lazy - loaded via getSessionMetadata
+        preview,
       });
     }
 
-    // Batch write any autoName updates
+    // Batch write any cache updates
     if (autoNameUpdates.length > 0) {
       await this.sessionMetadataStore.batchSetAutoNames(agentName, autoNameUpdates);
+    }
+    if (previewUpdates.length > 0) {
+      await this.sessionMetadataStore.batchSetPreviews(agentName, previewUpdates);
     }
 
     return sessions;
@@ -546,6 +597,7 @@ export class SessionDiscoveryService {
     for (const dir of directories) {
       const sessions: DiscoveredSession[] = [];
       const autoNameUpdates: Array<{ sessionId: string; autoName: string; mtime: string }> = [];
+      const previewUpdates: Array<{ sessionId: string; preview: string; mtime: string }> = [];
 
       for (const { sessionId, mtime } of dir.sessionFiles) {
         // Skip sessions not in the selected set when limit is active
@@ -580,6 +632,18 @@ export class SessionDiscoveryService {
           autoNameUpdates.push({ sessionId, autoName, mtime: mtimeStr });
         }
 
+        // Resolve preview with caching
+        const { preview, needsUpdate: previewNeedsUpdate } = await this.resolvePreview(
+          dir.metadataKey,
+          sessionId,
+          mtimeStr,
+          dir.decodedPath,
+        );
+
+        if (previewNeedsUpdate && preview) {
+          previewUpdates.push({ sessionId, preview, mtime: mtimeStr });
+        }
+
         sessions.push({
           sessionId,
           workingDirectory: dir.decodedPath,
@@ -589,13 +653,16 @@ export class SessionDiscoveryService {
           resumable: !dir.dockerEnabled,
           customName,
           autoName,
-          preview: undefined,
+          preview,
         });
       }
 
-      // Batch write any autoName updates for this directory
+      // Batch write any cache updates for this directory
       if (autoNameUpdates.length > 0) {
         await this.sessionMetadataStore.batchSetAutoNames(dir.metadataKey, autoNameUpdates);
+      }
+      if (previewUpdates.length > 0) {
+        await this.sessionMetadataStore.batchSetPreviews(dir.metadataKey, previewUpdates);
       }
 
       if (sessions.length > 0) {
