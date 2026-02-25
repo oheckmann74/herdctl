@@ -7,6 +7,20 @@ A summary of notable changes across the herdctl packages. For the full technical
 
 ---
 
+### Agent Distribution System
+**February 24, 2026** · `@herdctl/core@5.6.0` · `herdctl@1.4.0`
+
+Agents can now be installed, managed, and shared like packages. Use `herdctl agent add <source>` to install agents from GitHub repositories or local paths, with automatic validation, environment variable scanning, and fleet configuration updates. The new `herdctl agent` command group includes `list` (view all installed and manual agents with tree view support for sub-fleets), `info` (detailed agent metadata), and `remove` (clean agent removal). The `herdctl init` command has been split into `herdctl init fleet` (create fleet template) and `herdctl init agent` (interactive agent wizard) for clearer workflow separation. Agent repositories use a `herdctl.json` metadata file to declare author, description, version, and required environment variables.
+
+---
+
+### Web Chat Info Sidebar with Session Actions
+**February 23, 2026** · `@herdctl/web@0.8.0`
+
+The web chat interface now includes a toggleable info sidebar showing real-time session statistics and actions. View context window usage (input + cache tokens) with a progress bar indicating approximate fill percentage, see API call counts, and access session metadata including message count, model, working directory, and creation date. A "Continue in Claude Code" button generates the resume command for picking up conversations in your terminal (disabled for Docker agents). The sidebar persists your open/closed preference and automatically hides on smaller screens. Fleet startup is now more resilient: chat platforms (Web, Slack, Discord) initialize in parallel so a slow connection on one platform won't block others from starting.
+
+---
+
 ### Tabbed Sidebar with Spotlight Search
 **February 22, 2026** · `@herdctl/web@0.7.0` · `herdctl@1.3.9`
 
