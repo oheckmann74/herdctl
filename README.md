@@ -24,6 +24,10 @@
 
 ---
 
+<p align="center">
+  <img src="docs/public/demo/herdctl-demo.gif" alt="herdctl demo — fleet startup and web dashboard" width="720">
+</p>
+
 ## The Vision
 
 Claude Code has changed the world, but most of the work it does is supervised by a human. What if Claude Code could invoke itself?
