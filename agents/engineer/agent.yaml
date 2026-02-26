@@ -34,22 +34,35 @@ schedules:
     type: cron
     cron: "0 5 * * *"
     prompt: |
-      Perform daily housekeeping on your state files:
+      Perform daily housekeeping on your state files.
 
-      1. Read agents/engineer/conversations.md and estimate its token count.
+      IMPORTANT: First check what git branch you're on. If you're NOT on the main branch,
+      stash any uncommitted changes, switch to main, and pull the latest before proceeding.
+      State file updates should only happen on the main branch to avoid polluting feature branches.
+
+      1. Check current branch with `git branch --show-current`
+      2. If not on main:
+         - Run `git stash` if there are uncommitted changes
+         - Run `git checkout main && git pull`
+
+      Then perform housekeeping:
+
+      3. Read agents/engineer/conversations.md and estimate its token count.
          If over ~20,000 tokens, move the older half of entries to
          agents/engineer/conversations-archive.md (append, don't overwrite),
          keeping only recent entries in conversations.md.
 
-      2. Check .herdctl/jobs/ for any completed jobs from the last 24 hours
+      4. Check .herdctl/jobs/ for any completed jobs from the last 24 hours
          that belong to the engineer agent. For any that aren't already
          reflected in conversations.md, read the job output and add a
          brief summary entry.
 
-      3. Review agents/engineer/state.md — remove stale entries, update
+      5. Review agents/engineer/state.md — remove stale entries, update
          anything that's no longer accurate.
 
-      4. Update state.md frontmatter with today's date as last_active.
+      6. Update state.md frontmatter with today's date as last_active.
+
+      7. Commit the state file changes to main with message "chore(engineer): daily housekeeping"
 
 # Log conversation summaries to conversations.md after each job
 hooks:
