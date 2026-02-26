@@ -42,6 +42,7 @@ export function useWebSocket() {
   const clientRef = useRef<WebSocketClient | null>(null);
   const prevStatusRef = useRef<ConnectionStatus>("disconnected");
   const hasConnectedOnceRef = useRef(false);
+  const sessionRefreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Get store actions
   const setFleetStatus = useStore((state) => state.setFleetStatus);
@@ -166,16 +167,25 @@ export function useWebSocket() {
 
           if (isActiveSession || isNewChatForThisAgent) {
             completeStreaming(sessionId);
-
-            // Refresh sidebar sessions after completing the first message of a new chat
-            // This ensures the new session appears in the sidebar without requiring a refresh
-            if (isNewChatForThisAgent) {
-              const fetchSidebarSessions = useStore.getState().fetchSidebarSessions;
-              const agents = useStore.getState().agents;
-              const agentQualifiedNames = agents.map((a) => a.qualifiedName);
-              void fetchSidebarSessions(agentQualifiedNames);
-            }
           }
+
+          // Always refresh sidebar sessions after any chat:complete
+          // This ensures sessions created externally or in other tabs appear
+          // Use debouncing to prevent rapid refreshes during multi-turn conversations
+          if (sessionRefreshTimerRef.current) {
+            clearTimeout(sessionRefreshTimerRef.current);
+          }
+
+          sessionRefreshTimerRef.current = setTimeout(() => {
+            const fetchSidebarSessions = useStore.getState().fetchSidebarSessions;
+            const agents = useStore.getState().agents;
+            const agentQualifiedNames = agents.map((a) => a.qualifiedName);
+            void fetchSidebarSessions(agentQualifiedNames);
+
+            // Also refresh recent sessions for the Chats tab
+            const fetchRecentSessions = useStore.getState().fetchRecentSessions;
+            void fetchRecentSessions();
+          }, 2000); // 2-second debounce as suggested in the issue
 
           touchRecentSession(sessionId, agentName);
           break;
@@ -304,6 +314,10 @@ export function useWebSocket() {
       clientRef.current = null;
       // Clean up global reference
       delete (window as unknown as { __herdWsClient?: WebSocketClient }).__herdWsClient;
+      // Clean up debounce timer
+      if (sessionRefreshTimerRef.current) {
+        clearTimeout(sessionRefreshTimerRef.current);
+      }
     };
   }, [
     addJob,
