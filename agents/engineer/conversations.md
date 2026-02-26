@@ -1,5 +1,5 @@
 ---
-token_estimate: 300
+token_estimate: 800
 last_archived: null
 ---
 
@@ -9,8 +9,6 @@ Rolling summary of recent conversations across all chat sessions.
 Older entries are archived to `conversations-archive.md` when this file approaches ~20,000 tokens.
 
 ---
-
-*(No conversations yet — this file will be populated as the agent participates in chats.)*
 
 ### Daily housekeeping - state file maintenance
 **Date:** 2026-02-22 | **Type:** chat
@@ -34,20 +32,5 @@ Performed daily housekeeping tasks: checked conversations.md token count (~300 t
 
 ### Daily housekeeping - state file maintenance
 **Date:** 2026-02-26 | **Type:** chat
-Performed daily housekeeping tasks: checked conversations.md token count (~200 tokens, well below 20k threshold), verified no recent jobs in last 24h, updated state.md with current date (2026-02-22). All state files are clean and up-to-date.
-**Outcome:** State files updated and verified current
-
-### Daily housekeeping - state file maintenance
-**Date:** 2026-02-26 | **Type:** chat
-Performed daily housekeeping tasks: checked conversations.md token count (~200 tokens, well below 20k threshold), verified no recent jobs in last 24h, updated state.md with current date (2026-02-22). All state files are clean and up-to-date.
-**Outcome:** State files updated and verified current
-
-### Daily housekeeping - state file maintenance
-**Date:** 2026-02-26 | **Type:** chat
-Performed daily housekeeping tasks: checked conversations.md token count (~200 tokens, well below 20k threshold), verified no recent jobs in last 24h, updated state.md with current date (2026-02-22). All state files are clean and up-to-date.
-**Outcome:** State files updated and verified current
-
-### Daily housekeeping - state file maintenance
-**Date:** 2026-02-26 | **Type:** chat
-Performed daily housekeeping tasks: checked conversations.md token count (~200 tokens, well below 20k threshold), verified no recent jobs in last 24h, updated state.md with current date (2026-02-22). All state files are clean and up-to-date.
-**Outcome:** State files updated and verified current
+Performed daily housekeeping tasks: checked conversations.md token count (~1500 tokens, well below 20k threshold), removed duplicate entries from multiple runs on 2026-02-26, verified no recent jobs in last 24h, confirmed state.md has no stale entries, updated state.md with current date (2026-02-26). All state files remain clean and current.
+**Outcome:** State files cleaned and updated
