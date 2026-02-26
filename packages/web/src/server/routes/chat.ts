@@ -234,8 +234,16 @@ export function registerChatRoutes(
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
+      const errCode = (error as NodeJS.ErrnoException).code;
       logger.error("Failed to get session by path", { error: message, encodedPath, sessionId });
-      return reply.status(404).send({ error: `Session not found: ${sessionId}` });
+
+      // Return 404 only for genuine "not found" cases
+      if (errCode === "ENOENT") {
+        return reply.status(404).send({ error: `Session not found: ${sessionId}` });
+      }
+
+      // Return 500 for all other errors (permission denied, disk failures, parse errors)
+      return reply.status(500).send({ error: `Failed to get session: ${message}` });
     }
   });
 
@@ -338,8 +346,16 @@ export function registerChatRoutes(
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
+      const errCode = (error as NodeJS.ErrnoException).code;
       logger.error("Failed to get session messages", { error: message, agentName, sessionId });
-      return reply.status(404).send({ error: `Session not found: ${sessionId}` });
+
+      // Return 404 only for genuine "not found" cases
+      if (errCode === "ENOENT") {
+        return reply.status(404).send({ error: `Session not found: ${sessionId}` });
+      }
+
+      // Return 500 for all other errors (permission denied, disk failures, parse errors)
+      return reply.status(500).send({ error: `Failed to get session: ${message}` });
     }
   });
 
