@@ -122,34 +122,120 @@ WORKER_PROMPT
 ```
 
 Launch ALL workers in parallel (all Bash calls in a single message with `run_in_background: true`).
+
+**Record the background task ID** returned for each worker. You will need these IDs in the monitoring step.
 </step>
 
-<step name="report_status">
-After all workers are launched, report to the user:
+<step name="report_launch">
+After all workers are launched, report a summary table:
 
 ```
 ## Workers Dispatched
 
-| Issue | Title | Clone | Status |
-|-------|-------|-------|--------|
-| #101  | Fix the thing | ~/Code/herdctl-issues/issue-101/ | Launched |
-| #102  | Add the other | ~/Code/herdctl-issues/issue-102/ | Launched |
+| Issue | Title | Clone | Task ID |
+|-------|-------|-------|---------|
+| #101  | Fix the thing | ~/Code/herdctl-issues/issue-101/ | abc1234 |
+| #102  | Add the other | ~/Code/herdctl-issues/issue-102/ | def5678 |
 
-### Monitor Progress
+Monitoring progress... (checking every 60 seconds)
+```
+</step>
 
-Tail worker logs:
-  tail -f ~/Code/herdctl-issues/issue-101/claude-worker.log
-  tail -f ~/Code/herdctl-issues/issue-102/claude-worker.log
+<step name="monitor_workers">
+Poll worker status once per minute until all workers have finished.
 
-Check for completed PRs:
-  gh pr list --repo edspencer/herdctl --author @me
+**Loop:**
+1. Wait 60 seconds using `sleep 60` in a Bash call
+2. For each worker that is still running, check status using **all three methods in parallel**:
+   a. `TaskOutput` with `block: false` — check if the background task is still running or completed
+   b. Parse the worker's JSONL session file for progress
+   c. Check if a PR exists via `gh pr list`
+
+**Finding the JSONL session file:**
+The worker's Claude Code session is stored at:
+```
+~/.claude/projects/-Users-ed-Code-herdctl-issues-issue-<N>/
+```
+Find the `.jsonl` file in that directory (there will be exactly one). Parse it with this command to extract a status summary:
+
+```bash
+JSONL_FILE=$(ls -t ~/.claude/projects/-Users-ed-Code-herdctl-issues-issue-<N>/*.jsonl 2>/dev/null | head -1)
+if [ -n "$JSONL_FILE" ]; then
+  cat "$JSONL_FILE" | python3 -c "
+import sys, json
+tool_calls = []
+last_message = ''
+for line in sys.stdin:
+    line = line.strip()
+    if not line: continue
+    try:
+        obj = json.loads(line)
+        if obj.get('type') == 'assistant':
+            for block in obj.get('message', {}).get('content', []):
+                if block.get('type') == 'text' and block['text'].strip():
+                    last_message = block['text'].strip()[:150]
+                elif block.get('type') == 'tool_use':
+                    name = block.get('name', '')
+                    inp = block.get('input', {})
+                    if name == 'Bash':
+                        tool_calls.append(f'Bash: {inp.get(\"description\", inp.get(\"command\", \"\")[:60])}')
+                    elif name in ('Read', 'Edit', 'Write'):
+                        tool_calls.append(f'{name}: {inp.get(\"file_path\", \"\").split(\"/\")[-1]}')
+                    elif name == 'Grep':
+                        tool_calls.append(f'Grep: \"{inp.get(\"pattern\", \"\")}\"')
+                    else:
+                        tool_calls.append(name)
+    except: pass
+print(f'Tool calls: {len(tool_calls)}')
+if tool_calls:
+    print(f'Last tool: {tool_calls[-1]}')
+if last_message:
+    print(f'Status: {last_message}')
+"
+fi
+```
+
+**Checking for PR:**
+```bash
+gh pr list --repo edspencer/herdctl --head fix/issue-<N> --json number,url 2>/dev/null
+```
+
+**After each check cycle, report a compact status update:**
+
+```
+## Status Check (2 min elapsed)
+
+| Issue | Tool Calls | Last Activity | PR |
+|-------|-----------|---------------|-----|
+| #101  | 23 | "Running pnpm build..." | - |
+| #102  | 15 | "Exploring useWebSocket.ts..." | - |
+```
+
+**When a worker completes:**
+- Check `TaskOutput` exit code (0 = success)
+- Check if PR was created
+- Mark that worker as done and stop monitoring it
+
+**Continue the loop** until all workers are done.
+</step>
+
+<step name="final_summary">
+Once all workers have finished, report a final summary:
+
+```
+## All Workers Complete
+
+| Issue | Title | Result | PR |
+|-------|-------|--------|-----|
+| #101  | Fix the thing | Success | #172 https://github.com/edspencer/herdctl/pull/172 |
+| #102  | Add the other | Success | #173 https://github.com/edspencer/herdctl/pull/173 |
 
 ### Cleanup (after PRs are merged)
   rm -rf ~/Code/herdctl-issues/issue-101
   rm -rf ~/Code/herdctl-issues/issue-102
 ```
 
-Do NOT wait for workers to finish. They run autonomously in the background.
+If any worker failed (non-zero exit code or no PR created), note it in the Result column and suggest checking the JSONL session file for details.
 </step>
 
 </process>
@@ -256,5 +342,6 @@ PR_EOF
 - [ ] Repo cloned to ~/Code/herdctl-issues/issue-<N>/ for each issue
 - [ ] Fix branch created and dependencies installed in each clone
 - [ ] Claude Code worker launched in each clone with correct prompt
-- [ ] Status report shown to user with log paths and monitoring commands
+- [ ] Workers monitored every 60 seconds with progress updates shown
+- [ ] Final summary reported with PR links for each issue
 </success_criteria>
