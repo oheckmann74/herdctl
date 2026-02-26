@@ -6,7 +6,7 @@
  */
 
 import { ChevronRight, Info } from "lucide-react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router";
 import { agentPath } from "../../lib/paths";
 import type { DirectoryGroup as DirectoryGroupType, DiscoveredSession } from "../../lib/types";
@@ -62,6 +62,7 @@ function sessionMatchesQuery(session: DiscoveredSession, query: string): boolean
 
 export function DirectoryGroup({ group, expanded, onToggle, searchQuery }: DirectoryGroupProps) {
   const { loadMoreGroupSessions } = useAllChatsActions();
+  const [showAll, setShowAll] = useState(false);
 
   // Filter sessions client-side when searching
   const filteredSessions = useMemo(() => {
@@ -70,13 +71,18 @@ export function DirectoryGroup({ group, expanded, onToggle, searchQuery }: Direc
   }, [group.sessions, searchQuery]);
 
   // Determine how many sessions to show
-  const sessionsToShow = filteredSessions.slice(0, INITIAL_SESSIONS_SHOWN);
+  const sessionsToShow = showAll ? filteredSessions : filteredSessions.slice(0, INITIAL_SESSIONS_SHOWN);
   const hasMoreLoaded = filteredSessions.length > INITIAL_SESSIONS_SHOWN;
   const hasMoreOnServer = group.sessionCount > group.sessions.length;
 
   // Handle "Show all" click
   const handleShowAll = () => {
-    loadMoreGroupSessions(group.encodedPath);
+    // First, show all locally-loaded sessions
+    setShowAll(true);
+    // Then fetch more from server if there are any
+    if (hasMoreOnServer) {
+      loadMoreGroupSessions(group.encodedPath);
+    }
   };
 
   return (
@@ -145,7 +151,7 @@ export function DirectoryGroup({ group, expanded, onToggle, searchQuery }: Direc
               ))}
 
               {/* Show more button */}
-              {(hasMoreLoaded || hasMoreOnServer) && (
+              {!showAll && (hasMoreLoaded || hasMoreOnServer) && (
                 <div className="px-4 py-2">
                   <button
                     type="button"
