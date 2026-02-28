@@ -208,6 +208,9 @@ These questions should be systematically investigated during audits. Each audit 
 | Q12 | Are OAuth access_token and refresh_token properly sanitized from error messages? | High | Open | - | - | container-manager.ts logger.error() calls in OAuth functions - check for credential leaks |
 | Q13 | Does credentials file (~/.claude/.credentials.json) have 0600 permissions enforced? | High | Open | - | - | writeCredentialsFile() should enforce permissions - verify with fs.chmodSync() |
 | Q14 | Can token refresh handle network failures without leaking credentials in stack traces? | Medium | Open | - | - | refreshClaudeOAuthToken() error handling - verify no token data in Error objects |
+| Q18 | Web API endpoints systematic security review | High | Open | - | - | Review all /api/* endpoints for injection, auth bypass, rate limiting, input validation issues |
+| Q19 | npm audit high severity vulnerabilities analysis | High | Open | - | - | Run pnpm audit, identify which packages/CVEs, assess exploitability in herdctl context |
+| Q20 | Should audits document grep pattern results even when clean? | Medium | Open | - | - | HOT-SPOTS.md patterns should be run every audit - document "0 matches" to prove execution |
 
 ### Question Guidelines
 

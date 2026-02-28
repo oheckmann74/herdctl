@@ -70,6 +70,9 @@ grep -r "CapAdd\|Privileged\|hostConfigOverride" packages/ --include="*.ts"
 
 # OAuth credential handling
 grep -r "readCredentialsFile\|writeCredentialsFile\|refreshClaudeOAuthToken\|ensureValidOAuthToken" packages/ --include="*.ts"
+
+# OAuth credential logging (Finding #011 - verify no token leakage)
+grep -r "logger\.\|console\." packages/core/src/runner/runtime/container-manager.ts | grep -i "oauth\|token\|credential"
 ```
 
 ## Recent Additions
