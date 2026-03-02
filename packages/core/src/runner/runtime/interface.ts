@@ -33,6 +33,9 @@ export interface RuntimeExecuteOptions {
 
   /** MCP servers to inject at runtime (SDK and Docker runtimes) */
   injectedMcpServers?: Record<string, import("../types.js").InjectedMcpServerDef>;
+
+  /** Text to append to the agent's system prompt for this run */
+  systemPromptAppend?: string;
 }
 
 /**

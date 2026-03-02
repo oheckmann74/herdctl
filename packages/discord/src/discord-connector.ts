@@ -688,6 +688,26 @@ export class DiscordConnector extends EventEmitter implements IDiscordConnector 
       });
     };
 
+    // Create reply-with-reference function for editable messages (progress embeds)
+    const replyWithRef = async (
+      content: string | DiscordReplyPayload,
+    ): Promise<{
+      edit: (c: string | DiscordReplyPayload) => Promise<void>;
+      delete: () => Promise<void>;
+    }> => {
+      const textChannel = channel as TextChannel | DMChannel | NewsChannel | ThreadChannel;
+      const sentMessage = await textChannel.send(content as Parameters<typeof textChannel.send>[0]);
+      this._messagesSent++;
+      return {
+        edit: async (newContent: string | DiscordReplyPayload) => {
+          await sentMessage.edit(newContent as Parameters<typeof sentMessage.edit>[0]);
+        },
+        delete: async () => {
+          await sentMessage.delete();
+        },
+      };
+    };
+
     // Create typing indicator function
     // Returns a stop function that should be called when done
     const startTyping = (): (() => void) => {
@@ -771,6 +791,7 @@ export class DiscordConnector extends EventEmitter implements IDiscordConnector 
         voiceAttachmentName,
       },
       reply,
+      replyWithRef,
       startTyping,
       addReaction,
       removeReaction,

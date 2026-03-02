@@ -37,6 +37,8 @@ export interface RunnerOptions {
   abortController?: AbortController;
   /** MCP servers to inject at runtime (SDK and Docker runtimes) */
   injectedMcpServers?: Record<string, InjectedMcpServerDef>;
+  /** Text to append to the agent's system prompt for this run */
+  systemPromptAppend?: string;
 }
 
 /**

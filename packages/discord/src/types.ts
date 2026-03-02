@@ -379,6 +379,14 @@ export interface DiscordConnectorEventMap {
     addReaction: (emoji: string) => Promise<void>;
     /** Remove the bot's reaction from the user's message */
     removeReaction: (emoji: string) => Promise<void>;
+    /**
+     * Send a reply and return a handle for editing or deleting it.
+     * Used for progress indicator embeds that update in-place.
+     */
+    replyWithRef: (content: string | DiscordReplyPayload) => Promise<{
+      edit: (content: string | DiscordReplyPayload) => Promise<void>;
+      delete: () => Promise<void>;
+    }>;
   };
 
   /**

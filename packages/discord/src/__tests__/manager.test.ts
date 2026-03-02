@@ -181,6 +181,9 @@ describe("DiscordManager", () => {
           typing_indicator: true,
           errors: true,
           acknowledge_emoji: "eyes",
+          final_answer_only: true,
+          progress_indicator: true,
+          concise_mode: true,
         },
         guilds: [],
       };
@@ -408,6 +411,10 @@ describe("DiscordMessageEvent type", () => {
       startTyping: () => () => {},
       addReaction: vi.fn().mockResolvedValue(undefined),
       removeReaction: vi.fn().mockResolvedValue(undefined),
+      replyWithRef: vi.fn().mockResolvedValue({
+        edit: vi.fn().mockResolvedValue(undefined),
+        delete: vi.fn().mockResolvedValue(undefined),
+      }),
     };
 
     expect(event.agentName).toBe("test-agent");
@@ -438,6 +445,10 @@ describe("DiscordMessageEvent type", () => {
       startTyping: () => () => {},
       addReaction: vi.fn().mockResolvedValue(undefined),
       removeReaction: vi.fn().mockResolvedValue(undefined),
+      replyWithRef: vi.fn().mockResolvedValue({
+        edit: vi.fn().mockResolvedValue(undefined),
+        delete: vi.fn().mockResolvedValue(undefined),
+      }),
     };
 
     expect(event.metadata.guildId).toBeNull();
@@ -740,6 +751,9 @@ describe.skip("DiscordManager message handling", () => {
             typing_indicator: true,
             errors: true,
             acknowledge_emoji: "eyes",
+            final_answer_only: true,
+            progress_indicator: true,
+            concise_mode: true,
           },
           guilds: [],
         }),
@@ -877,6 +891,10 @@ describe.skip("DiscordManager message handling", () => {
         startTyping: () => () => {},
         addReaction: vi.fn().mockResolvedValue(undefined),
         removeReaction: vi.fn().mockResolvedValue(undefined),
+        replyWithRef: vi.fn().mockResolvedValue({
+          edit: vi.fn().mockResolvedValue(undefined),
+          delete: vi.fn().mockResolvedValue(undefined),
+        }),
       };
 
       // Emit the message event
@@ -929,6 +947,9 @@ describe.skip("DiscordManager message handling", () => {
               typing_indicator: true,
               errors: true,
               acknowledge_emoji: "eyes",
+              final_answer_only: true,
+              progress_indicator: true,
+              concise_mode: true,
             },
             guilds: [],
           }),
@@ -1035,6 +1056,10 @@ describe.skip("DiscordManager message handling", () => {
         startTyping: () => () => {},
         addReaction: vi.fn().mockResolvedValue(undefined),
         removeReaction: vi.fn().mockResolvedValue(undefined),
+        replyWithRef: vi.fn().mockResolvedValue({
+          edit: vi.fn().mockResolvedValue(undefined),
+          delete: vi.fn().mockResolvedValue(undefined),
+        }),
       };
 
       // Emit the message event
@@ -1080,6 +1105,9 @@ describe.skip("DiscordManager message handling", () => {
               typing_indicator: true,
               errors: true,
               acknowledge_emoji: "eyes",
+              final_answer_only: true,
+              progress_indicator: true,
+              concise_mode: true,
             },
             guilds: [],
           }),
@@ -1186,6 +1214,10 @@ describe.skip("DiscordManager message handling", () => {
         startTyping: () => () => {},
         addReaction: vi.fn().mockResolvedValue(undefined),
         removeReaction: vi.fn().mockResolvedValue(undefined),
+        replyWithRef: vi.fn().mockResolvedValue({
+          edit: vi.fn().mockResolvedValue(undefined),
+          delete: vi.fn().mockResolvedValue(undefined),
+        }),
       };
 
       // Emit the message event
@@ -1262,6 +1294,9 @@ describe.skip("DiscordManager message handling", () => {
               typing_indicator: true,
               errors: true,
               acknowledge_emoji: "eyes",
+              final_answer_only: true,
+              progress_indicator: true,
+              concise_mode: true,
             },
             guilds: [],
           }),
@@ -1365,6 +1400,10 @@ describe.skip("DiscordManager message handling", () => {
         startTyping: () => () => {},
         addReaction: vi.fn().mockResolvedValue(undefined),
         removeReaction: vi.fn().mockResolvedValue(undefined),
+        replyWithRef: vi.fn().mockResolvedValue({
+          edit: vi.fn().mockResolvedValue(undefined),
+          delete: vi.fn().mockResolvedValue(undefined),
+        }),
       };
 
       mockConnector.emit("message", messageEvent);
@@ -1427,6 +1466,9 @@ describe.skip("DiscordManager message handling", () => {
               typing_indicator: true,
               errors: true,
               acknowledge_emoji: "eyes",
+              final_answer_only: true,
+              progress_indicator: true,
+              concise_mode: true,
             },
             guilds: [],
           }),
@@ -1530,6 +1572,10 @@ describe.skip("DiscordManager message handling", () => {
         startTyping: () => () => {},
         addReaction: vi.fn().mockResolvedValue(undefined),
         removeReaction: vi.fn().mockResolvedValue(undefined),
+        replyWithRef: vi.fn().mockResolvedValue({
+          edit: vi.fn().mockResolvedValue(undefined),
+          delete: vi.fn().mockResolvedValue(undefined),
+        }),
       };
 
       mockConnector.emit("message", messageEvent);
@@ -1652,6 +1698,10 @@ describe.skip("DiscordManager message handling", () => {
         startTyping: () => () => {},
         addReaction: vi.fn().mockResolvedValue(undefined),
         removeReaction: vi.fn().mockResolvedValue(undefined),
+        replyWithRef: vi.fn().mockResolvedValue({
+          edit: vi.fn().mockResolvedValue(undefined),
+          delete: vi.fn().mockResolvedValue(undefined),
+        }),
       };
 
       // Emit the message event - this will trigger handleMessage which will fail
@@ -1780,6 +1830,10 @@ describe.skip("DiscordManager message handling", () => {
         startTyping: () => () => {},
         addReaction: vi.fn().mockResolvedValue(undefined),
         removeReaction: vi.fn().mockResolvedValue(undefined),
+        replyWithRef: vi.fn().mockResolvedValue({
+          edit: vi.fn().mockResolvedValue(undefined),
+          delete: vi.fn().mockResolvedValue(undefined),
+        }),
       };
 
       // Emit the message event
@@ -1856,6 +1910,10 @@ describe.skip("DiscordManager message handling", () => {
         startTyping: () => () => {},
         addReaction: vi.fn().mockResolvedValue(undefined),
         removeReaction: vi.fn().mockResolvedValue(undefined),
+        replyWithRef: vi.fn().mockResolvedValue({
+          edit: vi.fn().mockResolvedValue(undefined),
+          delete: vi.fn().mockResolvedValue(undefined),
+        }),
       };
 
       // Emit the message event
@@ -1932,6 +1990,10 @@ describe.skip("DiscordManager message handling", () => {
         startTyping: () => () => {},
         addReaction: vi.fn().mockResolvedValue(undefined),
         removeReaction: vi.fn().mockResolvedValue(undefined),
+        replyWithRef: vi.fn().mockResolvedValue({
+          edit: vi.fn().mockResolvedValue(undefined),
+          delete: vi.fn().mockResolvedValue(undefined),
+        }),
       };
 
       // Emit the message event
@@ -2507,6 +2569,9 @@ describe.skip("DiscordManager session integration", () => {
             typing_indicator: true,
             errors: true,
             acknowledge_emoji: "eyes",
+            final_answer_only: true,
+            progress_indicator: true,
+            concise_mode: true,
           },
           guilds: [],
         }),
@@ -2602,6 +2667,10 @@ describe.skip("DiscordManager session integration", () => {
       startTyping: () => () => {},
       addReaction: vi.fn().mockResolvedValue(undefined),
       removeReaction: vi.fn().mockResolvedValue(undefined),
+      replyWithRef: vi.fn().mockResolvedValue({
+        edit: vi.fn().mockResolvedValue(undefined),
+        delete: vi.fn().mockResolvedValue(undefined),
+      }),
     };
 
     // Emit the message event
@@ -2675,6 +2744,10 @@ describe.skip("DiscordManager session integration", () => {
       startTyping: () => () => {},
       addReaction: vi.fn().mockResolvedValue(undefined),
       removeReaction: vi.fn().mockResolvedValue(undefined),
+      replyWithRef: vi.fn().mockResolvedValue({
+        edit: vi.fn().mockResolvedValue(undefined),
+        delete: vi.fn().mockResolvedValue(undefined),
+      }),
     };
 
     // Emit the message event
@@ -2750,6 +2823,10 @@ describe.skip("DiscordManager session integration", () => {
       startTyping: () => () => {},
       addReaction: vi.fn().mockResolvedValue(undefined),
       removeReaction: vi.fn().mockResolvedValue(undefined),
+      replyWithRef: vi.fn().mockResolvedValue({
+        edit: vi.fn().mockResolvedValue(undefined),
+        delete: vi.fn().mockResolvedValue(undefined),
+      }),
     };
 
     // Emit the message event
@@ -2827,6 +2904,10 @@ describe.skip("DiscordManager session integration", () => {
       startTyping: () => () => {},
       addReaction: vi.fn().mockResolvedValue(undefined),
       removeReaction: vi.fn().mockResolvedValue(undefined),
+      replyWithRef: vi.fn().mockResolvedValue({
+        edit: vi.fn().mockResolvedValue(undefined),
+        delete: vi.fn().mockResolvedValue(undefined),
+      }),
     };
 
     // Emit the message event
@@ -3204,6 +3285,9 @@ describe.skip("DiscordManager lifecycle", () => {
             typing_indicator: true,
             errors: true,
             acknowledge_emoji: "eyes",
+            final_answer_only: true,
+            progress_indicator: true,
+            concise_mode: true,
           },
           guilds: [],
         }),
@@ -3304,6 +3388,10 @@ describe.skip("DiscordManager lifecycle", () => {
       startTyping: () => () => {},
       addReaction: vi.fn().mockResolvedValue(undefined),
       removeReaction: vi.fn().mockResolvedValue(undefined),
+      replyWithRef: vi.fn().mockResolvedValue({
+        edit: vi.fn().mockResolvedValue(undefined),
+        delete: vi.fn().mockResolvedValue(undefined),
+      }),
     };
 
     // Emit the message event
@@ -3352,6 +3440,9 @@ describe.skip("DiscordManager lifecycle", () => {
             typing_indicator: true,
             errors: true,
             acknowledge_emoji: "eyes",
+            final_answer_only: true,
+            progress_indicator: true,
+            concise_mode: true,
           },
           guilds: [],
         }),
@@ -3452,6 +3543,10 @@ describe.skip("DiscordManager lifecycle", () => {
       startTyping: () => () => {},
       addReaction: vi.fn().mockResolvedValue(undefined),
       removeReaction: vi.fn().mockResolvedValue(undefined),
+      replyWithRef: vi.fn().mockResolvedValue({
+        edit: vi.fn().mockResolvedValue(undefined),
+        delete: vi.fn().mockResolvedValue(undefined),
+      }),
     };
 
     // Emit the message event
@@ -3660,6 +3755,10 @@ describe.skip("DiscordManager lifecycle", () => {
       startTyping: () => () => {},
       addReaction: vi.fn().mockResolvedValue(undefined),
       removeReaction: vi.fn().mockResolvedValue(undefined),
+      replyWithRef: vi.fn().mockResolvedValue({
+        edit: vi.fn().mockResolvedValue(undefined),
+        delete: vi.fn().mockResolvedValue(undefined),
+      }),
     };
 
     // Emit the message event
@@ -3708,6 +3807,9 @@ describe.skip("DiscordManager lifecycle", () => {
             typing_indicator: true,
             errors: true,
             acknowledge_emoji: "eyes",
+            final_answer_only: true,
+            progress_indicator: true,
+            concise_mode: true,
           },
           guilds: [],
         }),
@@ -3808,6 +3910,10 @@ describe.skip("DiscordManager lifecycle", () => {
       startTyping: () => () => {},
       addReaction: vi.fn().mockResolvedValue(undefined),
       removeReaction: vi.fn().mockResolvedValue(undefined),
+      replyWithRef: vi.fn().mockResolvedValue({
+        edit: vi.fn().mockResolvedValue(undefined),
+        delete: vi.fn().mockResolvedValue(undefined),
+      }),
     };
 
     // Emit the message event
@@ -3901,6 +4007,9 @@ describe.skip("DiscordManager output configuration", () => {
                 typing_indicator: true,
                 errors: true,
                 acknowledge_emoji: "eyes",
+                final_answer_only: true,
+                progress_indicator: true,
+                concise_mode: true,
               },
               guilds: [],
             },
@@ -4005,6 +4114,10 @@ describe.skip("DiscordManager output configuration", () => {
       startTyping: () => () => {},
       addReaction: vi.fn().mockResolvedValue(undefined),
       removeReaction: vi.fn().mockResolvedValue(undefined),
+      replyWithRef: vi.fn().mockResolvedValue({
+        edit: vi.fn().mockResolvedValue(undefined),
+        delete: vi.fn().mockResolvedValue(undefined),
+      }),
     };
 
     mockConnector.emit("message", messageEvent);
@@ -4067,6 +4180,9 @@ describe.skip("DiscordManager output configuration", () => {
                 typing_indicator: true,
                 errors: true,
                 acknowledge_emoji: "eyes",
+                final_answer_only: true,
+                progress_indicator: true,
+                concise_mode: true,
               },
               guilds: [],
             },
@@ -4171,6 +4287,10 @@ describe.skip("DiscordManager output configuration", () => {
       startTyping: () => () => {},
       addReaction: vi.fn().mockResolvedValue(undefined),
       removeReaction: vi.fn().mockResolvedValue(undefined),
+      replyWithRef: vi.fn().mockResolvedValue({
+        edit: vi.fn().mockResolvedValue(undefined),
+        delete: vi.fn().mockResolvedValue(undefined),
+      }),
     };
 
     mockConnector.emit("message", messageEvent);
@@ -4232,6 +4352,9 @@ describe.skip("DiscordManager output configuration", () => {
                 typing_indicator: true,
                 errors: true,
                 acknowledge_emoji: "eyes",
+                final_answer_only: true,
+                progress_indicator: true,
+                concise_mode: true,
               },
               guilds: [],
             },
@@ -4336,6 +4459,10 @@ describe.skip("DiscordManager output configuration", () => {
       startTyping: () => () => {},
       addReaction: vi.fn().mockResolvedValue(undefined),
       removeReaction: vi.fn().mockResolvedValue(undefined),
+      replyWithRef: vi.fn().mockResolvedValue({
+        edit: vi.fn().mockResolvedValue(undefined),
+        delete: vi.fn().mockResolvedValue(undefined),
+      }),
     };
 
     mockConnector.emit("message", messageEvent);
@@ -4398,6 +4525,9 @@ describe.skip("DiscordManager output configuration", () => {
                 typing_indicator: true,
                 errors: true,
                 acknowledge_emoji: "eyes",
+                final_answer_only: true,
+                progress_indicator: true,
+                concise_mode: true,
               },
               guilds: [],
             },
@@ -4502,6 +4632,10 @@ describe.skip("DiscordManager output configuration", () => {
       startTyping: () => () => {},
       addReaction: vi.fn().mockResolvedValue(undefined),
       removeReaction: vi.fn().mockResolvedValue(undefined),
+      replyWithRef: vi.fn().mockResolvedValue({
+        edit: vi.fn().mockResolvedValue(undefined),
+        delete: vi.fn().mockResolvedValue(undefined),
+      }),
     };
 
     mockConnector.emit("message", messageEvent);
@@ -4567,6 +4701,9 @@ describe.skip("DiscordManager output configuration", () => {
                 typing_indicator: true,
                 errors: true,
                 acknowledge_emoji: "eyes",
+                final_answer_only: true,
+                progress_indicator: true,
+                concise_mode: true,
               },
               guilds: [],
             },
@@ -4671,6 +4808,10 @@ describe.skip("DiscordManager output configuration", () => {
       startTyping: () => () => {},
       addReaction: vi.fn().mockResolvedValue(undefined),
       removeReaction: vi.fn().mockResolvedValue(undefined),
+      replyWithRef: vi.fn().mockResolvedValue({
+        edit: vi.fn().mockResolvedValue(undefined),
+        delete: vi.fn().mockResolvedValue(undefined),
+      }),
     };
 
     mockConnector.emit("message", messageEvent);
@@ -4731,6 +4872,9 @@ describe.skip("DiscordManager output configuration", () => {
                 typing_indicator: true,
                 errors: false,
                 acknowledge_emoji: "eyes",
+                final_answer_only: true,
+                progress_indicator: true,
+                concise_mode: true,
               },
               guilds: [],
             },
@@ -4835,6 +4979,10 @@ describe.skip("DiscordManager output configuration", () => {
       startTyping: () => () => {},
       addReaction: vi.fn().mockResolvedValue(undefined),
       removeReaction: vi.fn().mockResolvedValue(undefined),
+      replyWithRef: vi.fn().mockResolvedValue({
+        edit: vi.fn().mockResolvedValue(undefined),
+        delete: vi.fn().mockResolvedValue(undefined),
+      }),
     };
 
     mockConnector.emit("message", messageEvent);
@@ -4871,6 +5019,9 @@ describe.skip("DiscordManager output configuration", () => {
             typing_indicator: true,
             errors: true,
             acknowledge_emoji: "",
+            final_answer_only: true,
+            progress_indicator: true,
+            concise_mode: true,
           },
           guilds: [],
         }),
@@ -4968,6 +5119,10 @@ describe.skip("DiscordManager output configuration", () => {
         startTyping: () => () => {},
         addReaction: vi.fn().mockResolvedValue(undefined),
         removeReaction: vi.fn().mockResolvedValue(undefined),
+        replyWithRef: vi.fn().mockResolvedValue({
+          edit: vi.fn().mockResolvedValue(undefined),
+          delete: vi.fn().mockResolvedValue(undefined),
+        }),
       };
 
       mockConnector.emit("message", messageEvent);

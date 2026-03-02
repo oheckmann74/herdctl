@@ -38,8 +38,24 @@ import type {
   DiscordConnectorEventMap,
   DiscordReplyEmbed,
   DiscordReplyEmbedField,
+  DiscordReplyPayload,
 } from "./types.js";
 import { transcribeAudio } from "./voice-transcriber.js";
+
+// =============================================================================
+// Constants
+// =============================================================================
+
+/**
+ * System prompt appended for Discord conversations to reduce verbosity.
+ * Injected when concise_mode is enabled (default: true).
+ */
+const DISCORD_SYSTEM_PROMPT_APPEND = `You are responding in a Discord chat. Follow these rules strictly:
+- Give ONLY your final answer. Do NOT narrate your actions ("Let me check...", "I'll read...")
+- Do NOT describe which tools you are using or what you found in intermediate steps
+- Do NOT show file diffs or large code blocks unless the user explicitly asked to see code
+- Keep responses concise — prefer summaries over exhaustive detail
+- The user cannot see your tool calls, so never reference them`;
 
 // =============================================================================
 // Discord Manager
@@ -396,7 +412,15 @@ export class DiscordManager implements IChatManager {
       errors: true,
       typing_indicator: true,
       acknowledge_emoji: "👀",
+      final_answer_only: true,
+      progress_indicator: true,
+      concise_mode: true,
     };
+
+    // Resolve new output modes (default to true for quiet Discord experience)
+    const finalAnswerOnly = outputConfig.final_answer_only !== false;
+    const showProgressIndicator = outputConfig.progress_indicator !== false && finalAnswerOnly;
+    const conciseMode = outputConfig.concise_mode !== false;
 
     // Get existing session for this channel (for conversation continuity)
     const connector = this.connectors.get(qualifiedName);
@@ -530,6 +554,23 @@ export class DiscordManager implements IChatManager {
       // We skip intermediates and deliver the first finalized snapshot per message.id.
       const deliveredAssistantIds = new Set<string>();
 
+      // Final-answer-only mode: buffer assistant messages and send only the last one
+      const bufferedAssistantMessages: string[] = [];
+
+      // Progress indicator: track tool names for in-place-updating embed
+      interface ProgressEmbedHandle {
+        edit: (content: string | DiscordReplyPayload) => Promise<void>;
+        delete: () => Promise<void>;
+      }
+      const toolNamesRun: string[] = [];
+      let progressEmbedHandle: ProgressEmbedHandle | null = null;
+      let lastProgressUpdate = 0;
+
+      // Effective tool_results setting: suppress in final_answer_only mode unless explicitly configured
+      const showToolResults = finalAnswerOnly
+        ? agent.chat?.discord?.output?.tool_results === true
+        : outputConfig.tool_results;
+
       // Execute job via FleetManager.trigger() through the context
       // Pass resume option for conversation continuity
       // The onMessage callback streams output incrementally to Discord
@@ -538,6 +579,7 @@ export class DiscordManager implements IChatManager {
         prompt,
         resume: existingSessionId,
         injectedMcpServers,
+        systemPromptAppend: conciseMode ? DISCORD_SYSTEM_PROMPT_APPEND : undefined,
         onMessage: async (message) => {
           // Extract text content from assistant messages and stream to Discord
           if (message.type === "assistant") {
@@ -555,6 +597,44 @@ export class DiscordManager implements IChatManager {
                   input: block.input,
                   startTime: Date.now(),
                 });
+              }
+
+              // Track tool names for progress indicator
+              if (block.name && showProgressIndicator) {
+                const emoji = TOOL_EMOJIS[block.name] ?? "\u{1F527}";
+                const displayName = `${emoji} ${block.name}`;
+                toolNamesRun.push(displayName);
+
+                // Update progress embed (throttled to every 2s)
+                const now = Date.now();
+                if (now - lastProgressUpdate >= 2000) {
+                  lastProgressUpdate = now;
+                  const description = toolNamesRun.join(" \u2192 ");
+                  const embedPayload = {
+                    embeds: [
+                      {
+                        title: "\u2699\uFE0F Working\u2026",
+                        description:
+                          description.length > 4000
+                            ? `\u2026${description.slice(-3997)}`
+                            : description,
+                        color: DiscordManager.EMBED_COLOR_SYSTEM,
+                      },
+                    ],
+                  };
+
+                  try {
+                    if (!progressEmbedHandle) {
+                      progressEmbedHandle = await event.replyWithRef(embedPayload);
+                    } else {
+                      await progressEmbedHandle.edit(embedPayload);
+                    }
+                  } catch (progressError) {
+                    logger.warn(
+                      `Failed to update progress embed: ${(progressError as Error).message}`,
+                    );
+                  }
+                }
               }
             }
 
@@ -578,13 +658,18 @@ export class DiscordManager implements IChatManager {
 
             const content = extractMessageContent(sdkMessage);
             if (content) {
-              // Each assistant message is a complete turn - send immediately
-              await streamer.addMessageAndSend(content);
+              if (finalAnswerOnly) {
+                // Buffer assistant messages — only the last one will be sent
+                bufferedAssistantMessages.push(content);
+              } else {
+                // Legacy behavior: send every assistant turn immediately
+                await streamer.addMessageAndSend(content);
+              }
             }
           }
 
           // Build and send embeds for tool results
-          if (message.type === "user" && outputConfig.tool_results) {
+          if (message.type === "user" && showToolResults) {
             // Cast to the shape expected by extractToolResults
             const userMessage = message as {
               type: string;
@@ -615,7 +700,7 @@ export class DiscordManager implements IChatManager {
           }
 
           // Show system status messages (e.g., "compacting context...")
-          if (message.type === "system" && outputConfig.system_status) {
+          if (message.type === "system" && outputConfig.system_status && !finalAnswerOnly) {
             const sysMessage = message as { subtype?: string; status?: string | null };
             if (sysMessage.subtype === "status" && sysMessage.status) {
               const statusText =
@@ -722,6 +807,24 @@ export class DiscordManager implements IChatManager {
       if (!typingStopped) {
         stopTyping();
         typingStopped = true;
+      }
+
+      // Clean up progress embed now that the job is done
+      // Note: progressEmbedHandle is assigned inside the onMessage async callback,
+      // so TypeScript's control flow analysis sees it as always null.
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      if ((progressEmbedHandle as unknown as ProgressEmbedHandle | null) !== null) {
+        try {
+          await progressEmbedHandle!.delete();
+        } catch (progressError) {
+          logger.warn(`Failed to delete progress embed: ${(progressError as Error).message}`);
+        }
+      }
+
+      // In final-answer-only mode, send only the last buffered assistant message
+      if (finalAnswerOnly && bufferedAssistantMessages.length > 0) {
+        const finalMessage = bufferedAssistantMessages[bufferedAssistantMessages.length - 1];
+        await streamer.addMessageAndSend(finalMessage);
       }
 
       // Flush any remaining buffered content

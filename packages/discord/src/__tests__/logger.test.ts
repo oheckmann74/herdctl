@@ -24,6 +24,9 @@ function createMockDiscordConfig(logLevel: DiscordLogLevel = "standard"): AgentC
       typing_indicator: true,
       errors: true,
       acknowledge_emoji: "eyes",
+      final_answer_only: true,
+      progress_indicator: true,
+      concise_mode: true,
     },
     guilds: [],
   };

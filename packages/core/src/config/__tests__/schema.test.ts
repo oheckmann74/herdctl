@@ -1712,6 +1712,9 @@ describe("AgentChatDiscordSchema", () => {
         errors: true,
         typing_indicator: true,
         acknowledge_emoji: "👀",
+        final_answer_only: true,
+        progress_indicator: true,
+        concise_mode: true,
       });
     }
   });

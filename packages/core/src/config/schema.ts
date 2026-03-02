@@ -626,6 +626,12 @@ export const DiscordOutputSchema = ChatOutputSchema.extend({
   typing_indicator: z.boolean().optional().default(true),
   /** Emoji to react with when a message is received (empty string to disable, default: "👀") */
   acknowledge_emoji: z.string().optional().default("👀"),
+  /** Only send the final assistant message, not intermediate turns (default: true) */
+  final_answer_only: z.boolean().optional().default(true),
+  /** Show a progress indicator embed with tool names while working (default: true) */
+  progress_indicator: z.boolean().optional().default(true),
+  /** Inject concise-mode system prompt to reduce verbosity (default: true) */
+  concise_mode: z.boolean().optional().default(true),
 });
 
 /**

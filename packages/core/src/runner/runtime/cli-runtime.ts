@@ -146,9 +146,16 @@ export class CLIRuntime implements RuntimeInterface {
       args.push("--model", options.agent.model);
     }
 
-    // Add system prompt if specified
-    if (options.agent.system_prompt) {
+    // Add system prompt if specified, with optional append for chat platforms
+    if (options.agent.system_prompt && options.systemPromptAppend) {
+      args.push(
+        "--system-prompt",
+        options.agent.system_prompt + "\n\n" + options.systemPromptAppend,
+      );
+    } else if (options.agent.system_prompt) {
       args.push("--system-prompt", options.agent.system_prompt);
+    } else if (options.systemPromptAppend) {
+      args.push("--system-prompt", options.systemPromptAppend);
     }
 
     // Add allowed tools if specified (direct passthrough to CLI)
