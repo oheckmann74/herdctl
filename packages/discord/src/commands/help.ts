@@ -1,7 +1,7 @@
 /**
  * /help command - Show available commands
  *
- * Responds ephemerally with a list of available commands and their descriptions.
+ * Responds ephemerally with a styled embed listing available commands.
  */
 
 import type { CommandContext, SlashCommand } from "./types.js";
@@ -13,19 +13,21 @@ export const helpCommand: SlashCommand = {
   async execute(context: CommandContext): Promise<void> {
     const { interaction, agentName } = context;
 
-    const helpMessage = `**${agentName} Bot Commands**
-
-**/help** - Show this help message
-**/status** - Show agent status and session info
-**/reset** - Clear conversation context (start fresh session)
-
-**Interacting with the bot:**
-- Mention the bot in a channel to start a conversation
-- In configured channels, the bot may respond automatically
-- DMs are supported based on configuration`;
-
     await interaction.reply({
-      content: helpMessage,
+      embeds: [
+        {
+          description: [
+            "**/help** \u2014 Show this help message",
+            "**/status** \u2014 Show agent status and session info",
+            "**/reset** \u2014 Clear conversation context",
+            "",
+            "**Usage**",
+            "Mention the bot or message in a configured channel. DMs are supported based on configuration.",
+          ].join("\n"),
+          color: 0x3b82f6,
+          footer: { text: `herdctl \u00b7 ${agentName}` },
+        },
+      ],
       ephemeral: true,
     });
   },

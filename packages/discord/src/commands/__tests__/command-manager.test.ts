@@ -362,10 +362,16 @@ describe("CommandManager", () => {
       await manager.handleInteraction(interaction);
 
       const reply = interaction.reply as ReturnType<typeof vi.fn>;
-      // Help command should include agent name in response
+      // Help command should include agent name in embed footer
       expect(reply).toHaveBeenCalledWith(
         expect.objectContaining({
-          content: expect.stringContaining("my-agent"),
+          embeds: expect.arrayContaining([
+            expect.objectContaining({
+              footer: expect.objectContaining({
+                text: expect.stringContaining("my-agent"),
+              }),
+            }),
+          ]),
         }),
       );
     });

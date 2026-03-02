@@ -265,7 +265,7 @@ export interface DiscordReplyEmbedField {
  * A Discord embed for rich message formatting
  */
 export interface DiscordReplyEmbed {
-  title: string;
+  title?: string;
   description?: string;
   color?: number;
   fields?: DiscordReplyEmbedField[];

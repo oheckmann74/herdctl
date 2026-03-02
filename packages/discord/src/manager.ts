@@ -14,6 +14,7 @@ import {
   type ChatConnectorLogger,
   ChatSessionManager,
   extractMessageContent,
+  formatCompactNumber,
   StreamingResponder,
   splitMessage,
 } from "@herdctl/chat";
@@ -613,16 +614,16 @@ export class DiscordManager implements IChatManager {
                 const now = Date.now();
                 if (now - lastProgressUpdate >= 2000) {
                   lastProgressUpdate = now;
-                  const description = toolNamesRun.join(" \u2192 ");
+                  const description = toolNamesRun.join("  \u2192  ");
                   const embedPayload = {
                     embeds: [
                       {
-                        title: "\u2699\uFE0F Working\u2026",
                         description:
                           description.length > 4000
                             ? `\u2026${description.slice(-3997)}`
                             : description,
-                        color: DiscordManager.EMBED_COLOR_SYSTEM,
+                        color: DiscordManager.EMBED_COLOR_WORKING,
+                        footer: DiscordManager.buildFooter(qualifiedName),
                       },
                     ],
                   };
@@ -694,6 +695,7 @@ export class DiscordManager implements IChatManager {
                 toolUse ?? null,
                 toolResult,
                 outputConfig.tool_result_max_length,
+                qualifiedName,
               );
 
               // Flush any buffered text before sending embed to preserve ordering
@@ -708,14 +710,11 @@ export class DiscordManager implements IChatManager {
             const sysMessage = message as { subtype?: string; status?: string | null };
             if (sysMessage.subtype === "status" && sysMessage.status) {
               const statusText =
-                sysMessage.status === "compacting"
-                  ? "Compacting context..."
-                  : `Status: ${sysMessage.status}`;
+                sysMessage.status === "compacting" ? "Compacting context\u2026" : sysMessage.status;
               await streamer.flush();
               await event.reply({
                 embeds: [
                   {
-                    title: "\u2699\uFE0F System",
                     description: statusText,
                     color: DiscordManager.EMBED_COLOR_SYSTEM,
                   },
@@ -743,52 +742,38 @@ export class DiscordManager implements IChatManager {
               num_turns?: number;
               usage?: { input_tokens?: number; output_tokens?: number };
             };
-            const fields: DiscordReplyEmbedField[] = [];
-
-            if (resultMessage.duration_ms !== undefined) {
-              fields.push({
-                name: "Duration",
-                value: DiscordManager.formatDuration(resultMessage.duration_ms),
-                inline: true,
-              });
-            }
-
-            if (resultMessage.num_turns !== undefined) {
-              fields.push({
-                name: "Turns",
-                value: String(resultMessage.num_turns),
-                inline: true,
-              });
-            }
-
-            if (resultMessage.total_cost_usd !== undefined) {
-              fields.push({
-                name: "Cost",
-                value: `$${resultMessage.total_cost_usd.toFixed(4)}`,
-                inline: true,
-              });
-            }
-
-            if (resultMessage.usage) {
-              const inputTokens = resultMessage.usage.input_tokens ?? 0;
-              const outputTokens = resultMessage.usage.output_tokens ?? 0;
-              fields.push({
-                name: "Tokens",
-                value: `${inputTokens.toLocaleString()} in / ${outputTokens.toLocaleString()} out`,
-                inline: true,
-              });
-            }
-
             const isError = resultMessage.is_error === true;
+
+            // Build compact summary: "**Task complete** in 45s · 3 turns · $0.0045 · 15.7k tokens"
+            const summaryParts: string[] = [];
+            summaryParts.push(isError ? "**Task failed**" : "**Task complete**");
+            if (resultMessage.duration_ms !== undefined) {
+              summaryParts[0] += ` in ${DiscordManager.formatDuration(resultMessage.duration_ms)}`;
+            }
+            if (resultMessage.num_turns !== undefined) {
+              summaryParts.push(
+                `${resultMessage.num_turns} turn${resultMessage.num_turns !== 1 ? "s" : ""}`,
+              );
+            }
+            if (resultMessage.total_cost_usd !== undefined) {
+              summaryParts.push(`$${resultMessage.total_cost_usd.toFixed(4)}`);
+            }
+            if (resultMessage.usage) {
+              const total =
+                (resultMessage.usage.input_tokens ?? 0) + (resultMessage.usage.output_tokens ?? 0);
+              summaryParts.push(`${formatCompactNumber(total)} tokens`);
+            }
+
             await streamer.flush();
             await event.reply({
               embeds: [
                 {
-                  title: isError ? "\u274C Task Failed" : "\u2705 Task Complete",
+                  description: summaryParts.join(" \u00b7 "),
                   color: isError
                     ? DiscordManager.EMBED_COLOR_ERROR
                     : DiscordManager.EMBED_COLOR_SUCCESS,
-                  fields,
+                  footer: DiscordManager.buildFooter(qualifiedName),
+                  timestamp: new Date().toISOString(),
                 },
               ],
             });
@@ -803,10 +788,10 @@ export class DiscordManager implements IChatManager {
             await event.reply({
               embeds: [
                 {
-                  title: "\u274C Error",
-                  description:
-                    errorText.length > 4000 ? `${errorText.substring(0, 4000)}...` : errorText,
+                  description: `**Error:** ${errorText.length > 4000 ? errorText.substring(0, 4000) + "\u2026" : errorText}`,
                   color: DiscordManager.EMBED_COLOR_ERROR,
+                  footer: DiscordManager.buildFooter(qualifiedName),
+                  timestamp: new Date().toISOString(),
                 },
               ],
             });
@@ -859,16 +844,29 @@ export class DiscordManager implements IChatManager {
       // but may have missed the final answer. Show a brief completion indicator.
       if (!streamer.hasSentMessages() && embedsSent === 0) {
         if (result.success) {
-          await event.reply(
-            "I've completed the task, but I don't have a specific response to share.",
-          );
+          await event.reply({
+            embeds: [
+              {
+                description: "Task completed \u2014 no additional output to share.",
+                color: DiscordManager.EMBED_COLOR_SUCCESS,
+                footer: DiscordManager.buildFooter(qualifiedName),
+              },
+            ],
+          });
         } else {
           // Job failed without streaming any messages - send error details
           const errorMessage =
             result.errorDetails?.message ?? result.error?.message ?? "An unknown error occurred";
-          await event.reply(
-            `\u274C **Error:** ${errorMessage}\n\nThe task could not be completed. Please check the logs for more details.`,
-          );
+          await event.reply({
+            embeds: [
+              {
+                description: `**Error:** ${errorMessage}\n\nThe task could not be completed.`,
+                color: DiscordManager.EMBED_COLOR_ERROR,
+                footer: DiscordManager.buildFooter(qualifiedName),
+                timestamp: new Date().toISOString(),
+              },
+            ],
+          });
         }
 
         // Stop typing after sending fallback message (if not already stopped)
@@ -912,7 +910,7 @@ export class DiscordManager implements IChatManager {
 
       // Send user-friendly error message using the formatted error method
       try {
-        await event.reply(this.formatErrorMessage(err));
+        await event.reply(this.formatErrorMessage(err, qualifiedName));
       } catch (replyError) {
         logger.error(`Failed to send error reply: ${(replyError as Error).message}`);
       }
@@ -946,10 +944,20 @@ export class DiscordManager implements IChatManager {
   private static readonly TOOL_OUTPUT_MAX_CHARS = 900;
 
   /** Embed colors */
-  private static readonly EMBED_COLOR_DEFAULT = 0x5865f2; // Discord blurple
-  private static readonly EMBED_COLOR_ERROR = 0xef4444; // Red
-  private static readonly EMBED_COLOR_SYSTEM = 0x95a5a6; // Gray
-  private static readonly EMBED_COLOR_SUCCESS = 0x57f287; // Green
+  private static readonly EMBED_COLOR_BRAND = 0x5865f2; // Discord blurple (tool results)
+  private static readonly EMBED_COLOR_WORKING = 0x8b5cf6; // Soft violet (progress)
+  private static readonly EMBED_COLOR_SUCCESS = 0x22c55e; // Emerald (completion)
+  private static readonly EMBED_COLOR_ERROR = 0xef4444; // Red (errors)
+  private static readonly EMBED_COLOR_SYSTEM = 0x6b7280; // Cool gray (system status)
+  private static readonly EMBED_COLOR_INFO = 0x3b82f6; // Sky blue (slash commands)
+
+  /**
+   * Build a consistent footer for Discord embeds
+   */
+  private static buildFooter(agentName: string): { text: string } {
+    const shortName = agentName.includes(".") ? agentName.split(".").pop()! : agentName;
+    return { text: `herdctl \u00b7 ${shortName}` };
+  }
 
   /**
    * Format duration in milliseconds to a human-readable string
@@ -967,55 +975,39 @@ export class DiscordManager implements IChatManager {
    * Build a Discord embed for a tool call result
    *
    * Combines the tool_use info (name, input) with the tool_result
-   * (output, error status) into a compact Discord embed.
+   * (output, error status) into a compact Discord embed with a
+   * single-line description and optional output field.
    *
    * @param toolUse - The tool_use block info (name, input, startTime)
    * @param toolResult - The tool result (output, isError)
    * @param maxOutputChars - Maximum characters for output (defaults to TOOL_OUTPUT_MAX_CHARS)
+   * @param agentName - Agent name for the embed footer
    */
   private buildToolEmbed(
     toolUse: { name: string; input?: unknown; startTime: number } | null,
     toolResult: { output: string; isError: boolean },
     maxOutputChars?: number,
+    agentName?: string,
   ): DiscordReplyEmbed {
     const toolName = toolUse?.name ?? "Tool";
     const emoji = TOOL_EMOJIS[toolName] ?? "\u{1F527}"; // wrench fallback
-    const isError = toolResult.isError;
 
-    // Build description from input summary
+    // Build compact description: "💻 **Bash** `> ls -la` — 2s"
+    const parts: string[] = [`${emoji} **${toolName}**`];
     const inputSummary = toolUse ? getToolInputSummary(toolUse.name, toolUse.input) : undefined;
-    let description: string | undefined;
     if (inputSummary) {
-      if (toolName === "Bash" || toolName === "bash") {
-        description = `\`> ${inputSummary}\``;
-      } else {
-        description = `\`${inputSummary}\``;
-      }
+      const prefix = toolName === "Bash" || toolName === "bash" ? "> " : "";
+      const truncated =
+        inputSummary.length > 120 ? inputSummary.substring(0, 120) + "\u2026" : inputSummary;
+      parts.push(`\`${prefix}${truncated}\``);
     }
-
-    // Build inline fields
-    const fields: DiscordReplyEmbedField[] = [];
-
     if (toolUse) {
       const durationMs = Date.now() - toolUse.startTime;
-      fields.push({
-        name: "Duration",
-        value: DiscordManager.formatDuration(durationMs),
-        inline: true,
-      });
+      parts.push(`\u2014 ${DiscordManager.formatDuration(durationMs)}`);
     }
 
-    const outputLength = toolResult.output.length;
-    fields.push({
-      name: "Output",
-      value:
-        outputLength >= 1000
-          ? `${(outputLength / 1000).toFixed(1)}k chars`
-          : `${outputLength} chars`,
-      inline: true,
-    });
-
-    // Add truncated output as a field if non-empty
+    // Build output field if non-empty
+    const fields: DiscordReplyEmbedField[] = [];
     const trimmedOutput = toolResult.output.trim();
     if (trimmedOutput.length > 0) {
       const maxChars = maxOutputChars ?? DiscordManager.TOOL_OUTPUT_MAX_CHARS;
@@ -1023,20 +1015,23 @@ export class DiscordManager implements IChatManager {
       if (outputText.length > maxChars) {
         outputText =
           outputText.substring(0, maxChars) +
-          `\n... (${outputLength.toLocaleString()} chars total)`;
+          `\n\u2026 ${trimmedOutput.length.toLocaleString()} chars total`;
       }
+      const lang = toolName === "Bash" || toolName === "bash" ? "ansi" : "";
       fields.push({
-        name: isError ? "Error" : "Result",
-        value: `\`\`\`\n${outputText}\n\`\`\``,
+        name: toolResult.isError ? "Error" : "Output",
+        value: `\`\`\`${lang}\n${outputText}\n\`\`\``,
         inline: false,
       });
     }
 
     return {
-      title: `${emoji} ${toolName}`,
-      description,
-      color: isError ? DiscordManager.EMBED_COLOR_ERROR : DiscordManager.EMBED_COLOR_DEFAULT,
-      fields,
+      description: parts.join(" "),
+      color: toolResult.isError
+        ? DiscordManager.EMBED_COLOR_ERROR
+        : DiscordManager.EMBED_COLOR_BRAND,
+      fields: fields.length > 0 ? fields : undefined,
+      footer: agentName ? DiscordManager.buildFooter(agentName) : undefined,
     };
   }
 
@@ -1074,12 +1069,26 @@ export class DiscordManager implements IChatManager {
    * Format an error message for Discord display
    *
    * Creates a user-friendly error message with guidance on how to proceed.
+   * Returns an embed when agentName is provided, plain text otherwise.
    *
    * @param error - The error that occurred
-   * @returns Formatted error message string
+   * @param agentName - Optional agent name for embed footer
+   * @returns Formatted error message string or embed payload
    */
-  formatErrorMessage(error: Error): string {
-    return `\u274C **Error**: ${error.message}\n\nPlease try again or use \`/reset\` to start a new session.`;
+  formatErrorMessage(error: Error, agentName?: string): string | DiscordReplyPayload {
+    if (agentName) {
+      return {
+        embeds: [
+          {
+            description: `**Error:** ${error.message}\n\nTry again or use \`/reset\` to start a new session.`,
+            color: DiscordManager.EMBED_COLOR_ERROR,
+            footer: DiscordManager.buildFooter(agentName),
+            timestamp: new Date().toISOString(),
+          },
+        ],
+      };
+    }
+    return `**Error:** ${error.message}\n\nTry again or use \`/reset\` to start a new session.`;
   }
 
   /**
