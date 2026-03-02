@@ -125,8 +125,9 @@ function createMockDiscordConfig(): AgentChatDiscord {
       tool_result_max_length: 900,
       system_status: true,
       result_summary: false,
-              typing_indicator: true,
+      typing_indicator: true,
       errors: true,
+      acknowledge_emoji: "eyes",
     },
     guilds: [
       {

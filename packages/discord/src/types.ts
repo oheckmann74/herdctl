@@ -177,6 +177,24 @@ export interface DiscordConnectorState {
 }
 
 // =============================================================================
+// File Upload Types
+// =============================================================================
+
+/**
+ * Parameters for uploading a file to a Discord channel
+ */
+export interface DiscordFileUploadParams {
+  /** Channel ID to upload to */
+  channelId: string;
+  /** File contents */
+  fileBuffer: Buffer;
+  /** Filename for the upload */
+  filename: string;
+  /** Optional message to accompany the file */
+  message?: string;
+}
+
+// =============================================================================
 // Connector Interface
 // =============================================================================
 
@@ -218,6 +236,11 @@ export interface IDiscordConnector {
    * @returns Current state including connection status and metadata
    */
   getState(): DiscordConnectorState;
+
+  /**
+   * Upload a file to a Discord channel
+   */
+  uploadFile(params: DiscordFileUploadParams): Promise<{ fileId: string }>;
 
   /**
    * Name of the agent this connector is for
@@ -337,6 +360,12 @@ export interface DiscordConnectorEventMap {
       wasMentioned: boolean;
       /** Channel mode that was applied */
       mode: "mention" | "auto";
+      /** Whether this message is a voice message (audio recording in text channel) */
+      isVoiceMessage?: boolean;
+      /** URL to download the voice message audio attachment */
+      voiceAttachmentUrl?: string;
+      /** Filename of the voice message attachment */
+      voiceAttachmentName?: string;
     };
     /** Function to send a reply in the same channel (text or embed) */
     reply: (content: string | DiscordReplyPayload) => Promise<void>;
@@ -346,6 +375,10 @@ export interface DiscordConnectorEventMap {
      * The indicator auto-refreshes every 8 seconds until stopped.
      */
     startTyping: () => () => void;
+    /** Add a Unicode emoji reaction to the user's message */
+    addReaction: (emoji: string) => Promise<void>;
+    /** Remove the bot's reaction from the user's message */
+    removeReaction: (emoji: string) => Promise<void>;
   };
 
   /**

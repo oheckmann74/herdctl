@@ -109,6 +109,8 @@ export {
   type DiscordPresence,
   // Agent Chat Discord schemas
   DiscordPresenceSchema,
+  type DiscordVoice,
+  DiscordVoiceSchema,
   type Docker,
   DockerSchema,
   // Types

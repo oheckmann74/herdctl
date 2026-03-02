@@ -1710,6 +1710,8 @@ describe("AgentChatDiscordSchema", () => {
         system_status: true,
         result_summary: false,
         errors: true,
+        typing_indicator: true,
+        acknowledge_emoji: "👀",
       });
     }
   });

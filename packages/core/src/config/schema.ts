@@ -624,6 +624,38 @@ export const DiscordOutputSchema = ChatOutputSchema.extend({
   result_summary: z.boolean().optional().default(false),
   /** Show typing indicator while the agent is processing (default: true) */
   typing_indicator: z.boolean().optional().default(true),
+  /** Emoji to react with when a message is received (empty string to disable, default: "👀") */
+  acknowledge_emoji: z.string().optional().default("👀"),
+});
+
+/**
+ * Discord voice message transcription configuration
+ *
+ * When enabled, voice messages sent in Discord text channels are
+ * downloaded and transcribed via a speech-to-text provider (currently OpenAI Whisper).
+ * The transcription is then used as the agent prompt.
+ *
+ * @example
+ * ```yaml
+ * voice:
+ *   enabled: true
+ *   provider: openai
+ *   api_key_env: OPENAI_API_KEY
+ *   model: whisper-1
+ *   language: en
+ * ```
+ */
+export const DiscordVoiceSchema = z.object({
+  /** Enable voice message transcription (default: false) */
+  enabled: z.boolean().optional().default(false),
+  /** Transcription provider (default: "openai") */
+  provider: z.enum(["openai"]).optional().default("openai"),
+  /** Environment variable name containing the API key (default: "OPENAI_API_KEY") */
+  api_key_env: z.string().optional().default("OPENAI_API_KEY"),
+  /** Model to use for transcription (default: "whisper-1") */
+  model: z.string().optional().default("whisper-1"),
+  /** Language hint for better transcription accuracy (ISO 639-1, e.g., "en") */
+  language: z.string().optional(),
 });
 
 /**
@@ -671,6 +703,8 @@ export const AgentChatDiscordSchema = z.object({
   guilds: z.array(DiscordGuildSchema),
   /** Global DM (direct message) configuration - applies to all DMs regardless of guild */
   dm: ChatDMSchema.optional(),
+  /** Voice message transcription configuration */
+  voice: DiscordVoiceSchema.optional(),
 });
 
 // =============================================================================
@@ -1073,6 +1107,7 @@ export type DiscordPresence = z.infer<typeof DiscordPresenceSchema>;
 export type DiscordChannel = z.infer<typeof DiscordChannelSchema>;
 export type DiscordGuild = z.infer<typeof DiscordGuildSchema>;
 export type DiscordOutput = z.infer<typeof DiscordOutputSchema>;
+export type DiscordVoice = z.infer<typeof DiscordVoiceSchema>;
 export type AgentChatDiscord = z.infer<typeof AgentChatDiscordSchema>;
 export type AgentChat = z.infer<typeof AgentChatSchema>;
 // Agent Chat Slack types

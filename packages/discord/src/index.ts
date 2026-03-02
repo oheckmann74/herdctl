@@ -108,3 +108,6 @@ export {
   sendWithTyping,
   startTypingIndicator,
 } from "./utils/index.js";
+// Voice transcription
+export type { TranscribeOptions, TranscribeResult } from "./voice-transcriber.js";
+export { transcribeAudio } from "./voice-transcriber.js";

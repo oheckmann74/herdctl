@@ -178,8 +178,9 @@ describe("DiscordManager", () => {
           tool_result_max_length: 900,
           system_status: true,
           result_summary: false,
-              typing_indicator: true,
+          typing_indicator: true,
           errors: true,
+          acknowledge_emoji: "eyes",
         },
         guilds: [],
       };
@@ -405,6 +406,8 @@ describe("DiscordMessageEvent type", () => {
         console.log("Reply:", content);
       },
       startTyping: () => () => {},
+      addReaction: vi.fn().mockResolvedValue(undefined),
+      removeReaction: vi.fn().mockResolvedValue(undefined),
     };
 
     expect(event.agentName).toBe("test-agent");
@@ -433,6 +436,8 @@ describe("DiscordMessageEvent type", () => {
       },
       reply: async () => {},
       startTyping: () => () => {},
+      addReaction: vi.fn().mockResolvedValue(undefined),
+      removeReaction: vi.fn().mockResolvedValue(undefined),
     };
 
     expect(event.metadata.guildId).toBeNull();
@@ -732,8 +737,9 @@ describe.skip("DiscordManager message handling", () => {
             tool_result_max_length: 900,
             system_status: true,
             result_summary: false,
-              typing_indicator: true,
+            typing_indicator: true,
             errors: true,
+            acknowledge_emoji: "eyes",
           },
           guilds: [],
         }),
@@ -869,6 +875,8 @@ describe.skip("DiscordManager message handling", () => {
         },
         reply: replyMock,
         startTyping: () => () => {},
+        addReaction: vi.fn().mockResolvedValue(undefined),
+        removeReaction: vi.fn().mockResolvedValue(undefined),
       };
 
       // Emit the message event
@@ -920,6 +928,7 @@ describe.skip("DiscordManager message handling", () => {
               result_summary: false,
               typing_indicator: true,
               errors: true,
+              acknowledge_emoji: "eyes",
             },
             guilds: [],
           }),
@@ -1024,6 +1033,8 @@ describe.skip("DiscordManager message handling", () => {
         },
         reply: replyMock,
         startTyping: () => () => {},
+        addReaction: vi.fn().mockResolvedValue(undefined),
+        removeReaction: vi.fn().mockResolvedValue(undefined),
       };
 
       // Emit the message event
@@ -1068,6 +1079,7 @@ describe.skip("DiscordManager message handling", () => {
               result_summary: false,
               typing_indicator: true,
               errors: true,
+              acknowledge_emoji: "eyes",
             },
             guilds: [],
           }),
@@ -1172,6 +1184,8 @@ describe.skip("DiscordManager message handling", () => {
         },
         reply: replyMock,
         startTyping: () => () => {},
+        addReaction: vi.fn().mockResolvedValue(undefined),
+        removeReaction: vi.fn().mockResolvedValue(undefined),
       };
 
       // Emit the message event
@@ -1247,6 +1261,7 @@ describe.skip("DiscordManager message handling", () => {
               result_summary: false,
               typing_indicator: true,
               errors: true,
+              acknowledge_emoji: "eyes",
             },
             guilds: [],
           }),
@@ -1348,6 +1363,8 @@ describe.skip("DiscordManager message handling", () => {
         },
         reply: replyMock,
         startTyping: () => () => {},
+        addReaction: vi.fn().mockResolvedValue(undefined),
+        removeReaction: vi.fn().mockResolvedValue(undefined),
       };
 
       mockConnector.emit("message", messageEvent);
@@ -1409,6 +1426,7 @@ describe.skip("DiscordManager message handling", () => {
               result_summary: false,
               typing_indicator: true,
               errors: true,
+              acknowledge_emoji: "eyes",
             },
             guilds: [],
           }),
@@ -1510,6 +1528,8 @@ describe.skip("DiscordManager message handling", () => {
         },
         reply: replyMock,
         startTyping: () => () => {},
+        addReaction: vi.fn().mockResolvedValue(undefined),
+        removeReaction: vi.fn().mockResolvedValue(undefined),
       };
 
       mockConnector.emit("message", messageEvent);
@@ -1630,6 +1650,8 @@ describe.skip("DiscordManager message handling", () => {
         },
         reply: replyMock,
         startTyping: () => () => {},
+        addReaction: vi.fn().mockResolvedValue(undefined),
+        removeReaction: vi.fn().mockResolvedValue(undefined),
       };
 
       // Emit the message event - this will trigger handleMessage which will fail
@@ -1756,6 +1778,8 @@ describe.skip("DiscordManager message handling", () => {
         },
         reply: replyMock,
         startTyping: () => () => {},
+        addReaction: vi.fn().mockResolvedValue(undefined),
+        removeReaction: vi.fn().mockResolvedValue(undefined),
       };
 
       // Emit the message event
@@ -1830,6 +1854,8 @@ describe.skip("DiscordManager message handling", () => {
         },
         reply: replyMock,
         startTyping: () => () => {},
+        addReaction: vi.fn().mockResolvedValue(undefined),
+        removeReaction: vi.fn().mockResolvedValue(undefined),
       };
 
       // Emit the message event
@@ -1904,6 +1930,8 @@ describe.skip("DiscordManager message handling", () => {
         },
         reply: replyMock,
         startTyping: () => () => {},
+        addReaction: vi.fn().mockResolvedValue(undefined),
+        removeReaction: vi.fn().mockResolvedValue(undefined),
       };
 
       // Emit the message event
@@ -2476,8 +2504,9 @@ describe.skip("DiscordManager session integration", () => {
             tool_result_max_length: 900,
             system_status: true,
             result_summary: false,
-              typing_indicator: true,
+            typing_indicator: true,
             errors: true,
+            acknowledge_emoji: "eyes",
           },
           guilds: [],
         }),
@@ -2571,6 +2600,8 @@ describe.skip("DiscordManager session integration", () => {
       },
       reply: replyMock,
       startTyping: () => () => {},
+      addReaction: vi.fn().mockResolvedValue(undefined),
+      removeReaction: vi.fn().mockResolvedValue(undefined),
     };
 
     // Emit the message event
@@ -2642,6 +2673,8 @@ describe.skip("DiscordManager session integration", () => {
       },
       reply: replyMock,
       startTyping: () => () => {},
+      addReaction: vi.fn().mockResolvedValue(undefined),
+      removeReaction: vi.fn().mockResolvedValue(undefined),
     };
 
     // Emit the message event
@@ -2715,6 +2748,8 @@ describe.skip("DiscordManager session integration", () => {
       },
       reply: replyMock,
       startTyping: () => () => {},
+      addReaction: vi.fn().mockResolvedValue(undefined),
+      removeReaction: vi.fn().mockResolvedValue(undefined),
     };
 
     // Emit the message event
@@ -2790,6 +2825,8 @@ describe.skip("DiscordManager session integration", () => {
       },
       reply: replyMock,
       startTyping: () => () => {},
+      addReaction: vi.fn().mockResolvedValue(undefined),
+      removeReaction: vi.fn().mockResolvedValue(undefined),
     };
 
     // Emit the message event
@@ -3164,8 +3201,9 @@ describe.skip("DiscordManager lifecycle", () => {
             tool_result_max_length: 900,
             system_status: true,
             result_summary: false,
-              typing_indicator: true,
+            typing_indicator: true,
             errors: true,
+            acknowledge_emoji: "eyes",
           },
           guilds: [],
         }),
@@ -3264,6 +3302,8 @@ describe.skip("DiscordManager lifecycle", () => {
       },
       reply: replyMock,
       startTyping: () => () => {},
+      addReaction: vi.fn().mockResolvedValue(undefined),
+      removeReaction: vi.fn().mockResolvedValue(undefined),
     };
 
     // Emit the message event
@@ -3309,8 +3349,9 @@ describe.skip("DiscordManager lifecycle", () => {
             tool_result_max_length: 900,
             system_status: true,
             result_summary: false,
-              typing_indicator: true,
+            typing_indicator: true,
             errors: true,
+            acknowledge_emoji: "eyes",
           },
           guilds: [],
         }),
@@ -3409,6 +3450,8 @@ describe.skip("DiscordManager lifecycle", () => {
       },
       reply: replyMock,
       startTyping: () => () => {},
+      addReaction: vi.fn().mockResolvedValue(undefined),
+      removeReaction: vi.fn().mockResolvedValue(undefined),
     };
 
     // Emit the message event
@@ -3615,6 +3658,8 @@ describe.skip("DiscordManager lifecycle", () => {
       },
       reply: replyMock,
       startTyping: () => () => {},
+      addReaction: vi.fn().mockResolvedValue(undefined),
+      removeReaction: vi.fn().mockResolvedValue(undefined),
     };
 
     // Emit the message event
@@ -3660,8 +3705,9 @@ describe.skip("DiscordManager lifecycle", () => {
             tool_result_max_length: 900,
             system_status: true,
             result_summary: false,
-              typing_indicator: true,
+            typing_indicator: true,
             errors: true,
+            acknowledge_emoji: "eyes",
           },
           guilds: [],
         }),
@@ -3760,6 +3806,8 @@ describe.skip("DiscordManager lifecycle", () => {
       },
       reply: replyMock,
       startTyping: () => () => {},
+      addReaction: vi.fn().mockResolvedValue(undefined),
+      removeReaction: vi.fn().mockResolvedValue(undefined),
     };
 
     // Emit the message event
@@ -3850,8 +3898,9 @@ describe.skip("DiscordManager output configuration", () => {
                 tool_result_max_length: 900,
                 system_status: true,
                 result_summary: false,
-              typing_indicator: true,
+                typing_indicator: true,
                 errors: true,
+                acknowledge_emoji: "eyes",
               },
               guilds: [],
             },
@@ -3954,6 +4003,8 @@ describe.skip("DiscordManager output configuration", () => {
       },
       reply: replyMock,
       startTyping: () => () => {},
+      addReaction: vi.fn().mockResolvedValue(undefined),
+      removeReaction: vi.fn().mockResolvedValue(undefined),
     };
 
     mockConnector.emit("message", messageEvent);
@@ -4013,8 +4064,9 @@ describe.skip("DiscordManager output configuration", () => {
                 tool_result_max_length: 900,
                 system_status: true,
                 result_summary: false,
-              typing_indicator: true,
+                typing_indicator: true,
                 errors: true,
+                acknowledge_emoji: "eyes",
               },
               guilds: [],
             },
@@ -4117,6 +4169,8 @@ describe.skip("DiscordManager output configuration", () => {
       },
       reply: replyMock,
       startTyping: () => () => {},
+      addReaction: vi.fn().mockResolvedValue(undefined),
+      removeReaction: vi.fn().mockResolvedValue(undefined),
     };
 
     mockConnector.emit("message", messageEvent);
@@ -4175,8 +4229,9 @@ describe.skip("DiscordManager output configuration", () => {
                 tool_result_max_length: 900,
                 system_status: false,
                 result_summary: false,
-              typing_indicator: true,
+                typing_indicator: true,
                 errors: true,
+                acknowledge_emoji: "eyes",
               },
               guilds: [],
             },
@@ -4279,6 +4334,8 @@ describe.skip("DiscordManager output configuration", () => {
       },
       reply: replyMock,
       startTyping: () => () => {},
+      addReaction: vi.fn().mockResolvedValue(undefined),
+      removeReaction: vi.fn().mockResolvedValue(undefined),
     };
 
     mockConnector.emit("message", messageEvent);
@@ -4338,8 +4395,9 @@ describe.skip("DiscordManager output configuration", () => {
                 tool_result_max_length: 900,
                 system_status: true,
                 result_summary: true,
-              typing_indicator: true,
+                typing_indicator: true,
                 errors: true,
+                acknowledge_emoji: "eyes",
               },
               guilds: [],
             },
@@ -4442,6 +4500,8 @@ describe.skip("DiscordManager output configuration", () => {
       },
       reply: replyMock,
       startTyping: () => () => {},
+      addReaction: vi.fn().mockResolvedValue(undefined),
+      removeReaction: vi.fn().mockResolvedValue(undefined),
     };
 
     mockConnector.emit("message", messageEvent);
@@ -4504,8 +4564,9 @@ describe.skip("DiscordManager output configuration", () => {
                 tool_result_max_length: 900,
                 system_status: true,
                 result_summary: false,
-              typing_indicator: true,
+                typing_indicator: true,
                 errors: true,
+                acknowledge_emoji: "eyes",
               },
               guilds: [],
             },
@@ -4608,6 +4669,8 @@ describe.skip("DiscordManager output configuration", () => {
       },
       reply: replyMock,
       startTyping: () => () => {},
+      addReaction: vi.fn().mockResolvedValue(undefined),
+      removeReaction: vi.fn().mockResolvedValue(undefined),
     };
 
     mockConnector.emit("message", messageEvent);
@@ -4665,8 +4728,9 @@ describe.skip("DiscordManager output configuration", () => {
                 tool_result_max_length: 900,
                 system_status: true,
                 result_summary: false,
-              typing_indicator: true,
+                typing_indicator: true,
                 errors: false,
+                acknowledge_emoji: "eyes",
               },
               guilds: [],
             },
@@ -4769,6 +4833,8 @@ describe.skip("DiscordManager output configuration", () => {
       },
       reply: replyMock,
       startTyping: () => () => {},
+      addReaction: vi.fn().mockResolvedValue(undefined),
+      removeReaction: vi.fn().mockResolvedValue(undefined),
     };
 
     mockConnector.emit("message", messageEvent);
@@ -4781,6 +4847,149 @@ describe.skip("DiscordManager output configuration", () => {
     });
     expect(embedCalls.length).toBe(0);
   }, 10000);
+
+  describe("file sender MCP injection", () => {
+    it("passes injectedMcpServers to trigger when agent has working_directory", async () => {
+      const triggerMock = vi.fn().mockResolvedValue({
+        jobId: "job-file",
+        agentName: "test",
+        scheduleName: null,
+        startedAt: new Date().toISOString(),
+        success: true,
+      });
+
+      const agentWithWorkDir = {
+        ...createDiscordAgent("file-agent", {
+          bot_token_env: "TEST_BOT_TOKEN",
+          session_expiry_hours: 24,
+          log_level: "standard",
+          output: {
+            tool_results: true,
+            tool_result_max_length: 900,
+            system_status: true,
+            result_summary: false,
+            typing_indicator: true,
+            errors: true,
+            acknowledge_emoji: "",
+          },
+          guilds: [],
+        }),
+        working_directory: "/tmp/test-workspace",
+      } as ResolvedAgent;
+
+      const config: ResolvedConfig = {
+        fleet: { name: "test-fleet" } as unknown as ResolvedConfig["fleet"],
+        agents: [agentWithWorkDir],
+        configPath: "/test/herdctl.yaml",
+        configDir: "/test",
+      };
+
+      const mockContext: FleetManagerContext = {
+        getConfig: () => config,
+        getStateDir: () => "/tmp/test-state",
+        getStateDirInfo: () => null,
+        getLogger: () => mockLogger,
+        getScheduler: () => null,
+        getStatus: () => "running",
+        getInitializedAt: () => "2024-01-01T00:00:00.000Z",
+        getStartedAt: () => "2024-01-01T00:00:01.000Z",
+        getStoppedAt: () => null,
+        getLastError: () => null,
+        getCheckInterval: () => 1000,
+        emit: vi.fn(),
+        getEmitter: () => new EventEmitter(),
+        trigger: triggerMock,
+      };
+
+      const manager = new DiscordManager(mockContext);
+
+      const mockConnector = new EventEmitter() as EventEmitter & {
+        connect: ReturnType<typeof vi.fn>;
+        disconnect: ReturnType<typeof vi.fn>;
+        isConnected: ReturnType<typeof vi.fn>;
+        getState: ReturnType<typeof vi.fn>;
+        uploadFile: ReturnType<typeof vi.fn>;
+        agentName: string;
+        sessionManager: {
+          getSession: ReturnType<typeof vi.fn>;
+          setSession: ReturnType<typeof vi.fn>;
+          touchSession: ReturnType<typeof vi.fn>;
+          getActiveSessionCount: ReturnType<typeof vi.fn>;
+        };
+      };
+      mockConnector.connect = vi.fn().mockResolvedValue(undefined);
+      mockConnector.disconnect = vi.fn().mockResolvedValue(undefined);
+      mockConnector.isConnected = vi.fn().mockReturnValue(true);
+      mockConnector.getState = vi.fn().mockReturnValue({
+        status: "connected",
+        connectedAt: "2024-01-01T00:00:00.000Z",
+        disconnectedAt: null,
+        reconnectAttempts: 0,
+        lastError: null,
+        botUser: { id: "bot1", username: "TestBot", discriminator: "0000" },
+        rateLimits: {
+          totalCount: 0,
+          lastRateLimitAt: null,
+          isRateLimited: false,
+          currentResetTime: 0,
+        },
+        messageStats: { received: 0, sent: 0, ignored: 0 },
+      } satisfies DiscordConnectorState);
+      mockConnector.uploadFile = vi.fn().mockResolvedValue({ fileId: "file-123" });
+      mockConnector.agentName = "file-agent";
+      mockConnector.sessionManager = {
+        getSession: vi.fn().mockResolvedValue(null),
+        setSession: vi.fn().mockResolvedValue(undefined),
+        touchSession: vi.fn().mockResolvedValue(undefined),
+        getActiveSessionCount: vi.fn().mockResolvedValue(0),
+      };
+
+      // @ts-expect-error - accessing private property for testing
+      manager.connectors.set("file-agent", mockConnector);
+      // @ts-expect-error - accessing private property for testing
+      manager.initialized = true;
+
+      await manager.start();
+
+      const messageEvent: DiscordMessageEvent = {
+        agentName: "file-agent",
+        prompt: "Send me the file",
+        context: { messages: [], wasMentioned: true, prompt: "Send me the file" },
+        metadata: {
+          guildId: "guild1",
+          channelId: "channel1",
+          messageId: "msg1",
+          userId: "user1",
+          username: "TestUser",
+          wasMentioned: true,
+          mode: "mention",
+        },
+        reply: vi.fn().mockResolvedValue(undefined),
+        startTyping: () => () => {},
+        addReaction: vi.fn().mockResolvedValue(undefined),
+        removeReaction: vi.fn().mockResolvedValue(undefined),
+      };
+
+      mockConnector.emit("message", messageEvent);
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      // Verify trigger was called with injectedMcpServers
+      expect(triggerMock).toHaveBeenCalledWith(
+        "file-agent",
+        undefined,
+        expect.objectContaining({
+          injectedMcpServers: expect.objectContaining({
+            "herdctl-file-sender": expect.objectContaining({
+              name: "herdctl-file-sender",
+              tools: expect.arrayContaining([
+                expect.objectContaining({ name: "herdctl_send_file" }),
+              ]),
+            }),
+          }),
+        }),
+      );
+    }, 10000);
+  });
 
   describe("buildToolEmbed with custom maxOutputChars", () => {
     it("respects custom maxOutputChars parameter", () => {
