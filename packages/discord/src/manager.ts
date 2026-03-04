@@ -439,29 +439,46 @@ export class DiscordManager implements IChatManager {
       }
     }
 
+    // Buffer for files uploaded by the agent via MCP tool.
+    // Files are queued here and attached to the next answer message,
+    // so they appear below the text (not as standalone messages above it).
+    const pendingFiles: Array<{ buffer: Buffer; filename: string }> = [];
+
     // Create file sender definition for this message context
     let injectedMcpServers: Record<string, InjectedMcpServerDef> | undefined;
     const workingDir = this.resolveWorkingDirectory(agent);
     if (connector && workingDir) {
-      const agentConnector = connector;
       const fileSenderContext: FileSenderContext = {
         workingDirectory: workingDir,
         uploadFile: async (params) => {
-          return agentConnector.uploadFile({
-            channelId: event.metadata.channelId,
-            fileBuffer: params.fileBuffer,
+          // Queue the file — it will be attached to the next answer message
+          pendingFiles.push({
+            buffer: params.fileBuffer,
             filename: params.filename,
-            message: params.message,
           });
+          const fileId = `buffered-${randomUUID()}`;
+          logger.debug(`Buffered file '${params.filename}' for attachment to next answer message`);
+          return { fileId };
         },
       };
       const fileSenderDef = createFileSenderDef(fileSenderContext);
       injectedMcpServers = { [fileSenderDef.name]: fileSenderDef };
     }
 
-    // Create streaming responder for incremental message delivery
+    // Create streaming responder for incremental message delivery.
+    // The reply closure drains pending files and attaches them to the message.
     const streamer = new StreamingResponder({
-      reply: (content: string) => event.reply(content),
+      reply: async (content: string) => {
+        if (pendingFiles.length > 0) {
+          const files = pendingFiles.splice(0);
+          await event.reply({
+            content,
+            files: files.map((f) => ({ attachment: f.buffer, name: f.filename })),
+          });
+        } else {
+          await event.reply(content);
+        }
+      },
       logger: logger as ChatConnectorLogger,
       agentName: qualifiedName,
       maxMessageLength: 2000, // Discord's limit
@@ -853,6 +870,16 @@ export class DiscordManager implements IChatManager {
 
       // Flush any remaining buffered content
       await streamer.flush();
+
+      // Send any remaining buffered files that weren't attached to an answer.
+      // This handles the case where the agent uploaded files but produced no text answer.
+      if (pendingFiles.length > 0) {
+        const files = pendingFiles.splice(0);
+        logger.debug(`Sending ${files.length} remaining buffered file(s) as standalone message`);
+        await event.reply({
+          files: files.map((f) => ({ attachment: f.buffer, name: f.filename })),
+        });
+      }
 
       logger.debug(
         `Discord job completed: ${result.jobId} for agent '${qualifiedName}'${result.sessionId ? ` (session: ${result.sessionId})` : ""}`,

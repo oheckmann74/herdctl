@@ -274,10 +274,16 @@ export interface DiscordReplyEmbed {
 }
 
 /**
- * Payload for sending rich messages (embeds) via the reply function
+ * Payload for sending rich messages via the reply function.
+ *
+ * Supports embeds, plain text content, and file attachments.
+ * At least one of `content`, `embeds`, or `files` must be provided.
+ * Maps to discord.js MessageCreateOptions at runtime.
  */
 export interface DiscordReplyPayload {
-  embeds: DiscordReplyEmbed[];
+  content?: string;
+  embeds?: DiscordReplyEmbed[];
+  files?: Array<{ attachment: Buffer; name: string }>;
 }
 
 // =============================================================================

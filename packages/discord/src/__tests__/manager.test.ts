@@ -2217,7 +2217,7 @@ describe.skip("DiscordManager message handling", () => {
       const embedCall = replyMock.mock.calls[1][0] as DiscordReplyPayload;
       expect(embedCall).toHaveProperty("embeds");
       expect(embedCall.embeds).toHaveLength(1);
-      const embed = embedCall.embeds[0];
+      const embed = embedCall.embeds![0];
       expect(embed.title).toContain("Bash");
       expect(embed.description).toContain("ls -la /tmp");
       expect(embed.color).toBe(0x5865f2); // blurple (not error)
@@ -2384,7 +2384,7 @@ describe.skip("DiscordManager message handling", () => {
       const embedCall = replyMock.mock.calls[0][0] as DiscordReplyPayload;
       expect(embedCall).toHaveProperty("embeds");
       expect(embedCall.embeds).toHaveLength(1);
-      const embed = embedCall.embeds[0];
+      const embed = embedCall.embeds![0];
       // No matching tool_use, so title falls back to "Tool"
       expect(embed.title).toContain("Tool");
       // Should have Output field and Result field
@@ -5093,7 +5093,7 @@ describe.skip("DiscordManager output configuration", () => {
       return typeof payload === "object" && payload !== null && "embeds" in payload;
     });
     expect(embedCalls.length).toBe(1);
-    const embed = (embedCalls[0][0] as DiscordReplyPayload).embeds[0];
+    const embed = (embedCalls[0][0] as DiscordReplyPayload).embeds![0];
     expect(embed.title).toContain("System");
     expect(embed.description).toContain("Compacting context");
   }, 10000);
@@ -5436,7 +5436,7 @@ describe.skip("DiscordManager output configuration", () => {
       return typeof payload === "object" && payload !== null && "embeds" in payload;
     });
     expect(embedCalls.length).toBe(1);
-    const embed = (embedCalls[0][0] as DiscordReplyPayload).embeds[0];
+    const embed = (embedCalls[0][0] as DiscordReplyPayload).embeds![0];
     expect(embed.title).toContain("Task Complete");
     expect(embed.fields).toBeDefined();
     const fieldNames = embed.fields!.map((f: DiscordReplyEmbedField) => f.name);
@@ -5611,7 +5611,7 @@ describe.skip("DiscordManager output configuration", () => {
       return typeof payload === "object" && payload !== null && "embeds" in payload;
     });
     expect(embedCalls.length).toBe(1);
-    const embed = (embedCalls[0][0] as DiscordReplyPayload).embeds[0];
+    const embed = (embedCalls[0][0] as DiscordReplyPayload).embeds![0];
     expect(embed.title).toContain("Error");
     expect(embed.description).toBe("Something went wrong");
   }, 10000);
