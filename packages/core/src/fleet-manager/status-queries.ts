@@ -9,7 +9,7 @@
 
 import type { ResolvedAgent } from "../config/index.js";
 import type { DynamicSchedule } from "../scheduler/dynamic-schedules.js";
-import { loadAllDynamicSchedules } from "../scheduler/dynamic-schedules.js";
+import { listDynamicSchedules, loadAllDynamicSchedules } from "../scheduler/dynamic-schedules.js";
 import type { Scheduler } from "../scheduler/index.js";
 import { readFleetState } from "../state/fleet-state.js";
 import type { AgentState, FleetState } from "../state/schemas/fleet-state.js";
@@ -198,11 +198,13 @@ export class StatusQueries {
     // Get chat managers for connection status
     const chatManagers = this.ctx.getChatManagers?.() ?? new Map<string, IChatManager>();
 
-    // Load dynamic schedules for this agent
+    // Load dynamic schedules for this specific agent (avoids reading all agents' files)
     let agentDynamic: Record<string, DynamicSchedule> | undefined;
     try {
-      const dynamic = await loadAllDynamicSchedules(this.ctx.getStateDir());
-      agentDynamic = dynamic.get(agent.qualifiedName);
+      const dynamic = await listDynamicSchedules(this.ctx.getStateDir(), agent.qualifiedName);
+      if (Object.keys(dynamic).length > 0) {
+        agentDynamic = dynamic;
+      }
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error);
       this.ctx

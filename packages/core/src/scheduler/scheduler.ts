@@ -12,7 +12,7 @@ import {
   calculatePreviousCronTrigger,
   isValidCronExpression,
 } from "./cron.js";
-import { loadAllDynamicSchedules } from "./dynamic-schedules.js";
+import { type DynamicSchedule, loadAllDynamicSchedules } from "./dynamic-schedules.js";
 import { SchedulerShutdownError } from "./errors.js";
 import { calculateNextTrigger, isScheduleDue } from "./interval.js";
 import {
@@ -108,13 +108,7 @@ export class Scheduler {
   private warnedSchedules = new Set<string>();
 
   // Dynamic schedule cache — re-read from disk every N ticks to avoid excessive I/O
-  private dynamicScheduleCache: Map<
-    string,
-    Record<
-      string,
-      { type: string; interval?: string; cron?: string; prompt?: string; enabled?: boolean }
-    >
-  > = new Map();
+  private dynamicScheduleCache: Map<string, Record<string, DynamicSchedule>> = new Map();
   private dynamicScheduleLastLoad = -10; // force immediate load (matches DYNAMIC_SCHEDULE_RELOAD_INTERVAL)
   private static readonly DYNAMIC_SCHEDULE_RELOAD_INTERVAL = 10; // reload every 10 ticks (~10s)
 
@@ -325,14 +319,7 @@ export class Scheduler {
       Scheduler.DYNAMIC_SCHEDULE_RELOAD_INTERVAL
     ) {
       try {
-        const loaded = await loadAllDynamicSchedules(this.stateDir);
-        this.dynamicScheduleCache = loaded as Map<
-          string,
-          Record<
-            string,
-            { type: string; interval?: string; cron?: string; prompt?: string; enabled?: boolean }
-          >
-        >;
+        this.dynamicScheduleCache = await loadAllDynamicSchedules(this.stateDir);
         this.dynamicScheduleLastLoad = this.checkCount;
       } catch (error) {
         this.logger.error(

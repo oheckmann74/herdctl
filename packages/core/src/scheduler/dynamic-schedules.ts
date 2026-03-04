@@ -520,6 +520,7 @@ function validateMinInterval(
     } catch (error) {
       // Re-throw our own errors, ignore cron parsing failures
       if (error instanceof MinIntervalViolationError) throw error;
+      logger.debug(`Unexpected error estimating cron gap for "${schedule.cron}": ${error}`);
     }
   }
 }
