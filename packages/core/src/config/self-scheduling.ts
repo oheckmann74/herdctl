@@ -78,23 +78,23 @@ export function injectSchedulerMcpServers(agents: ResolvedAgent[], stateDir: str
     }
 
     // Don't overwrite if operator explicitly declared the server
-    if ("herdctl-scheduler" in agent.mcp_servers) continue;
+    if (!("herdctl-scheduler" in agent.mcp_servers)) {
+      agent.mcp_servers["herdctl-scheduler"] = {
+        command: "node",
+        args: [mcpPath],
+        env: {
+          HERDCTL_AGENT_NAME: agent.qualifiedName,
+          HERDCTL_STATE_DIR: stateDir,
+          HERDCTL_MAX_SCHEDULES: String(selfScheduling.max_schedules ?? 10),
+          HERDCTL_MIN_INTERVAL: selfScheduling.min_interval ?? "5m",
+          ...(staticScheduleNames.length > 0 && {
+            HERDCTL_STATIC_SCHEDULES: staticScheduleNames.join(","),
+          }),
+        },
+      };
+    }
 
-    agent.mcp_servers["herdctl-scheduler"] = {
-      command: "node",
-      args: [mcpPath],
-      env: {
-        HERDCTL_AGENT_NAME: agent.qualifiedName,
-        HERDCTL_STATE_DIR: stateDir,
-        HERDCTL_MAX_SCHEDULES: String(selfScheduling.max_schedules ?? 10),
-        HERDCTL_MIN_INTERVAL: selfScheduling.min_interval ?? "5m",
-        ...(staticScheduleNames.length > 0 && {
-          HERDCTL_STATIC_SCHEDULES: staticScheduleNames.join(","),
-        }),
-      },
-    };
-
-    // Append self-scheduling guidance to the agent's system prompt
+    // Always append self-scheduling guidance to the agent's system prompt
     const schedulingPrompt = buildSchedulingPrompt(selfScheduling);
     if (agent.system_prompt) {
       agent.system_prompt = agent.system_prompt + "\n\n" + schedulingPrompt;

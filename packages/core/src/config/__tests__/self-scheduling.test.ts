@@ -199,7 +199,7 @@ describe("injectSchedulerMcpServers", () => {
     expect(agents[0].system_prompt).toBeUndefined();
   });
 
-  it("does not inject system prompt when operator declared custom MCP server", () => {
+  it("injects system prompt even when operator declared custom MCP server", () => {
     const agents = [
       makeAgent({
         self_scheduling: { enabled: true, max_schedules: 10, min_interval: "5m" },
@@ -214,7 +214,8 @@ describe("injectSchedulerMcpServers", () => {
 
     injectSchedulerMcpServers(agents, "/tmp/.herdctl");
 
-    // Custom MCP server preserved, no system prompt injected
-    expect(agents[0].system_prompt).toBeUndefined();
+    // Custom MCP server preserved, but system prompt still injected
+    expect(agents[0].mcp_servers!["herdctl-scheduler"].command).toBe("custom-scheduler");
+    expect(agents[0].system_prompt).toContain("# Self-Scheduling");
   });
 });
