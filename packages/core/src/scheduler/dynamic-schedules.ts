@@ -124,12 +124,41 @@ export function getDynamicScheduleFilePath(stateDir: string, agentName: string):
 // =============================================================================
 
 /**
- * Read dynamic schedules for an agent, performing lazy TTL expiration.
+ * Read dynamic schedules for an agent from disk.
  *
- * Returns an empty schedule map if the file doesn't exist.
- * Expired schedules are removed from the file on read.
+ * This is a pure read — it does NOT write back expired schedules.
+ * TTL filtering is applied in-memory: callers see only non-expired schedules,
+ * but the file is not modified. This avoids write contention when multiple
+ * readers (scheduler tick, MCP server, CLI) access the same file concurrently.
+ *
+ * Expired entries are cleaned up during mutations (create/update/delete)
+ * which already perform a read-modify-write cycle.
  */
 export async function readDynamicSchedules(
+  stateDir: string,
+  agentName: string,
+): Promise<DynamicScheduleFile> {
+  const parsed = await readRawDynamicSchedules(stateDir, agentName);
+
+  // Filter expired schedules in-memory (no write-back)
+  const now = new Date();
+  const activeSchedules: Record<string, DynamicSchedule> = {};
+
+  for (const [name, schedule] of Object.entries(parsed.schedules)) {
+    if (schedule.expires_at && new Date(schedule.expires_at) <= now) {
+      continue; // Skip expired schedule
+    }
+    activeSchedules[name] = schedule;
+  }
+
+  return { version: parsed.version, schedules: activeSchedules };
+}
+
+/**
+ * Read the raw file content including expired entries.
+ * Used internally by mutations that will write back anyway.
+ */
+async function readRawDynamicSchedules(
   stateDir: string,
   agentName: string,
 ): Promise<DynamicScheduleFile> {
@@ -150,29 +179,20 @@ export async function readDynamicSchedules(
     return { version: 1, schedules: {} };
   }
 
-  const parsed = DynamicScheduleFileSchema.parse(raw);
+  return DynamicScheduleFileSchema.parse(raw);
+}
 
-  // Lazy TTL expiration
+/**
+ * Strip expired entries from a schedule file in-place.
+ * Called during mutations to piggyback cleanup on writes.
+ */
+function stripExpired(file: DynamicScheduleFile): void {
   const now = new Date();
-  let expired = false;
-  const activeSchedules: Record<string, DynamicSchedule> = {};
-
-  for (const [name, schedule] of Object.entries(parsed.schedules)) {
+  for (const [name, schedule] of Object.entries(file.schedules)) {
     if (schedule.expires_at && new Date(schedule.expires_at) <= now) {
-      expired = true;
-      continue; // Skip expired schedule
+      delete file.schedules[name];
     }
-    activeSchedules[name] = schedule;
   }
-
-  // Write back if any schedules were expired
-  if (expired) {
-    const cleaned: DynamicScheduleFile = { version: 1, schedules: activeSchedules };
-    await writeDynamicSchedules(stateDir, agentName, cleaned);
-    return cleaned;
-  }
-
-  return parsed;
 }
 
 /**
@@ -261,8 +281,9 @@ export async function createDynamicSchedule(
     );
   }
 
-  // Read current schedules
-  const file = await readDynamicSchedules(stateDir, agentName);
+  // Read current schedules (raw — includes expired entries for cleanup)
+  const file = await readRawDynamicSchedules(stateDir, agentName);
+  stripExpired(file);
 
   // Check for duplicate name
   if (input.name in file.schedules) {
@@ -272,7 +293,7 @@ export async function createDynamicSchedule(
     );
   }
 
-  // Check schedule count limit
+  // Check schedule count limit (against non-expired count)
   if (Object.keys(file.schedules).length >= options.maxSchedules) {
     throw new ScheduleLimitExceededError(agentName, options.maxSchedules);
   }
@@ -308,7 +329,8 @@ export async function updateDynamicSchedule(
   updates: UpdateScheduleInput,
   options: DynamicScheduleOptions,
 ): Promise<DynamicSchedule> {
-  const file = await readDynamicSchedules(stateDir, agentName);
+  const file = await readRawDynamicSchedules(stateDir, agentName);
+  stripExpired(file);
 
   if (!(scheduleName in file.schedules)) {
     throw new DynamicScheduleError(`Schedule "${scheduleName}" not found`);
@@ -343,7 +365,9 @@ export async function updateDynamicSchedule(
   if (updates.prompt !== undefined) updated.prompt = updates.prompt;
   if (updates.enabled !== undefined) updated.enabled = updates.enabled;
 
-  // Handle TTL updates
+  // Handle TTL updates — always relative to now, not created_at.
+  // If the user sets ttl_hours: 24 during an update, they expect it to
+  // expire 24 hours from now, not 24 hours from the original creation time.
   if (updates.ttl_hours !== undefined) {
     if (updates.ttl_hours === null) {
       // Remove TTL
@@ -351,9 +375,7 @@ export async function updateDynamicSchedule(
       updated.expires_at = null;
     } else {
       updated.ttl_hours = updates.ttl_hours;
-      updated.expires_at = new Date(
-        new Date(updated.created_at).getTime() + updates.ttl_hours * 3600000,
-      ).toISOString();
+      updated.expires_at = new Date(Date.now() + updates.ttl_hours * 3600000).toISOString();
     }
   }
 
@@ -371,7 +393,8 @@ export async function deleteDynamicSchedule(
   agentName: string,
   scheduleName: string,
 ): Promise<void> {
-  const file = await readDynamicSchedules(stateDir, agentName);
+  const file = await readRawDynamicSchedules(stateDir, agentName);
+  stripExpired(file);
 
   if (!(scheduleName in file.schedules)) {
     throw new DynamicScheduleError(`Schedule "${scheduleName}" not found`);
