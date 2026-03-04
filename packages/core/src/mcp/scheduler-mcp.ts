@@ -99,8 +99,9 @@ server.tool(
       ),
     prompt: z
       .string()
+      .max(10000)
       .describe(
-        "The prompt to execute when this schedule triggers. This is what the agent will be asked to do.",
+        "The prompt to execute when this schedule triggers. This is what the agent will be asked to do. Max 10,000 characters.",
       ),
     ttl_hours: z
       .number()

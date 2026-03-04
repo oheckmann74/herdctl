@@ -7,7 +7,7 @@
  * @module schedule-management
  */
 
-import { loadAllDynamicSchedules } from "../scheduler/dynamic-schedules.js";
+import { listDynamicSchedules, loadAllDynamicSchedules } from "../scheduler/dynamic-schedules.js";
 import type { FleetManagerContext } from "./context.js";
 import { AgentNotFoundError, ScheduleNotFoundError } from "./errors.js";
 import { buildScheduleInfoList, type FleetStateSnapshot } from "./status-queries.js";
@@ -114,29 +114,55 @@ export class ScheduleManagement {
       });
     }
 
-    if (!agent.schedules || !(scheduleName in agent.schedules)) {
-      const availableSchedules = agent.schedules ? Object.keys(agent.schedules) : [];
-      throw new ScheduleNotFoundError(agentName, scheduleName, {
-        availableSchedules,
-      });
-    }
-
     const fleetState = await this.readFleetStateSnapshotFn();
     const agentState = fleetState.agents[agent.qualifiedName];
-    const schedule = agent.schedules[scheduleName];
-    const scheduleState = agentState?.schedules?.[scheduleName];
 
-    return {
-      name: scheduleName,
-      agentName,
-      type: schedule.type,
-      interval: schedule.interval,
-      cron: schedule.cron,
-      status: scheduleState?.status ?? "idle",
-      lastRunAt: scheduleState?.last_run_at ?? null,
-      nextRunAt: scheduleState?.next_run_at ?? null,
-      lastError: scheduleState?.last_error ?? null,
-    };
+    // Check static schedules first
+    if (agent.schedules && scheduleName in agent.schedules) {
+      const schedule = agent.schedules[scheduleName];
+      const scheduleState = agentState?.schedules?.[scheduleName];
+      return {
+        name: scheduleName,
+        agentName: agent.qualifiedName,
+        type: schedule.type,
+        interval: schedule.interval,
+        cron: schedule.cron,
+        status: scheduleState?.status ?? "idle",
+        lastRunAt: scheduleState?.last_run_at ?? null,
+        nextRunAt: scheduleState?.next_run_at ?? null,
+        lastError: scheduleState?.last_error ?? null,
+        source: "static",
+      };
+    }
+
+    // Fall back to dynamic schedules
+    const stateDir = this.ctx.getStateDir();
+    try {
+      const dynamic = await listDynamicSchedules(stateDir, agent.qualifiedName);
+      if (scheduleName in dynamic) {
+        const schedule = dynamic[scheduleName];
+        const scheduleState = agentState?.schedules?.[scheduleName];
+        return {
+          name: scheduleName,
+          agentName: agent.qualifiedName,
+          type: schedule.type,
+          interval: schedule.interval,
+          cron: schedule.cron,
+          status: scheduleState?.status ?? "idle",
+          lastRunAt: scheduleState?.last_run_at ?? null,
+          nextRunAt: scheduleState?.next_run_at ?? null,
+          lastError: scheduleState?.last_error ?? null,
+          source: "dynamic",
+        };
+      }
+    } catch {
+      // Ignore dynamic schedule load errors
+    }
+
+    const availableSchedules = agent.schedules ? Object.keys(agent.schedules) : [];
+    throw new ScheduleNotFoundError(agentName, scheduleName, {
+      availableSchedules,
+    });
   }
 
   /**
@@ -157,9 +183,8 @@ export class ScheduleManagement {
     const logger = this.ctx.getLogger();
     const stateDir = this.ctx.getStateDir();
 
-    // Validate the agent and schedule exist
+    // Validate the agent exists
     const agents = config?.agents ?? [];
-    // Try qualified name first, fall back to local name
     const agent =
       agents.find((a) => a.qualifiedName === agentName) ?? agents.find((a) => a.name === agentName);
 
@@ -169,12 +194,8 @@ export class ScheduleManagement {
       });
     }
 
-    if (!agent.schedules || !(scheduleName in agent.schedules)) {
-      const availableSchedules = agent.schedules ? Object.keys(agent.schedules) : [];
-      throw new ScheduleNotFoundError(agentName, scheduleName, {
-        availableSchedules,
-      });
-    }
+    // Verify the schedule exists (static or dynamic)
+    await this.getSchedule(agent.qualifiedName, scheduleName);
 
     // Update schedule state to enabled (idle) — use qualifiedName as the state key
     const { updateScheduleState } = await import("../scheduler/schedule-state.js");
@@ -211,9 +232,8 @@ export class ScheduleManagement {
     const logger = this.ctx.getLogger();
     const stateDir = this.ctx.getStateDir();
 
-    // Validate the agent and schedule exist
+    // Validate the agent exists
     const agents = config?.agents ?? [];
-    // Try qualified name first, fall back to local name
     const agent =
       agents.find((a) => a.qualifiedName === agentName) ?? agents.find((a) => a.name === agentName);
 
@@ -223,12 +243,8 @@ export class ScheduleManagement {
       });
     }
 
-    if (!agent.schedules || !(scheduleName in agent.schedules)) {
-      const availableSchedules = agent.schedules ? Object.keys(agent.schedules) : [];
-      throw new ScheduleNotFoundError(agentName, scheduleName, {
-        availableSchedules,
-      });
-    }
+    // Verify the schedule exists (static or dynamic)
+    await this.getSchedule(agent.qualifiedName, scheduleName);
 
     // Update schedule state to disabled — use qualifiedName as the state key
     const { updateScheduleState } = await import("../scheduler/schedule-state.js");

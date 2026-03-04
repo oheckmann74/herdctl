@@ -68,8 +68,16 @@ describe("dynamic-schedules", () => {
       );
     });
 
-    it("rejects agent names with dots", () => {
-      expect(() => getDynamicScheduleFilePath("/foo/.herdctl", "agent.name")).toThrow(
+    it("allows dotted qualified names (e.g., fleet.agent)", () => {
+      const result = getDynamicScheduleFilePath("/foo/.herdctl", "fleet.agent");
+      expect(result).toContain("fleet.agent.yaml");
+    });
+
+    it("rejects double-dot sequences to prevent path traversal", () => {
+      expect(() => getDynamicScheduleFilePath("/foo/.herdctl", "agent..name")).toThrow(
+        "Invalid agent name",
+      );
+      expect(() => getDynamicScheduleFilePath("/foo/.herdctl", "..agent")).toThrow(
         "Invalid agent name",
       );
     });

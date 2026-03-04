@@ -8,14 +8,13 @@
  * - One file per agent: eliminates cross-agent write contention
  * - Atomic writes: uses the same atomicWriteYaml pattern as state.yaml
  * - TTL expiration: lazy cleanup on read (no background timer needed)
- * - Namespace isolation: agent name validated against AGENT_NAME_PATTERN
+ * - Namespace isolation: qualified name validated against QUALIFIED_NAME_PATTERN
  */
 
 import { mkdir, readFile, unlink } from "node:fs/promises";
 import { join } from "node:path";
 import { parse as parseYaml } from "yaml";
 import { z } from "zod";
-import { AGENT_NAME_PATTERN } from "../config/schema.js";
 import { atomicWriteYaml } from "../state/utils/atomic.js";
 import { calculateNextCronTrigger, isValidCronExpression } from "./cron.js";
 import { parseInterval } from "./interval.js";
@@ -49,6 +48,13 @@ export const DynamicScheduleFileSchema = z.object({
 });
 
 export type DynamicScheduleFile = z.infer<typeof DynamicScheduleFileSchema>;
+
+/**
+ * Qualified agent name pattern for file path construction.
+ * Allows dots (for qualified names like "fleet.agent") but rejects ".."
+ * sequences to prevent path traversal.
+ */
+const QUALIFIED_NAME_PATTERN = /^[a-zA-Z0-9][a-zA-Z0-9_.-]*$/;
 
 /**
  * Schedule name pattern — same rules as agent names
@@ -102,10 +108,12 @@ export function getDynamicSchedulesDir(stateDir: string): string {
  * Get the file path for a specific agent's dynamic schedules
  */
 export function getDynamicScheduleFilePath(stateDir: string, agentName: string): string {
-  // Validate agent name to prevent path traversal
-  if (!AGENT_NAME_PATTERN.test(agentName)) {
+  // Validate agent name to prevent path traversal.
+  // Qualified names like "fleet.agent" contain dots, so we allow single dots
+  // but reject ".." sequences which would escape the directory.
+  if (!QUALIFIED_NAME_PATTERN.test(agentName) || agentName.includes("..")) {
     throw new DynamicScheduleError(
-      `Invalid agent name "${agentName}": must match ${AGENT_NAME_PATTERN.source}`,
+      `Invalid agent name "${agentName}": must match ${QUALIFIED_NAME_PATTERN.source} (no ".." sequences)`,
     );
   }
   return join(getDynamicSchedulesDir(stateDir), `${agentName}.yaml`);
@@ -243,7 +251,7 @@ export async function createDynamicSchedule(
   }
 
   // Validate minimum interval
-  validateMinInterval(input, options.minInterval);
+  validateMinInterval(input.name, input, options.minInterval);
 
   // Check for static schedule name collision
   if (options.staticScheduleNames?.includes(input.name)) {
@@ -326,7 +334,7 @@ export async function updateDynamicSchedule(
     cron: updates.cron ?? existing.cron,
     interval: updates.interval ?? existing.interval,
   };
-  validateMinInterval(effectiveSchedule, options.minInterval);
+  validateMinInterval(scheduleName, effectiveSchedule, options.minInterval);
 
   // Apply updates
   const updated: DynamicSchedule = { ...existing };
@@ -432,8 +440,13 @@ export async function loadAllDynamicSchedules(
       if (Object.keys(schedules).length > 0) {
         result.set(agentName, schedules);
       }
-    } catch {
-      // Skip files that fail to parse — don't crash the scheduler
+    } catch (parseError) {
+      // Skip files that fail to parse — don't crash the scheduler.
+      // Log a warning so operators can diagnose corrupt files.
+      const msg = parseError instanceof Error ? parseError.message : String(parseError);
+      // Use console.warn as a safety fallback — this code path should rarely fire
+      // and adding a logger dependency here would complicate the API surface.
+      console.warn(`[dynamic-schedules] Failed to load schedules for "${agentName}": ${msg}`);
     }
   }
 
@@ -452,6 +465,7 @@ export async function loadAllDynamicSchedules(
  * and reject if it's below the minimum.
  */
 function validateMinInterval(
+  scheduleName: string,
   schedule: { type: string; cron?: string; interval?: string },
   minInterval: string,
 ): void {
@@ -460,7 +474,7 @@ function validateMinInterval(
   if (schedule.type === "interval" && schedule.interval) {
     const scheduleMs = parseInterval(schedule.interval);
     if (scheduleMs < minMs) {
-      throw new MinIntervalViolationError(schedule.interval, schedule.interval, minInterval);
+      throw new MinIntervalViolationError(scheduleName, schedule.interval, minInterval);
     }
   }
 
@@ -473,7 +487,7 @@ function validateMinInterval(
       const gapMs = second.getTime() - first.getTime();
       if (gapMs < minMs) {
         throw new MinIntervalViolationError(
-          schedule.cron,
+          scheduleName,
           `~${Math.round(gapMs / 1000)}s`,
           minInterval,
         );
