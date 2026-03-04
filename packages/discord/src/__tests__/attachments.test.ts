@@ -207,6 +207,7 @@ describe("processAttachments", () => {
   });
 
   afterEach(async () => {
+    vi.unstubAllGlobals();
     await rm(testDir, { recursive: true, force: true });
   });
 

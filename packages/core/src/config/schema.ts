@@ -699,7 +699,13 @@ export const DiscordAttachmentsSchema = z.object({
   /** Allowed MIME type patterns — supports wildcards like "image/*" (default: ["image/*", "application/pdf", "text/*"]) */
   allowed_types: z.array(z.string()).optional().default(["image/*", "application/pdf", "text/*"]),
   /** Directory name for downloaded binary attachments, relative to agent working_directory (default: ".discord-attachments") */
-  download_dir: z.string().optional().default(".discord-attachments"),
+  download_dir: z
+    .string()
+    .optional()
+    .default(".discord-attachments")
+    .refine((v) => !v.includes("..") && !v.startsWith("/"), {
+      message: "download_dir must be a relative path without '..' segments",
+    }),
   /** Delete downloaded files after the agent finishes processing (default: true) */
   cleanup_after_processing: z.boolean().optional().default(true),
 });

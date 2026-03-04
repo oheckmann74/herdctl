@@ -12,7 +12,7 @@
 
 import { randomUUID } from "node:crypto";
 import { mkdir, rm, writeFile } from "node:fs/promises";
-import { basename, join } from "node:path";
+import { basename, dirname, join } from "node:path";
 
 import {
   type ChatConnectorLogger,
@@ -492,15 +492,25 @@ export class DiscordManager implements IChatManager {
     // Track if we've stopped typing to avoid multiple calls
     let typingStopped = false;
 
-    // Add acknowledgement reaction if configured
+    // Add acknowledgement reaction if configured (non-fatal — don't abort message handling)
     const ackEmoji = outputConfig.acknowledge_emoji;
     if (ackEmoji) {
-      await event.addReaction(ackEmoji);
+      try {
+        await event.addReaction(ackEmoji);
+      } catch (reactionError) {
+        logger.warn(`Failed to add ack reaction: ${(reactionError as Error).message}`);
+      }
     }
 
     // Attachment state — declared here so the finally block can clean up
     let attachmentDownloadedPaths: string[] = [];
     const attachmentConfig = agent.chat?.discord?.attachments;
+
+    // Progress embed state — declared here so the finally block can clean up
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const progressState: {
+      handle: { edit: (c: any) => Promise<void>; delete: () => Promise<void> } | null;
+    } = { handle: null };
 
     try {
       // Handle voice messages: transcribe audio before triggering the agent
@@ -610,12 +620,7 @@ export class DiscordManager implements IChatManager {
       let resultText: string | undefined;
 
       // Progress indicator: track tool names for in-place-updating embed
-      interface ProgressEmbedHandle {
-        edit: (content: string | DiscordReplyPayload) => Promise<void>;
-        delete: () => Promise<void>;
-      }
       const toolNamesRun: string[] = [];
-      const progressState: { handle: ProgressEmbedHandle | null } = { handle: null };
       let lastProgressUpdate = 0;
 
       const showToolResults = outputConfig.tool_results;
@@ -856,15 +861,6 @@ export class DiscordManager implements IChatManager {
         typingStopped = true;
       }
 
-      // Clean up progress embed now that the job is done
-      if (progressState.handle) {
-        try {
-          await progressState.handle.delete();
-        } catch (progressError) {
-          logger.warn(`Failed to delete progress embed: ${(progressError as Error).message}`);
-        }
-      }
-
       // Fall back to SDK result text if no answer turns produced text
       if (!streamer.hasSentMessages() && resultText) {
         logger.debug("No answer turns produced text — using SDK result text as fallback");
@@ -977,6 +973,14 @@ export class DiscordManager implements IChatManager {
       // (Should already be stopped after sending messages, but this ensures cleanup on errors)
       if (!typingStopped) {
         stopTyping();
+      }
+      // Clean up progress embed (on both success and error paths)
+      if (progressState.handle) {
+        try {
+          await progressState.handle.delete();
+        } catch (progressError) {
+          logger.warn(`Failed to delete progress embed: ${(progressError as Error).message}`);
+        }
       }
       // Remove acknowledgement reaction now that processing is complete
       if (ackEmoji) {
@@ -1347,9 +1351,9 @@ export class DiscordManager implements IChatManager {
       try {
         await rm(filePath);
         // Track parent directory for cleanup
-        const lastSlash = filePath.lastIndexOf("/");
-        if (lastSlash > 0) {
-          parentDirs.add(filePath.substring(0, lastSlash));
+        const parent = dirname(filePath);
+        if (parent !== filePath && parent !== ".") {
+          parentDirs.add(parent);
         }
       } catch (err) {
         const errMsg = err instanceof Error ? err.message : String(err);

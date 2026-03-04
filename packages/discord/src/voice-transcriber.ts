@@ -58,6 +58,9 @@ export async function transcribeAudio(
     throw new Error(`OpenAI Whisper API error (${response.status}): ${errorBody}`);
   }
 
-  const result = (await response.json()) as { text: string };
+  const result = (await response.json()) as Record<string, unknown>;
+  if (typeof result.text !== "string") {
+    throw new Error("OpenAI Whisper API returned an unexpected response (missing 'text' field)");
+  }
   return { text: result.text };
 }
