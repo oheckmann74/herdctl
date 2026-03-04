@@ -1708,8 +1708,12 @@ describe("AgentChatDiscordSchema", () => {
         tool_results: true,
         tool_result_max_length: 900,
         system_status: true,
-        result_summary: false,
+        result_summary: true,
         errors: true,
+        typing_indicator: true,
+        acknowledge_emoji: "👀",
+        assistant_messages: "answers",
+        progress_indicator: true,
       });
     }
   });

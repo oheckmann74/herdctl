@@ -165,6 +165,7 @@ export class JobControl {
       onMessage: options?.onMessage,
       resume: sessionId,
       injectedMcpServers: options?.injectedMcpServers,
+      systemPromptAppend: options?.systemPromptAppend,
     });
 
     // Emit job:created event

@@ -413,6 +413,12 @@ export const DefaultsSchema = z.object({
   permission_mode: PermissionModeSchema.optional(),
   allowed_tools: z.array(z.string()).optional(),
   denied_tools: z.array(z.string()).optional(),
+  mcp_servers: z
+    .record(
+      z.string(),
+      z.lazy(() => McpServerSchema),
+    )
+    .optional(),
 });
 
 // =============================================================================
@@ -614,13 +620,94 @@ export const ChatOutputSchema = z.object({
  *   tool_results: true
  *   tool_result_max_length: 900
  *   system_status: true
- *   result_summary: false
+ *   result_summary: true
  *   errors: true
+ *   typing_indicator: true
+ *   assistant_messages: answers
  * ```
  */
 export const DiscordOutputSchema = ChatOutputSchema.extend({
-  /** Show a summary embed when the agent finishes a turn (cost, tokens, turns) (default: false) */
-  result_summary: z.boolean().optional().default(false),
+  /** Show a summary embed when the agent finishes a turn (cost, tokens, turns) (default: true) */
+  result_summary: z.boolean().optional().default(true),
+  /** Show typing indicator while the agent is processing (default: true) */
+  typing_indicator: z.boolean().optional().default(true),
+  /** Emoji to react with when a message is received (empty string to disable, default: "👀") */
+  acknowledge_emoji: z.string().optional().default("👀"),
+  /** Which assistant turns to send: "answers" (no tool_use blocks) or "all" (default: "answers") */
+  assistant_messages: z.enum(["answers", "all"]).optional().default("answers"),
+  /** Show a progress indicator embed with tool names while working (default: true) */
+  progress_indicator: z.boolean().optional().default(true),
+});
+
+/**
+ * Discord voice message transcription configuration
+ *
+ * When enabled, voice messages sent in Discord text channels are
+ * downloaded and transcribed via a speech-to-text provider (currently OpenAI Whisper).
+ * The transcription is then used as the agent prompt.
+ *
+ * @example
+ * ```yaml
+ * voice:
+ *   enabled: true
+ *   provider: openai
+ *   api_key_env: OPENAI_API_KEY
+ *   model: whisper-1
+ *   language: en
+ * ```
+ */
+export const DiscordVoiceSchema = z.object({
+  /** Enable voice message transcription (default: false) */
+  enabled: z.boolean().optional().default(false),
+  /** Transcription provider (default: "openai") */
+  provider: z.enum(["openai"]).optional().default("openai"),
+  /** Environment variable name containing the API key (default: "OPENAI_API_KEY") */
+  api_key_env: z.string().optional().default("OPENAI_API_KEY"),
+  /** Model to use for transcription (default: "whisper-1") */
+  model: z.string().optional().default("whisper-1"),
+  /** Language hint for better transcription accuracy (ISO 639-1, e.g., "en") */
+  language: z.string().optional(),
+});
+
+/**
+ * Discord file attachment handling configuration schema
+ *
+ * Controls how non-voice file attachments (images, PDFs, code files) are
+ * processed when users upload them alongside messages.
+ *
+ * @example
+ * ```yaml
+ * attachments:
+ *   enabled: true
+ *   max_file_size_mb: 10
+ *   max_files_per_message: 5
+ *   allowed_types:
+ *     - "image/*"
+ *     - "application/pdf"
+ *     - "text/*"
+ *   download_dir: ".discord-attachments"
+ *   cleanup_after_processing: true
+ * ```
+ */
+export const DiscordAttachmentsSchema = z.object({
+  /** Enable file attachment processing (default: false) */
+  enabled: z.boolean().optional().default(false),
+  /** Maximum file size in MB (default: 10) */
+  max_file_size_mb: z.number().positive().optional().default(10),
+  /** Maximum files per message (default: 5) */
+  max_files_per_message: z.number().int().positive().optional().default(5),
+  /** Allowed MIME type patterns — supports wildcards like "image/*" (default: ["image/*", "application/pdf", "text/*"]) */
+  allowed_types: z.array(z.string()).optional().default(["image/*", "application/pdf", "text/*"]),
+  /** Directory name for downloaded binary attachments, relative to agent working_directory (default: ".discord-attachments") */
+  download_dir: z
+    .string()
+    .optional()
+    .default(".discord-attachments")
+    .refine((v) => !v.includes("..") && !v.startsWith("/"), {
+      message: "download_dir must be a relative path without '..' segments",
+    }),
+  /** Delete downloaded files after the agent finishes processing (default: true) */
+  cleanup_after_processing: z.boolean().optional().default(true),
 });
 
 /**
@@ -668,6 +755,10 @@ export const AgentChatDiscordSchema = z.object({
   guilds: z.array(DiscordGuildSchema),
   /** Global DM (direct message) configuration - applies to all DMs regardless of guild */
   dm: ChatDMSchema.optional(),
+  /** Voice message transcription configuration */
+  voice: DiscordVoiceSchema.optional(),
+  /** File attachment handling configuration */
+  attachments: DiscordAttachmentsSchema.optional(),
 });
 
 // =============================================================================
@@ -1106,6 +1197,8 @@ export type DiscordPresence = z.infer<typeof DiscordPresenceSchema>;
 export type DiscordChannel = z.infer<typeof DiscordChannelSchema>;
 export type DiscordGuild = z.infer<typeof DiscordGuildSchema>;
 export type DiscordOutput = z.infer<typeof DiscordOutputSchema>;
+export type DiscordVoice = z.infer<typeof DiscordVoiceSchema>;
+export type DiscordAttachments = z.infer<typeof DiscordAttachmentsSchema>;
 export type AgentChatDiscord = z.infer<typeof AgentChatDiscordSchema>;
 export type AgentChat = z.infer<typeof AgentChatSchema>;
 // Agent Chat Slack types

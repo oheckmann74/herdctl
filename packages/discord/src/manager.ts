@@ -10,32 +10,48 @@
  * @module manager
  */
 
+import { randomUUID } from "node:crypto";
+import { mkdir, rm, writeFile } from "node:fs/promises";
+import { basename, dirname, join } from "node:path";
+
 import {
   type ChatConnectorLogger,
   ChatSessionManager,
   extractMessageContent,
+  formatCompactNumber,
   StreamingResponder,
   splitMessage,
 } from "@herdctl/chat";
 import type {
   ChatManagerConnectorState,
+  DiscordAttachments,
   FleetManagerContext,
   IChatManager,
+  InjectedMcpServerDef,
   ResolvedAgent,
 } from "@herdctl/core";
 import {
+  createFileSenderDef,
   extractToolResults,
   extractToolUseBlocks,
+  type FileSenderContext,
   getToolInputSummary,
   TOOL_EMOJIS,
 } from "@herdctl/core";
 
 import { DiscordConnector } from "./discord-connector.js";
 import type {
+  DiscordAttachmentInfo,
   DiscordConnectorEventMap,
   DiscordReplyEmbed,
   DiscordReplyEmbedField,
+  DiscordReplyPayload,
 } from "./types.js";
+import { transcribeAudio } from "./voice-transcriber.js";
+
+// =============================================================================
+// Constants
+// =============================================================================
 
 // =============================================================================
 // Discord Manager
@@ -388,9 +404,17 @@ export class DiscordManager implements IChatManager {
       tool_results: true,
       tool_result_max_length: 900,
       system_status: true,
-      result_summary: false,
+      result_summary: true,
       errors: true,
+      typing_indicator: true,
+      acknowledge_emoji: "👀",
+      assistant_messages: "answers" as const,
+      progress_indicator: true,
     };
+
+    // Resolve output modes
+    const assistantMessages = outputConfig.assistant_messages ?? "answers";
+    const showProgressIndicator = outputConfig.progress_indicator !== false;
 
     // Get existing session for this channel (for conversation continuity)
     const connector = this.connectors.get(qualifiedName);
@@ -415,9 +439,46 @@ export class DiscordManager implements IChatManager {
       }
     }
 
-    // Create streaming responder for incremental message delivery
+    // Buffer for files uploaded by the agent via MCP tool.
+    // Files are queued here and attached to the next answer message,
+    // so they appear below the text (not as standalone messages above it).
+    const pendingFiles: Array<{ buffer: Buffer; filename: string }> = [];
+
+    // Create file sender definition for this message context
+    let injectedMcpServers: Record<string, InjectedMcpServerDef> | undefined;
+    const workingDir = this.resolveWorkingDirectory(agent);
+    if (connector && workingDir) {
+      const fileSenderContext: FileSenderContext = {
+        workingDirectory: workingDir,
+        uploadFile: async (params) => {
+          // Queue the file — it will be attached to the next answer message
+          pendingFiles.push({
+            buffer: params.fileBuffer,
+            filename: params.filename,
+          });
+          const fileId = `buffered-${randomUUID()}`;
+          logger.debug(`Buffered file '${params.filename}' for attachment to next answer message`);
+          return { fileId };
+        },
+      };
+      const fileSenderDef = createFileSenderDef(fileSenderContext);
+      injectedMcpServers = { [fileSenderDef.name]: fileSenderDef };
+    }
+
+    // Create streaming responder for incremental message delivery.
+    // The reply closure drains pending files and attaches them to the message.
     const streamer = new StreamingResponder({
-      reply: (content: string) => event.reply(content),
+      reply: async (content: string) => {
+        if (pendingFiles.length > 0) {
+          const files = pendingFiles.splice(0);
+          await event.reply({
+            content,
+            files: files.map((f) => ({ attachment: f.buffer, name: f.filename })),
+          });
+        } else {
+          await event.reply(content);
+        }
+      },
       logger: logger as ChatConnectorLogger,
       agentName: qualifiedName,
       maxMessageLength: 2000, // Discord's limit
@@ -425,13 +486,123 @@ export class DiscordManager implements IChatManager {
       platformName: "Discord",
     });
 
-    // Start typing indicator while processing
-    const stopTyping = event.startTyping();
+    // Start typing indicator while processing (if not disabled via output.typing_indicator)
+    const stopTyping = outputConfig.typing_indicator !== false ? event.startTyping() : () => {};
 
     // Track if we've stopped typing to avoid multiple calls
     let typingStopped = false;
 
+    // Add acknowledgement reaction if configured (non-fatal — don't abort message handling)
+    const ackEmoji = outputConfig.acknowledge_emoji;
+    if (ackEmoji) {
+      try {
+        await event.addReaction(ackEmoji);
+      } catch (reactionError) {
+        logger.warn(`Failed to add ack reaction: ${(reactionError as Error).message}`);
+      }
+    }
+
+    // Attachment state — declared here so the finally block can clean up
+    let attachmentDownloadedPaths: string[] = [];
+    const attachmentConfig = agent.chat?.discord?.attachments;
+
+    // Progress embed state — declared here so the finally block can clean up
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const progressState: {
+      handle: { edit: (c: any) => Promise<void>; delete: () => Promise<void> } | null;
+    } = { handle: null };
+
     try {
+      // Handle voice messages: transcribe audio before triggering the agent
+      let prompt = event.prompt;
+      const voiceConfig = agent.chat?.discord?.voice;
+      if (event.metadata.isVoiceMessage) {
+        if (!voiceConfig?.enabled) {
+          await event.reply(
+            "Voice messages are not enabled for this agent. Please send a text message instead.",
+          );
+          return;
+        }
+
+        const apiKey = process.env[voiceConfig.api_key_env ?? "OPENAI_API_KEY"];
+        if (!apiKey) {
+          logger.error(
+            `Voice transcription API key not found in env var '${voiceConfig.api_key_env}'`,
+          );
+          await event.reply(
+            "Voice transcription is misconfigured. Please contact an administrator.",
+          );
+          return;
+        }
+
+        if (!event.metadata.voiceAttachmentUrl) {
+          await event.reply("Could not find audio attachment in voice message.");
+          return;
+        }
+
+        try {
+          logger.debug("Downloading voice message audio...");
+          const audioResponse = await fetch(event.metadata.voiceAttachmentUrl, {
+            signal: AbortSignal.timeout(30_000),
+          });
+          if (!audioResponse.ok) {
+            throw new Error(`Failed to download audio: ${audioResponse.status}`);
+          }
+          const audioBuffer = Buffer.from(await audioResponse.arrayBuffer());
+          const filename = event.metadata.voiceAttachmentName ?? "voice-message.ogg";
+
+          logger.debug("Transcribing voice message...");
+          const transcription = await transcribeAudio(audioBuffer, filename, {
+            apiKey,
+            model: voiceConfig.model,
+            language: voiceConfig.language,
+          });
+
+          prompt = `[Voice message transcription]: ${transcription.text}`;
+          logger.info(`Voice message transcribed: "${prompt.substring(0, 80)}..."`);
+        } catch (transcribeError) {
+          const errMsg =
+            transcribeError instanceof Error ? transcribeError.message : String(transcribeError);
+          logger.error(`Voice transcription failed: ${errMsg}`);
+          await event.reply(`Failed to transcribe voice message: ${errMsg}`);
+          return;
+        }
+      }
+
+      // Handle file attachments: download, process, and prepend to prompt
+      if (
+        event.metadata.attachments &&
+        event.metadata.attachments.length > 0 &&
+        attachmentConfig?.enabled
+      ) {
+        const result = await DiscordManager.processAttachments(
+          event.metadata.attachments,
+          attachmentConfig,
+          workingDir,
+          logger as ChatConnectorLogger,
+        );
+        attachmentDownloadedPaths = result.downloadedPaths;
+
+        if (result.skippedFiles.length > 0) {
+          for (const skipped of result.skippedFiles) {
+            logger.debug(`Skipped attachment ${skipped.name}: ${skipped.reason}`);
+          }
+        }
+
+        if (result.promptSections.length > 0) {
+          const attachmentBlock = [
+            "The user sent the following file attachment(s) with their message:",
+            "",
+            ...result.promptSections,
+            "",
+            "---",
+            "",
+            `User message: ${prompt}`,
+          ].join("\n");
+          prompt = attachmentBlock;
+        }
+      }
+
       // Track pending tool_use blocks so we can pair them with results
       const pendingToolUses = new Map<
         string,
@@ -439,26 +610,38 @@ export class DiscordManager implements IChatManager {
       >();
       let embedsSent = 0;
 
+      // Deduplicate assistant messages by finalized snapshot. Claude Code can emit
+      // intermediate snapshots (stop_reason: null) before the final assistant message.
+      // We skip intermediates and deliver the first finalized snapshot per message.id.
+      const deliveredAssistantIds = new Set<string>();
+
+      // Capture the result text from the SDK's "result" message as a fallback
+      // When all assistant messages are tool-only (no text), this is the last resort
+      let resultText: string | undefined;
+
+      // Progress indicator: track tool names for in-place-updating embed
+      const toolNamesRun: string[] = [];
+      let lastProgressUpdate = 0;
+
+      const showToolResults = outputConfig.tool_results;
+
       // Execute job via FleetManager.trigger() through the context
       // Pass resume option for conversation continuity
       // The onMessage callback streams output incrementally to Discord
       const result = await this.ctx.trigger(qualifiedName, undefined, {
         triggerType: "discord",
-        prompt: event.prompt,
+        prompt,
         resume: existingSessionId,
+        injectedMcpServers,
         onMessage: async (message) => {
           // Extract text content from assistant messages and stream to Discord
           if (message.type === "assistant") {
             // Cast to the SDKMessage shape expected by extractMessageContent
             // The chat package's SDKMessage type expects a specific structure
             const sdkMessage = message as unknown as Parameters<typeof extractMessageContent>[0];
-            const content = extractMessageContent(sdkMessage);
-            if (content) {
-              // Each assistant message is a complete turn - send immediately
-              await streamer.addMessageAndSend(content);
-            }
 
-            // Track tool_use blocks for pairing with results later
+            // Always track tool_use blocks (even from duplicate messages)
+            // so tool results can be paired correctly
             const toolUseBlocks = extractToolUseBlocks(sdkMessage);
             for (const block of toolUseBlocks) {
               if (block.id) {
@@ -468,11 +651,84 @@ export class DiscordManager implements IChatManager {
                   startTime: Date.now(),
                 });
               }
+
+              // Track tool names for progress indicator
+              if (block.name && showProgressIndicator) {
+                const emoji = TOOL_EMOJIS[block.name] ?? "\u{1F527}";
+                const displayName = `${emoji} ${block.name}`;
+                toolNamesRun.push(displayName);
+                // Cap to last 50 entries to avoid unbounded memory growth on long jobs
+                if (toolNamesRun.length > 50) {
+                  toolNamesRun.splice(0, toolNamesRun.length - 50);
+                }
+
+                // Update progress embed (throttled to every 2s)
+                const now = Date.now();
+                if (now - lastProgressUpdate >= 2000) {
+                  lastProgressUpdate = now;
+                  const description = toolNamesRun.join("  \u2192  ");
+                  const embedPayload = {
+                    embeds: [
+                      {
+                        description:
+                          description.length > 4000
+                            ? `\u2026${description.slice(-3997)}`
+                            : description,
+                        color: DiscordManager.EMBED_COLOR_WORKING,
+                        footer: DiscordManager.buildFooter(qualifiedName),
+                      },
+                    ],
+                  };
+
+                  try {
+                    if (!progressState.handle) {
+                      progressState.handle = await event.replyWithRef(embedPayload);
+                    } else {
+                      await progressState.handle.edit(embedPayload);
+                    }
+                  } catch (progressError) {
+                    logger.warn(
+                      `Failed to update progress embed: ${(progressError as Error).message}`,
+                    );
+                  }
+                }
+              }
+            }
+
+            // Deduplicate assistant messages by message.id.
+            // Claude Code emits multiple JSONL lines per turn with the same id:
+            // intermediate snapshots (stop_reason: null) may lack text content,
+            // while the final (stop_reason: "end_turn") has the complete response.
+            // Skip intermediates, deliver and deduplicate finals.
+            const messageId = (message as { message?: { id?: string } }).message?.id;
+            const stopReason = (message as { message?: { stop_reason?: unknown } }).message
+              ?.stop_reason;
+            if (messageId && stopReason === null) {
+              return; // Skip intermediate snapshot — text may be incomplete
+            }
+            if (messageId) {
+              if (deliveredAssistantIds.has(messageId)) {
+                return;
+              }
+              deliveredAssistantIds.add(messageId);
+            }
+
+            const content = extractMessageContent(sdkMessage);
+            if (content) {
+              if (assistantMessages === "answers") {
+                // Only send turns with no tool_use blocks (answer turns)
+                if (toolUseBlocks.length === 0) {
+                  await streamer.addMessageAndSend(content);
+                }
+              } else {
+                // "all" mode: send every turn with text
+                await streamer.addMessageAndSend(content);
+              }
             }
           }
 
           // Build and send embeds for tool results
-          if (message.type === "user" && outputConfig.tool_results) {
+          if (message.type === "user" && showToolResults) {
             // Cast to the shape expected by extractToolResults
             const userMessage = message as {
               type: string;
@@ -493,6 +749,7 @@ export class DiscordManager implements IChatManager {
                 toolUse ?? null,
                 toolResult,
                 outputConfig.tool_result_max_length,
+                qualifiedName,
               );
 
               // Flush any buffered text before sending embed to preserve ordering
@@ -507,20 +764,26 @@ export class DiscordManager implements IChatManager {
             const sysMessage = message as { subtype?: string; status?: string | null };
             if (sysMessage.subtype === "status" && sysMessage.status) {
               const statusText =
-                sysMessage.status === "compacting"
-                  ? "Compacting context..."
-                  : `Status: ${sysMessage.status}`;
+                sysMessage.status === "compacting" ? "Compacting context\u2026" : sysMessage.status;
               await streamer.flush();
               await event.reply({
                 embeds: [
                   {
-                    title: "\u2699\uFE0F System",
                     description: statusText,
                     color: DiscordManager.EMBED_COLOR_SYSTEM,
                   },
                 ],
               });
               embedsSent++;
+            }
+          }
+
+          // Capture result text from the SDK "result" message as a fallback answer.
+          // This covers cases where all assistant messages were tool-only (no text blocks).
+          if (message.type === "result") {
+            const resultMsg = message as { result?: string };
+            if (typeof resultMsg.result === "string" && resultMsg.result.trim()) {
+              resultText = resultMsg.result;
             }
           }
 
@@ -533,52 +796,38 @@ export class DiscordManager implements IChatManager {
               num_turns?: number;
               usage?: { input_tokens?: number; output_tokens?: number };
             };
-            const fields: DiscordReplyEmbedField[] = [];
-
-            if (resultMessage.duration_ms !== undefined) {
-              fields.push({
-                name: "Duration",
-                value: DiscordManager.formatDuration(resultMessage.duration_ms),
-                inline: true,
-              });
-            }
-
-            if (resultMessage.num_turns !== undefined) {
-              fields.push({
-                name: "Turns",
-                value: String(resultMessage.num_turns),
-                inline: true,
-              });
-            }
-
-            if (resultMessage.total_cost_usd !== undefined) {
-              fields.push({
-                name: "Cost",
-                value: `$${resultMessage.total_cost_usd.toFixed(4)}`,
-                inline: true,
-              });
-            }
-
-            if (resultMessage.usage) {
-              const inputTokens = resultMessage.usage.input_tokens ?? 0;
-              const outputTokens = resultMessage.usage.output_tokens ?? 0;
-              fields.push({
-                name: "Tokens",
-                value: `${inputTokens.toLocaleString()} in / ${outputTokens.toLocaleString()} out`,
-                inline: true,
-              });
-            }
-
             const isError = resultMessage.is_error === true;
+
+            // Build compact summary: "**Task complete** in 45s · 3 turns · $0.0045 · 15.7k tokens"
+            const summaryParts: string[] = [];
+            summaryParts.push(isError ? "**Task failed**" : "**Task complete**");
+            if (resultMessage.duration_ms !== undefined) {
+              summaryParts[0] += ` in ${DiscordManager.formatDuration(resultMessage.duration_ms)}`;
+            }
+            if (resultMessage.num_turns !== undefined) {
+              summaryParts.push(
+                `${resultMessage.num_turns} turn${resultMessage.num_turns !== 1 ? "s" : ""}`,
+              );
+            }
+            if (resultMessage.total_cost_usd !== undefined) {
+              summaryParts.push(`$${resultMessage.total_cost_usd.toFixed(4)}`);
+            }
+            if (resultMessage.usage) {
+              const total =
+                (resultMessage.usage.input_tokens ?? 0) + (resultMessage.usage.output_tokens ?? 0);
+              summaryParts.push(`${formatCompactNumber(total)} tokens`);
+            }
+
             await streamer.flush();
             await event.reply({
               embeds: [
                 {
-                  title: isError ? "\u274C Task Failed" : "\u2705 Task Complete",
+                  description: summaryParts.join(" \u00b7 "),
                   color: isError
                     ? DiscordManager.EMBED_COLOR_ERROR
                     : DiscordManager.EMBED_COLOR_SUCCESS,
-                  fields,
+                  footer: DiscordManager.buildFooter(qualifiedName),
+                  timestamp: new Date().toISOString(),
                 },
               ],
             });
@@ -593,10 +842,10 @@ export class DiscordManager implements IChatManager {
             await event.reply({
               embeds: [
                 {
-                  title: "\u274C Error",
-                  description:
-                    errorText.length > 4000 ? `${errorText.substring(0, 4000)}...` : errorText,
+                  description: `**Error:** ${errorText.length > 4000 ? errorText.substring(0, 4000) + "\u2026" : errorText}`,
                   color: DiscordManager.EMBED_COLOR_ERROR,
+                  footer: DiscordManager.buildFooter(qualifiedName),
+                  timestamp: new Date().toISOString(),
                 },
               ],
             });
@@ -612,26 +861,57 @@ export class DiscordManager implements IChatManager {
         typingStopped = true;
       }
 
+      // Fall back to SDK result text if no answer turns produced text
+      if (!streamer.hasSentMessages() && resultText) {
+        logger.debug("No answer turns produced text — using SDK result text as fallback");
+        await streamer.addMessageAndSend(resultText);
+      }
+
       // Flush any remaining buffered content
       await streamer.flush();
+
+      // Send any remaining buffered files that weren't attached to an answer.
+      // This handles the case where the agent uploaded files but produced no text answer.
+      if (pendingFiles.length > 0) {
+        const files = pendingFiles.splice(0);
+        logger.debug(`Sending ${files.length} remaining buffered file(s) as standalone message`);
+        await event.reply({
+          files: files.map((f) => ({ attachment: f.buffer, name: f.filename })),
+        });
+      }
 
       logger.debug(
         `Discord job completed: ${result.jobId} for agent '${qualifiedName}'${result.sessionId ? ` (session: ${result.sessionId})` : ""}`,
       );
 
-      // If no messages were sent (text or embeds), send an appropriate fallback
+      // If no text messages were sent, send an appropriate fallback.
+      // When embedsSent > 0 but no text was delivered, the user saw tool/result embeds
+      // but may have missed the final answer. Show a brief completion indicator.
       if (!streamer.hasSentMessages() && embedsSent === 0) {
         if (result.success) {
-          await event.reply(
-            "I've completed the task, but I don't have a specific response to share.",
-          );
+          await event.reply({
+            embeds: [
+              {
+                description: "Task completed \u2014 no additional output to share.",
+                color: DiscordManager.EMBED_COLOR_SUCCESS,
+                footer: DiscordManager.buildFooter(qualifiedName),
+              },
+            ],
+          });
         } else {
           // Job failed without streaming any messages - send error details
           const errorMessage =
             result.errorDetails?.message ?? result.error?.message ?? "An unknown error occurred";
-          await event.reply(
-            `\u274C **Error:** ${errorMessage}\n\nThe task could not be completed. Please check the logs for more details.`,
-          );
+          await event.reply({
+            embeds: [
+              {
+                description: `**Error:** ${errorMessage}\n\nThe task could not be completed.`,
+                color: DiscordManager.EMBED_COLOR_ERROR,
+                footer: DiscordManager.buildFooter(qualifiedName),
+                timestamp: new Date().toISOString(),
+              },
+            ],
+          });
         }
 
         // Stop typing after sending fallback message (if not already stopped)
@@ -675,7 +955,7 @@ export class DiscordManager implements IChatManager {
 
       // Send user-friendly error message using the formatted error method
       try {
-        await event.reply(this.formatErrorMessage(err));
+        await event.reply(this.formatErrorMessage(err, qualifiedName));
       } catch (replyError) {
         logger.error(`Failed to send error reply: ${(replyError as Error).message}`);
       }
@@ -694,6 +974,36 @@ export class DiscordManager implements IChatManager {
       if (!typingStopped) {
         stopTyping();
       }
+      // Clean up progress embed (on both success and error paths)
+      if (progressState.handle) {
+        try {
+          await progressState.handle.delete();
+        } catch (progressError) {
+          logger.warn(`Failed to delete progress embed: ${(progressError as Error).message}`);
+        }
+      }
+      // Remove acknowledgement reaction now that processing is complete
+      if (ackEmoji) {
+        try {
+          await event.removeReaction(ackEmoji);
+        } catch (reactionError) {
+          logger.warn(`Failed to remove ack reaction: ${(reactionError as Error).message}`);
+        }
+      }
+      // Clean up downloaded attachment files if configured
+      if (
+        attachmentDownloadedPaths.length > 0 &&
+        attachmentConfig?.cleanup_after_processing !== false
+      ) {
+        try {
+          await DiscordManager.cleanupAttachments(
+            attachmentDownloadedPaths,
+            logger as ChatConnectorLogger,
+          );
+        } catch (cleanupError) {
+          logger.warn(`Failed to cleanup attachments: ${(cleanupError as Error).message}`);
+        }
+      }
     }
   }
 
@@ -705,10 +1015,20 @@ export class DiscordManager implements IChatManager {
   private static readonly TOOL_OUTPUT_MAX_CHARS = 900;
 
   /** Embed colors */
-  private static readonly EMBED_COLOR_DEFAULT = 0x5865f2; // Discord blurple
-  private static readonly EMBED_COLOR_ERROR = 0xef4444; // Red
-  private static readonly EMBED_COLOR_SYSTEM = 0x95a5a6; // Gray
-  private static readonly EMBED_COLOR_SUCCESS = 0x57f287; // Green
+  private static readonly EMBED_COLOR_BRAND = 0x5865f2; // Discord blurple (tool results)
+  private static readonly EMBED_COLOR_WORKING = 0x8b5cf6; // Soft violet (progress)
+  private static readonly EMBED_COLOR_SUCCESS = 0x22c55e; // Emerald (completion)
+  private static readonly EMBED_COLOR_ERROR = 0xef4444; // Red (errors)
+  private static readonly EMBED_COLOR_SYSTEM = 0x6b7280; // Cool gray (system status)
+  private static readonly EMBED_COLOR_INFO = 0x3b82f6; // Sky blue (slash commands)
+
+  /**
+   * Build a consistent footer for Discord embeds
+   */
+  private static buildFooter(agentName: string): { text: string } {
+    const shortName = agentName.includes(".") ? agentName.split(".").pop()! : agentName;
+    return { text: `herdctl \u00b7 ${shortName}` };
+  }
 
   /**
    * Format duration in milliseconds to a human-readable string
@@ -726,55 +1046,39 @@ export class DiscordManager implements IChatManager {
    * Build a Discord embed for a tool call result
    *
    * Combines the tool_use info (name, input) with the tool_result
-   * (output, error status) into a compact Discord embed.
+   * (output, error status) into a compact Discord embed with a
+   * single-line description and optional output field.
    *
    * @param toolUse - The tool_use block info (name, input, startTime)
    * @param toolResult - The tool result (output, isError)
    * @param maxOutputChars - Maximum characters for output (defaults to TOOL_OUTPUT_MAX_CHARS)
+   * @param agentName - Agent name for the embed footer
    */
   private buildToolEmbed(
     toolUse: { name: string; input?: unknown; startTime: number } | null,
     toolResult: { output: string; isError: boolean },
     maxOutputChars?: number,
+    agentName?: string,
   ): DiscordReplyEmbed {
     const toolName = toolUse?.name ?? "Tool";
     const emoji = TOOL_EMOJIS[toolName] ?? "\u{1F527}"; // wrench fallback
-    const isError = toolResult.isError;
 
-    // Build description from input summary
+    // Build compact description: "💻 **Bash** `> ls -la` — 2s"
+    const parts: string[] = [`${emoji} **${toolName}**`];
     const inputSummary = toolUse ? getToolInputSummary(toolUse.name, toolUse.input) : undefined;
-    let description: string | undefined;
     if (inputSummary) {
-      if (toolName === "Bash" || toolName === "bash") {
-        description = `\`> ${inputSummary}\``;
-      } else {
-        description = `\`${inputSummary}\``;
-      }
+      const prefix = toolName === "Bash" || toolName === "bash" ? "> " : "";
+      const truncated =
+        inputSummary.length > 120 ? inputSummary.substring(0, 120) + "\u2026" : inputSummary;
+      parts.push(`\`${prefix}${truncated}\``);
     }
-
-    // Build inline fields
-    const fields: DiscordReplyEmbedField[] = [];
-
     if (toolUse) {
       const durationMs = Date.now() - toolUse.startTime;
-      fields.push({
-        name: "Duration",
-        value: DiscordManager.formatDuration(durationMs),
-        inline: true,
-      });
+      parts.push(`\u2014 ${DiscordManager.formatDuration(durationMs)}`);
     }
 
-    const outputLength = toolResult.output.length;
-    fields.push({
-      name: "Output",
-      value:
-        outputLength >= 1000
-          ? `${(outputLength / 1000).toFixed(1)}k chars`
-          : `${outputLength} chars`,
-      inline: true,
-    });
-
-    // Add truncated output as a field if non-empty
+    // Build output field if non-empty
+    const fields: DiscordReplyEmbedField[] = [];
     const trimmedOutput = toolResult.output.trim();
     if (trimmedOutput.length > 0) {
       const maxChars = maxOutputChars ?? DiscordManager.TOOL_OUTPUT_MAX_CHARS;
@@ -782,20 +1086,23 @@ export class DiscordManager implements IChatManager {
       if (outputText.length > maxChars) {
         outputText =
           outputText.substring(0, maxChars) +
-          `\n... (${outputLength.toLocaleString()} chars total)`;
+          `\n\u2026 ${trimmedOutput.length.toLocaleString()} chars total`;
       }
+      const lang = toolName === "Bash" || toolName === "bash" ? "ansi" : "";
       fields.push({
-        name: isError ? "Error" : "Result",
-        value: `\`\`\`\n${outputText}\n\`\`\``,
+        name: toolResult.isError ? "Error" : "Output",
+        value: `\`\`\`${lang}\n${outputText}\n\`\`\``,
         inline: false,
       });
     }
 
     return {
-      title: `${emoji} ${toolName}`,
-      description,
-      color: isError ? DiscordManager.EMBED_COLOR_ERROR : DiscordManager.EMBED_COLOR_DEFAULT,
-      fields,
+      description: parts.join(" "),
+      color: toolResult.isError
+        ? DiscordManager.EMBED_COLOR_ERROR
+        : DiscordManager.EMBED_COLOR_BRAND,
+      fields: fields.length > 0 ? fields : undefined,
+      footer: agentName ? DiscordManager.buildFooter(agentName) : undefined,
     };
   }
 
@@ -833,12 +1140,26 @@ export class DiscordManager implements IChatManager {
    * Format an error message for Discord display
    *
    * Creates a user-friendly error message with guidance on how to proceed.
+   * Returns an embed when agentName is provided, plain text otherwise.
    *
    * @param error - The error that occurred
-   * @returns Formatted error message string
+   * @param agentName - Optional agent name for embed footer
+   * @returns Formatted error message string or embed payload
    */
-  formatErrorMessage(error: Error): string {
-    return `\u274C **Error**: ${error.message}\n\nPlease try again or use \`/reset\` to start a new session.`;
+  formatErrorMessage(error: Error, agentName?: string): string | DiscordReplyPayload {
+    if (agentName) {
+      return {
+        embeds: [
+          {
+            description: `**Error:** ${error.message}\n\nTry again or use \`/reset\` to start a new session.`,
+            color: DiscordManager.EMBED_COLOR_ERROR,
+            footer: DiscordManager.buildFooter(agentName),
+            timestamp: new Date().toISOString(),
+          },
+        ],
+      };
+    }
+    return `**Error:** ${error.message}\n\nTry again or use \`/reset\` to start a new session.`;
   }
 
   /**
@@ -865,6 +1186,187 @@ export class DiscordManager implements IChatManager {
 
     for (const chunk of chunks) {
       await reply(chunk);
+    }
+  }
+
+  // ===========================================================================
+  // Utility Methods
+  // ===========================================================================
+
+  /**
+   * Resolve the agent's working directory to an absolute path string
+   */
+  private resolveWorkingDirectory(agent: ResolvedAgent): string | undefined {
+    if (!agent.working_directory) {
+      return undefined;
+    }
+
+    if (typeof agent.working_directory === "string") {
+      return agent.working_directory;
+    }
+
+    return agent.working_directory.root;
+  }
+
+  // ===========================================================================
+  // Attachment Processing
+  // ===========================================================================
+
+  /** Maximum characters to inline for text/code file content */
+  private static readonly TEXT_INLINE_MAX_CHARS = 50_000;
+
+  /**
+   * Check if a content type matches a MIME pattern (supports wildcards like "image/*")
+   */
+  private static matchesMimePattern(contentType: string, pattern: string): boolean {
+    const ct = contentType.toLowerCase().split(";")[0].trim();
+    const pat = pattern.toLowerCase().trim();
+    if (pat === ct) return true;
+    if (pat.endsWith("/*")) {
+      const prefix = pat.slice(0, -1); // "image/*" → "image/"
+      return ct.startsWith(prefix);
+    }
+    return false;
+  }
+
+  /**
+   * Process file attachments: download, categorize, and prepare prompt sections.
+   *
+   * - Text/code files are inlined directly into the prompt
+   * - Images and PDFs are saved to disk so the agent can use its Read tool
+   *
+   * Returns prompt sections to prepend, paths of downloaded files for cleanup,
+   * and a list of skipped files with reasons.
+   */
+  private static async processAttachments(
+    attachments: DiscordAttachmentInfo[],
+    config: DiscordAttachments,
+    workingDir: string | undefined,
+    logger: ChatConnectorLogger,
+  ): Promise<{
+    promptSections: string[];
+    downloadedPaths: string[];
+    skippedFiles: { name: string; reason: string }[];
+  }> {
+    const promptSections: string[] = [];
+    const downloadedPaths: string[] = [];
+    const skippedFiles: { name: string; reason: string }[] = [];
+    const maxBytes = config.max_file_size_mb * 1024 * 1024;
+
+    // Limit to max_files_per_message
+    const toProcess = attachments.slice(0, config.max_files_per_message);
+    if (attachments.length > config.max_files_per_message) {
+      const skipped = attachments.slice(config.max_files_per_message);
+      for (const a of skipped) {
+        skippedFiles.push({ name: a.name, reason: "exceeded max_files_per_message" });
+      }
+    }
+
+    // Create one collision-resistant directory per message processing run.
+    const messageDownloadDir = randomUUID();
+
+    for (const attachment of toProcess) {
+      // Check allowed types
+      const allowed = config.allowed_types.some((pattern) =>
+        DiscordManager.matchesMimePattern(attachment.contentType, pattern),
+      );
+      if (!allowed) {
+        skippedFiles.push({
+          name: attachment.name,
+          reason: `type ${attachment.contentType} not in allowed_types`,
+        });
+        continue;
+      }
+
+      // Check file size
+      if (attachment.size > maxBytes) {
+        skippedFiles.push({
+          name: attachment.name,
+          reason: `size ${attachment.size} exceeds ${config.max_file_size_mb}MB limit`,
+        });
+        continue;
+      }
+
+      try {
+        if (attachment.category === "text") {
+          // Text/code: download and inline
+          const response = await fetch(attachment.url, { signal: AbortSignal.timeout(30_000) });
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+          let text = await response.text();
+          if (text.length > DiscordManager.TEXT_INLINE_MAX_CHARS) {
+            text = `${text.substring(0, DiscordManager.TEXT_INLINE_MAX_CHARS)}\n... [truncated at ${DiscordManager.TEXT_INLINE_MAX_CHARS} chars]`;
+          }
+          promptSections.push(
+            `--- File: ${attachment.name} (${attachment.contentType}) ---\n${text}\n--- End of ${attachment.name} ---`,
+          );
+        } else {
+          // Image/PDF: download to disk
+          if (!workingDir) {
+            skippedFiles.push({
+              name: attachment.name,
+              reason: "no working_directory configured for binary attachments",
+            });
+            continue;
+          }
+          const response = await fetch(attachment.url, { signal: AbortSignal.timeout(30_000) });
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+          const buffer = Buffer.from(await response.arrayBuffer());
+          const downloadDir = join(workingDir, config.download_dir, messageDownloadDir);
+          await mkdir(downloadDir, { recursive: true });
+          const filePath = join(downloadDir, `${attachment.id}-${basename(attachment.name)}`);
+          await writeFile(filePath, buffer);
+          downloadedPaths.push(filePath);
+
+          const typeLabel = attachment.category === "image" ? "Image" : "PDF";
+          promptSections.push(
+            `[${typeLabel} attached: ${filePath}] (Use the Read tool to view this file)`,
+          );
+        }
+      } catch (err) {
+        const errMsg = err instanceof Error ? err.message : String(err);
+        logger.warn(`Failed to process attachment ${attachment.name}: ${errMsg}`);
+        skippedFiles.push({
+          name: attachment.name,
+          reason: `download/processing failed: ${errMsg}`,
+        });
+      }
+    }
+
+    return { promptSections, downloadedPaths, skippedFiles };
+  }
+
+  /**
+   * Clean up downloaded attachment files after processing
+   */
+  private static async cleanupAttachments(
+    paths: string[],
+    logger: ChatConnectorLogger,
+  ): Promise<void> {
+    const parentDirs = new Set<string>();
+    for (const filePath of paths) {
+      try {
+        await rm(filePath);
+        // Track parent directory for cleanup
+        const parent = dirname(filePath);
+        if (parent !== filePath && parent !== ".") {
+          parentDirs.add(parent);
+        }
+      } catch (err) {
+        const errMsg = err instanceof Error ? err.message : String(err);
+        logger.debug(`Failed to clean up attachment file ${filePath}: ${errMsg}`);
+      }
+    }
+    // Try to remove empty timestamp directories
+    for (const dir of parentDirs) {
+      try {
+        await rm(dir, { recursive: true });
+      } catch {
+        // Directory may not be empty or already removed — ignore
+      }
     }
   }
 }

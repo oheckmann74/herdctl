@@ -593,6 +593,14 @@ export interface TriggerOptions {
    * - ContainerRunner: HTTP MCP bridge over Docker network
    */
   injectedMcpServers?: Record<string, import("../runner/types.js").InjectedMcpServerDef>;
+
+  /**
+   * Text to append to the agent's system prompt for this trigger
+   *
+   * Used by chat connectors to inject platform-specific instructions
+   * (e.g., telling the agent to be concise on Discord).
+   */
+  systemPromptAppend?: string;
 }
 
 /**
