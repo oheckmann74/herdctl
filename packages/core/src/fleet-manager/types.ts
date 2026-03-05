@@ -229,6 +229,11 @@ export interface ScheduleInfo {
    * Last error message if the schedule encountered an error
    */
   lastError: string | null;
+
+  /**
+   * Source of this schedule: "static" (from agent config) or "dynamic" (agent-created at runtime)
+   */
+  source?: "static" | "dynamic";
 }
 
 /**
@@ -579,6 +584,14 @@ export interface TriggerOptions {
   onMessage?: (message: import("../runner/types.js").SDKMessage) => void | Promise<void>;
 
   /**
+   * Callback invoked as soon as a job ID is created.
+   *
+   * Useful for chat connectors that need immediate job control (for example,
+   * enabling /stop while output is still streaming).
+   */
+  onJobCreated?: (jobId: string) => void | Promise<void>;
+
+  /**
    * MCP servers to inject into the agent's runtime session
    *
    * These servers are merged with the agent's config-declared MCP servers
@@ -589,6 +602,14 @@ export interface TriggerOptions {
    * - ContainerRunner: HTTP MCP bridge over Docker network
    */
   injectedMcpServers?: Record<string, import("../runner/types.js").InjectedMcpServerDef>;
+
+  /**
+   * Text to append to the agent's system prompt for this trigger
+   *
+   * Used by chat connectors to inject platform-specific instructions
+   * (e.g., telling the agent to be concise on Discord).
+   */
+  systemPromptAppend?: string;
 }
 
 /**

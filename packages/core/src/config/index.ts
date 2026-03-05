@@ -94,6 +94,8 @@ export {
   ChatSchema,
   type Defaults,
   DefaultsSchema,
+  type DiscordAttachments,
+  DiscordAttachmentsSchema,
   type DiscordChannel,
   DiscordChannelSchema,
   type DiscordChat,
@@ -109,6 +111,8 @@ export {
   type DiscordPresence,
   // Agent Chat Discord schemas
   DiscordPresenceSchema,
+  type DiscordVoice,
+  DiscordVoiceSchema,
   type Docker,
   DockerSchema,
   // Types
@@ -143,6 +147,8 @@ export {
   ScheduleSchema,
   type ScheduleType,
   ScheduleTypeSchema,
+  type SelfScheduling,
+  SelfSchedulingSchema,
   type Session,
   SessionSchema,
   type ShellHookConfig,
@@ -172,3 +178,6 @@ export {
   type WorkSourceType,
   WorkSourceTypeSchema,
 } from "./schema.js";
+
+// Self-scheduling injection
+export { injectSchedulerMcpServers } from "./self-scheduling.js";
