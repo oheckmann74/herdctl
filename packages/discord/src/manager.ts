@@ -1166,6 +1166,7 @@ export class DiscordManager implements IChatManager {
     qualifiedName: string,
     channelId: string,
   ): Promise<{ success: boolean; message: string; jobId?: string }> {
+    const logger = this.ctx.getLogger();
     const key = this.getChannelKey(qualifiedName, channelId);
     const activeJobId = this.activeJobsByChannel.get(key);
     if (activeJobId) {
@@ -1184,16 +1185,111 @@ export class DiscordManager implements IChatManager {
       };
     }
 
-    // Fire-and-forget retry. Slash-command flows don't provide the same
-    // message reply hooks as the message pipeline, so we retry execution
-    // without channel streaming and return an immediate status response.
-    void this.ctx
-      .trigger(qualifiedName, undefined, {
-        triggerType: "discord",
+    const connector = this.connectors.get(qualifiedName);
+    if (!connector?.client?.isReady()) {
+      return {
+        success: false,
+        message: "Retry is unavailable because the Discord connector is not connected.",
+      };
+    }
+
+    const channel = await connector.client.channels.fetch(channelId);
+    if (
+      !channel ||
+      !("isTextBased" in channel) ||
+      typeof channel.isTextBased !== "function" ||
+      !channel.isTextBased() ||
+      !("send" in channel) ||
+      typeof channel.send !== "function"
+    ) {
+      return {
+        success: false,
+        message: "Retry failed because this channel is not text-capable.",
+      };
+    }
+
+    type RetryMessageRef = {
+      edit: (content: string | DiscordReplyPayload) => Promise<void>;
+      delete: () => Promise<void>;
+    };
+    type RetryChannel = {
+      send: (content: string | DiscordReplyPayload) => Promise<RetryMessageRef>;
+      sendTyping?: () => Promise<void>;
+    };
+    const textChannel = channel as unknown as RetryChannel;
+
+    const retryEvent = {
+      agentName: qualifiedName,
+      prompt: lastPrompt,
+      context: {
+        messages: [],
         prompt: lastPrompt,
-        onJobCreated: async (jobId) => {
-          this.activeJobsByChannel.set(key, jobId);
-        },
+        wasMentioned: false,
+      },
+      metadata: {
+        guildId:
+          "isDMBased" in channel && typeof channel.isDMBased === "function" && channel.isDMBased()
+            ? null
+            : "guildId" in channel && typeof channel.guildId === "string"
+              ? channel.guildId
+              : null,
+        channelId,
+        messageId: `retry-${randomUUID()}`,
+        userId: "retry-command",
+        username: "retry-command",
+        wasMentioned: false,
+        mode: "auto" as const,
+      },
+      reply: async (content: string | DiscordReplyPayload): Promise<void> => {
+        await textChannel.send(content);
+      },
+      replyWithRef: async (
+        content: string | DiscordReplyPayload,
+      ): Promise<{ edit: (c: string | DiscordReplyPayload) => Promise<void>; delete: () => Promise<void> }> => {
+        const sent = await textChannel.send(content);
+        return {
+          edit: async (newContent: string | DiscordReplyPayload) => {
+            await sent.edit(newContent);
+          },
+          delete: async () => {
+            await sent.delete();
+          },
+        };
+      },
+      startTyping: (): (() => void) => {
+        let typingInterval: ReturnType<typeof setInterval> | null = null;
+        if (textChannel.sendTyping) {
+          void textChannel.sendTyping().catch((err: unknown) => {
+            logger.debug(`Retry typing indicator failed: ${(err as Error).message}`);
+          });
+          typingInterval = setInterval(() => {
+            void textChannel.sendTyping?.().catch((err: unknown) => {
+              logger.debug(`Retry typing refresh failed: ${(err as Error).message}`);
+            });
+          }, 8000);
+        }
+        return () => {
+          if (typingInterval) {
+            clearInterval(typingInterval);
+            typingInterval = null;
+          }
+        };
+      },
+      addReaction: async () => {},
+      removeReaction: async () => {},
+    } as DiscordMessageEvent;
+
+    // Execute retry through the same Discord message pipeline so users get
+    // the normal streamed answer/tool/status outputs in the channel.
+    void this.handleMessage(qualifiedName, retryEvent)
+      .catch(async (error: unknown) => {
+        const err = error instanceof Error ? error : new Error(String(error));
+        logger.error(`Background retry failed for '${qualifiedName}': ${err.message}`);
+        try {
+          await textChannel.send(this.formatErrorMessage(err, qualifiedName));
+        } catch (replyError) {
+          logger.error(`Failed to send retry failure message: ${(replyError as Error).message}`);
+        }
       })
       .finally(() => {
         this.activeJobsByChannel.delete(key);
@@ -1201,7 +1297,7 @@ export class DiscordManager implements IChatManager {
 
     return {
       success: true,
-      message: "Retry started in the background for this channel's last prompt.",
+      message: "Retry started. I will post the retried run output in this channel.",
     };
   }
 

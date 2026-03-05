@@ -243,6 +243,95 @@ describe("DiscordManager", () => {
     });
   });
 
+  describe("retry channel run controls", () => {
+    it("routes retry through the normal handleMessage pipeline", async () => {
+      const ctx = createMockContext(null);
+      const manager = new DiscordManager(ctx);
+      const managerAny = manager as unknown as {
+        lastPromptByChannel: Map<string, string>;
+        connectors: Map<string, unknown>;
+        retryChannelRun: (qualifiedName: string, channelId: string) => Promise<{ success: boolean }>;
+        handleMessage: (qualifiedName: string, event: DiscordMessageEvent) => Promise<void>;
+      };
+
+      const mockSend = vi.fn().mockResolvedValue({
+        edit: vi.fn().mockResolvedValue(undefined),
+        delete: vi.fn().mockResolvedValue(undefined),
+      });
+      const mockChannel = {
+        isTextBased: () => true,
+        isDMBased: () => false,
+        guildId: "guild-1",
+        send: mockSend,
+      };
+      managerAny.connectors = new Map([
+        [
+          "agent-1",
+          {
+            client: {
+              isReady: () => true,
+              channels: { fetch: vi.fn().mockResolvedValue(mockChannel) },
+            },
+          },
+        ],
+      ]);
+      managerAny.lastPromptByChannel.set("agent-1:channel-1", "retry prompt");
+      const handleMessageSpy = vi
+        .spyOn(managerAny, "handleMessage")
+        .mockResolvedValue(undefined as never);
+
+      const result = await managerAny.retryChannelRun("agent-1", "channel-1");
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(result.success).toBe(true);
+      expect(handleMessageSpy).toHaveBeenCalledTimes(1);
+      const [, event] = handleMessageSpy.mock.calls[0];
+      expect(event.prompt).toBe("retry prompt");
+      expect(event.metadata.channelId).toBe("channel-1");
+    });
+
+    it("catches background retry failures and posts an error message", async () => {
+      const ctx = createMockContext(null);
+      const manager = new DiscordManager(ctx);
+      const managerAny = manager as unknown as {
+        lastPromptByChannel: Map<string, string>;
+        connectors: Map<string, unknown>;
+        retryChannelRun: (qualifiedName: string, channelId: string) => Promise<{ success: boolean }>;
+        handleMessage: (qualifiedName: string, event: DiscordMessageEvent) => Promise<void>;
+      };
+
+      const mockSend = vi.fn().mockResolvedValue({
+        edit: vi.fn().mockResolvedValue(undefined),
+        delete: vi.fn().mockResolvedValue(undefined),
+      });
+      const mockChannel = {
+        isTextBased: () => true,
+        isDMBased: () => false,
+        guildId: "guild-1",
+        send: mockSend,
+      };
+      managerAny.connectors = new Map([
+        [
+          "agent-1",
+          {
+            client: {
+              isReady: () => true,
+              channels: { fetch: vi.fn().mockResolvedValue(mockChannel) },
+            },
+          },
+        ],
+      ]);
+      managerAny.lastPromptByChannel.set("agent-1:channel-1", "retry prompt");
+      vi.spyOn(managerAny, "handleMessage").mockRejectedValue(new Error("retry boom"));
+
+      const result = await managerAny.retryChannelRun("agent-1", "channel-1");
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(result.success).toBe(true);
+      expect(mockSend).toHaveBeenCalled();
+    });
+  });
+
   describe("getConnector", () => {
     it("returns undefined for non-existent agent", () => {
       const ctx = createMockContext(null);
