@@ -285,9 +285,36 @@ export class CLIRuntime implements RuntimeInterface {
     let totalOutputTokens = 0;
     let numTurns = 0;
     let lastAssistantText = "";
+    const seenAssistantMessageIds = new Set<string>();
 
     // Helper to accumulate usage from each assistant message
     const trackAssistantUsage = (message: SDKMessage) => {
+      if (message.type !== "assistant") {
+        return;
+      }
+
+      const assistantMeta = message as {
+        message?: {
+          id?: string;
+          stop_reason?: unknown;
+        };
+      };
+      const stopReason = assistantMeta.message?.stop_reason;
+
+      // Ignore intermediate assistant snapshots.
+      if (stopReason === null) {
+        return;
+      }
+
+      // Claude CLI can emit duplicate finalized snapshots for the same message id.
+      const messageId = assistantMeta.message?.id;
+      if (typeof messageId === "string" && messageId.length > 0) {
+        if (seenAssistantMessageIds.has(messageId)) {
+          return;
+        }
+        seenAssistantMessageIds.add(messageId);
+      }
+
       numTurns++;
       const msg = message as {
         message?: {
