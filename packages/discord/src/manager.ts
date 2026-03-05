@@ -636,53 +636,68 @@ export class DiscordManager implements IChatManager {
         }
       }
 
-      // Handle file attachments: download, process, and prepend to prompt
-      // Images are sent as native multimodal content blocks; text/PDFs as text
+      // Handle file attachments: images always become content blocks;
+      // text/PDF processing requires attachments.enabled in agent config
       let promptContent: PromptContent = prompt;
-      if (
-        event.metadata.attachments &&
-        event.metadata.attachments.length > 0 &&
-        attachmentConfig?.enabled
-      ) {
-        const result = await DiscordManager.processAttachments(
-          event.metadata.attachments,
-          attachmentConfig,
-          workingDir,
-          logger as ChatConnectorLogger,
-        );
-        attachmentDownloadedPaths = result.downloadedPaths;
+      if (event.metadata.attachments && event.metadata.attachments.length > 0) {
+        if (attachmentConfig?.enabled) {
+          // Full attachment pipeline: images → content blocks, text → inline, PDF → disk
+          const result = await DiscordManager.processAttachments(
+            event.metadata.attachments,
+            attachmentConfig,
+            workingDir,
+            logger as ChatConnectorLogger,
+          );
+          attachmentDownloadedPaths = result.downloadedPaths;
 
-        if (result.skippedFiles.length > 0) {
-          for (const skipped of result.skippedFiles) {
-            logger.debug(`Skipped attachment ${skipped.name}: ${skipped.reason}`);
+          if (result.skippedFiles.length > 0) {
+            for (const skipped of result.skippedFiles) {
+              logger.debug(`Skipped attachment ${skipped.name}: ${skipped.reason}`);
+            }
           }
-        }
 
-        // Build the text portion (inline text files + file path references)
-        if (result.promptSections.length > 0) {
-          prompt = [
-            "The user sent the following file attachment(s) with their message:",
-            "",
-            ...result.promptSections,
-            "",
-            "---",
-            "",
-            `User message: ${prompt}`,
-          ].join("\n");
-        }
+          // Build the text portion (inline text files + file path references)
+          if (result.promptSections.length > 0) {
+            prompt = [
+              "The user sent the following file attachment(s) with their message:",
+              "",
+              ...result.promptSections,
+              "",
+              "---",
+              "",
+              `User message: ${prompt}`,
+            ].join("\n");
+          }
 
-        // If we have image content blocks, build a ContentBlock[] prompt
-        if (result.imageBlocks.length > 0) {
-          const blocks: ContentBlock[] = [];
-          if (prompt.trim()) {
-            blocks.push({ type: "text", text: prompt });
+          // If we have image content blocks, build a ContentBlock[] prompt
+          if (result.imageBlocks.length > 0) {
+            const blocks: ContentBlock[] = [];
+            if (prompt.trim()) {
+              blocks.push({ type: "text", text: prompt });
+            } else {
+              blocks.push({ type: "text", text: "The user sent the following image(s):" });
+            }
+            blocks.push(...result.imageBlocks);
+            promptContent = blocks;
           } else {
-            blocks.push({ type: "text", text: "The user sent the following image(s):" });
+            promptContent = prompt;
           }
-          blocks.push(...result.imageBlocks);
-          promptContent = blocks;
         } else {
-          promptContent = prompt;
+          // Lightweight path: only process images as content blocks (no config needed)
+          const imageBlocks = await DiscordManager.downloadImageContentBlocks(
+            event.metadata.attachments,
+            logger as ChatConnectorLogger,
+          );
+          if (imageBlocks.length > 0) {
+            const blocks: ContentBlock[] = [];
+            if (prompt.trim()) {
+              blocks.push({ type: "text", text: prompt });
+            } else {
+              blocks.push({ type: "text", text: "The user sent the following image(s):" });
+            }
+            blocks.push(...imageBlocks);
+            promptContent = blocks;
+          }
         }
       }
 
@@ -1700,6 +1715,44 @@ export class DiscordManager implements IChatManager {
   // ===========================================================================
   // Attachment Processing
   // ===========================================================================
+
+  /**
+   * Lightweight image-only extraction: download supported images as base64
+   * content blocks without requiring the full attachments config.
+   */
+  private static async downloadImageContentBlocks(
+    attachments: DiscordAttachmentInfo[],
+    logger: ChatConnectorLogger,
+  ): Promise<ContentBlock[]> {
+    const blocks: ContentBlock[] = [];
+    for (const attachment of attachments) {
+      const mime = attachment.contentType.toLowerCase().split(";")[0].trim();
+      if (!DiscordManager.IMAGE_CONTENT_BLOCK_TYPES.has(mime)) continue;
+      try {
+        const response = await fetch(attachment.url, { signal: AbortSignal.timeout(30_000) });
+        if (!response.ok) {
+          logger.warn(`Failed to download image ${attachment.name}: HTTP ${response.status}`);
+          continue;
+        }
+        const buffer = Buffer.from(await response.arrayBuffer());
+        blocks.push({
+          type: "image",
+          source: {
+            type: "base64",
+            media_type: mime as "image/jpeg" | "image/png" | "image/gif" | "image/webp",
+            data: buffer.toString("base64"),
+          },
+        });
+        logger.info(
+          `Attached image ${attachment.name} (${Math.round(buffer.length / 1024)}KB) as content block`,
+        );
+      } catch (err) {
+        const errMsg = err instanceof Error ? err.message : String(err);
+        logger.warn(`Failed to download image ${attachment.name}: ${errMsg}`);
+      }
+    }
+    return blocks;
+  }
 
   /** Maximum characters to inline for text/code file content */
   private static readonly TEXT_INLINE_MAX_CHARS = 50_000;
