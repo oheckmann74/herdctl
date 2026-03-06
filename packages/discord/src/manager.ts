@@ -22,12 +22,10 @@ import {
 } from "@herdctl/chat";
 import type {
   ChatManagerConnectorState,
-  ContentBlock,
   DiscordAttachments,
   FleetManagerContext,
   IChatManager,
   InjectedMcpServerDef,
-  PromptContent,
   ResolvedAgent,
 } from "@herdctl/core";
 import {
@@ -636,68 +634,37 @@ export class DiscordManager implements IChatManager {
         }
       }
 
-      // Handle file attachments: images always become content blocks;
-      // text/PDF processing requires attachments.enabled in agent config
-      let promptContent: PromptContent = prompt;
-      if (event.metadata.attachments && event.metadata.attachments.length > 0) {
-        if (attachmentConfig?.enabled) {
-          // Full attachment pipeline: images → content blocks, text → inline, PDF → disk
-          const result = await DiscordManager.processAttachments(
-            event.metadata.attachments,
-            attachmentConfig,
-            workingDir,
-            logger as ChatConnectorLogger,
-          );
-          attachmentDownloadedPaths = result.downloadedPaths;
+      // Handle file attachments: download, process, and prepend to prompt
+      // Images/PDFs are saved to disk (agent views via Read tool); text is inlined
+      if (
+        event.metadata.attachments &&
+        event.metadata.attachments.length > 0 &&
+        attachmentConfig?.enabled
+      ) {
+        const result = await DiscordManager.processAttachments(
+          event.metadata.attachments,
+          attachmentConfig,
+          workingDir,
+          logger as ChatConnectorLogger,
+        );
+        attachmentDownloadedPaths = result.downloadedPaths;
 
-          if (result.skippedFiles.length > 0) {
-            for (const skipped of result.skippedFiles) {
-              logger.debug(`Skipped attachment ${skipped.name}: ${skipped.reason}`);
-            }
+        if (result.skippedFiles.length > 0) {
+          for (const skipped of result.skippedFiles) {
+            logger.debug(`Skipped attachment ${skipped.name}: ${skipped.reason}`);
           }
+        }
 
-          // Build the text portion (inline text files + file path references)
-          if (result.promptSections.length > 0) {
-            prompt = [
-              "The user sent the following file attachment(s) with their message:",
-              "",
-              ...result.promptSections,
-              "",
-              "---",
-              "",
-              `User message: ${prompt}`,
-            ].join("\n");
-          }
-
-          // If we have image content blocks, build a ContentBlock[] prompt
-          if (result.imageBlocks.length > 0) {
-            const blocks: ContentBlock[] = [];
-            if (prompt.trim()) {
-              blocks.push({ type: "text", text: prompt });
-            } else {
-              blocks.push({ type: "text", text: "The user sent the following image(s):" });
-            }
-            blocks.push(...result.imageBlocks);
-            promptContent = blocks;
-          } else {
-            promptContent = prompt;
-          }
-        } else {
-          // Lightweight path: only process images as content blocks (no config needed)
-          const imageBlocks = await DiscordManager.downloadImageContentBlocks(
-            event.metadata.attachments,
-            logger as ChatConnectorLogger,
-          );
-          if (imageBlocks.length > 0) {
-            const blocks: ContentBlock[] = [];
-            if (prompt.trim()) {
-              blocks.push({ type: "text", text: prompt });
-            } else {
-              blocks.push({ type: "text", text: "The user sent the following image(s):" });
-            }
-            blocks.push(...imageBlocks);
-            promptContent = blocks;
-          }
+        if (result.promptSections.length > 0) {
+          prompt = [
+            "The user sent the following file attachment(s) with their message:",
+            "",
+            ...result.promptSections,
+            "",
+            "---",
+            "",
+            `User message: ${prompt}`,
+          ].join("\n");
         }
       }
 
@@ -768,7 +735,7 @@ export class DiscordManager implements IChatManager {
       // The onMessage callback streams output incrementally to Discord
       const result = await this.ctx.trigger(qualifiedName, undefined, {
         triggerType: "discord",
-        prompt: promptContent,
+        prompt,
         resume: existingSessionId,
         injectedMcpServers,
         onJobCreated: async (jobId) => {
@@ -1716,44 +1683,6 @@ export class DiscordManager implements IChatManager {
   // Attachment Processing
   // ===========================================================================
 
-  /**
-   * Lightweight image-only extraction: download supported images as base64
-   * content blocks without requiring the full attachments config.
-   */
-  private static async downloadImageContentBlocks(
-    attachments: DiscordAttachmentInfo[],
-    logger: ChatConnectorLogger,
-  ): Promise<ContentBlock[]> {
-    const blocks: ContentBlock[] = [];
-    for (const attachment of attachments) {
-      const mime = attachment.contentType.toLowerCase().split(";")[0].trim();
-      if (!DiscordManager.IMAGE_CONTENT_BLOCK_TYPES.has(mime)) continue;
-      try {
-        const response = await fetch(attachment.url, { signal: AbortSignal.timeout(30_000) });
-        if (!response.ok) {
-          logger.warn(`Failed to download image ${attachment.name}: HTTP ${response.status}`);
-          continue;
-        }
-        const buffer = Buffer.from(await response.arrayBuffer());
-        blocks.push({
-          type: "image",
-          source: {
-            type: "base64",
-            media_type: mime as "image/jpeg" | "image/png" | "image/gif" | "image/webp",
-            data: buffer.toString("base64"),
-          },
-        });
-        logger.info(
-          `Attached image ${attachment.name} (${Math.round(buffer.length / 1024)}KB) as content block`,
-        );
-      } catch (err) {
-        const errMsg = err instanceof Error ? err.message : String(err);
-        logger.warn(`Failed to download image ${attachment.name}: ${errMsg}`);
-      }
-    }
-    return blocks;
-  }
-
   /** Maximum characters to inline for text/code file content */
   private static readonly TEXT_INLINE_MAX_CHARS = 50_000;
 
@@ -1780,14 +1709,6 @@ export class DiscordManager implements IChatManager {
    * Returns prompt sections to prepend, paths of downloaded files for cleanup,
    * and a list of skipped files with reasons.
    */
-  /** MIME types supported as native image content blocks by the Anthropic API */
-  private static readonly IMAGE_CONTENT_BLOCK_TYPES = new Set([
-    "image/jpeg",
-    "image/png",
-    "image/gif",
-    "image/webp",
-  ]);
-
   private static async processAttachments(
     attachments: DiscordAttachmentInfo[],
     config: DiscordAttachments,
@@ -1795,12 +1716,10 @@ export class DiscordManager implements IChatManager {
     logger: ChatConnectorLogger,
   ): Promise<{
     promptSections: string[];
-    imageBlocks: ContentBlock[];
     downloadedPaths: string[];
     skippedFiles: { name: string; reason: string }[];
   }> {
     const promptSections: string[] = [];
-    const imageBlocks: ContentBlock[] = [];
     const downloadedPaths: string[] = [];
     const skippedFiles: { name: string; reason: string }[] = [];
     const maxBytes = config.max_file_size_mb * 1024 * 1024;
@@ -1841,7 +1760,7 @@ export class DiscordManager implements IChatManager {
 
       try {
         if (attachment.category === "text") {
-          // Text/code: download and inline as text
+          // Text/code: download and inline
           const response = await fetch(attachment.url, { signal: AbortSignal.timeout(30_000) });
           if (!response.ok) {
             throw new Error(`HTTP ${response.status}`);
@@ -1853,36 +1772,8 @@ export class DiscordManager implements IChatManager {
           promptSections.push(
             `--- File: ${attachment.name} (${attachment.contentType}) ---\n${text}\n--- End of ${attachment.name} ---`,
           );
-        } else if (
-          attachment.category === "image" &&
-          DiscordManager.IMAGE_CONTENT_BLOCK_TYPES.has(
-            attachment.contentType.toLowerCase().split(";")[0].trim(),
-          )
-        ) {
-          // Images: download as base64 and send as native content blocks
-          const response = await fetch(attachment.url, { signal: AbortSignal.timeout(30_000) });
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
-          }
-          const buffer = Buffer.from(await response.arrayBuffer());
-          const mediaType = attachment.contentType.toLowerCase().split(";")[0].trim() as
-            | "image/jpeg"
-            | "image/png"
-            | "image/gif"
-            | "image/webp";
-          imageBlocks.push({
-            type: "image",
-            source: {
-              type: "base64",
-              media_type: mediaType,
-              data: buffer.toString("base64"),
-            },
-          });
-          logger.info(
-            `Attached image ${attachment.name} (${Math.round(buffer.length / 1024)}KB) as content block`,
-          );
         } else {
-          // PDF or unsupported image type: download to disk
+          // Image/PDF: download to disk for the agent to view via Read tool
           if (!workingDir) {
             skippedFiles.push({
               name: attachment.name,
@@ -1916,7 +1807,7 @@ export class DiscordManager implements IChatManager {
       }
     }
 
-    return { promptSections, imageBlocks, downloadedPaths, skippedFiles };
+    return { promptSections, downloadedPaths, skippedFiles };
   }
 
   /**
