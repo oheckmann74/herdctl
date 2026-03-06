@@ -140,7 +140,12 @@ export class ContainerRunner implements RuntimeInterface {
       }
       // Handle SDK runtime with wrapper script (also used for CLI agents with content blocks)
       else if (this.wrapped instanceof SDKRuntime || hasContentBlocks) {
-        yield* this.executeSDKRuntime(container, effectiveOptions);
+        // When auto-promoting from CLI to SDK for multimodal, drop the resume
+        // session — CLI session IDs are incompatible with SDK sessions.
+        const sdkOptions = hasContentBlocks && this.wrapped instanceof CLIRuntime
+          ? { ...effectiveOptions, resume: undefined }
+          : effectiveOptions;
+        yield* this.executeSDKRuntime(container, sdkOptions);
       }
       // Unknown runtime type
       else {
