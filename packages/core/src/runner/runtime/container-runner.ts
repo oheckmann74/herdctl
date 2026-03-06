@@ -130,12 +130,16 @@ export class ContainerRunner implements RuntimeInterface {
       const containerInfo = await container.inspect();
       const containerId = containerInfo.Id;
 
+      // When prompt contains multimodal content blocks, always use the SDK
+      // wrapper — CLI runtime can only pipe plain text via stdin.
+      const hasContentBlocks = Array.isArray(effectiveOptions.prompt);
+
       // Handle CLI runtime with session file watching
-      if (this.wrapped instanceof CLIRuntime) {
+      if (this.wrapped instanceof CLIRuntime && !hasContentBlocks) {
         yield* this.executeCLIRuntime(containerId, dockerSessionsDir, effectiveOptions);
       }
-      // Handle SDK runtime with wrapper script
-      else if (this.wrapped instanceof SDKRuntime) {
+      // Handle SDK runtime with wrapper script (also used for CLI agents with content blocks)
+      else if (this.wrapped instanceof SDKRuntime || hasContentBlocks) {
         yield* this.executeSDKRuntime(container, effectiveOptions);
       }
       // Unknown runtime type
