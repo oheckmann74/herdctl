@@ -702,6 +702,7 @@ export class DiscordManager implements IChatManager {
       // When all assistant messages are tool-only (no text), this is the last resort
       let resultText: string | undefined;
       let sentAnswer = false;
+      let lastSeenContent = "";
       let streamedDeltaSinceFinal = false;
 
       // Progress indicator: track tool names for in-place-updating embed
@@ -765,6 +766,10 @@ export class DiscordManager implements IChatManager {
         onMessage: async (message) => {
           for (const normalized of normalizeDiscordMessage(message as SDKMessage)) {
             if (normalized.kind === "assistant_delta") {
+              // Always track delta content for fallback, even when
+              // delta streaming to Discord is disabled
+              lastSeenContent += normalized.delta;
+
               if (!enableDeltaStreaming) {
                 continue;
               }
@@ -826,6 +831,10 @@ export class DiscordManager implements IChatManager {
               }
 
               const content = normalized.content;
+              if (content) {
+                // Track final content for fallback (overwrites delta accumulation)
+                lastSeenContent = content;
+              }
               if (!content) {
                 streamedDeltaSinceFinal = false;
                 continue;
@@ -1015,6 +1024,16 @@ export class DiscordManager implements IChatManager {
         await event.reply({
           files: files.map((f) => ({ attachment: f.buffer, name: f.filename })),
         });
+      }
+
+      // Ultimate fallback: use tracked assistant content if nothing was sent.
+      // This catches edge cases where the SDK delivers content only via
+      // stream_event deltas (no separate assistant message) or the
+      // assistant_final had empty content after extraction.
+      if (!sentAnswer && !streamer.hasSentMessages() && !resultText && lastSeenContent.trim()) {
+        logger.debug("Using tracked assistant content as ultimate fallback");
+        await streamer.addMessageAndSend(lastSeenContent);
+        sentAnswer = true;
       }
 
       logger.debug(
