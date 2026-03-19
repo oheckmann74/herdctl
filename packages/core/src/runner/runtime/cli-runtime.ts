@@ -441,6 +441,9 @@ export class CLIRuntime implements RuntimeInterface {
           sessionFilePromise.then((path) => ({ type: "file" as const, path })),
           processExitPromise.then(() => ({ type: "process_done" as const, path: undefined })),
         ]);
+        // Suppress unhandled rejection from whichever promise loses the race
+        sessionFilePromise.catch(() => {});
+        processExitPromise.catch(() => {});
         if (raceResult.type === "file") {
           sessionFilePath = raceResult.path;
         } else {
