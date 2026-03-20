@@ -44,10 +44,24 @@ import type {
  * using the FleetManagerContext pattern.
  */
 export class JobControl {
+  /**
+   * Tracks running jobs per agent across ALL trigger sources (scheduled, Discord, manual).
+   * Unlike Scheduler.runningSchedules which only tracks scheduler-triggered jobs,
+   * this map is the authoritative source for concurrency checks.
+   */
+  private runningJobsByAgent: Map<string, Set<string>> = new Map();
+
   constructor(
     private ctx: FleetManagerContext,
     private getAgentInfoFn: () => Promise<AgentInfo[]>,
   ) {}
+
+  /**
+   * Get the count of currently running jobs for a specific agent (all trigger sources).
+   */
+  getRunningJobCount(agentName: string): number {
+    return this.runningJobsByAgent.get(agentName)?.size ?? 0;
+  }
 
   /**
    * Manually trigger an agent outside its normal schedule
@@ -72,7 +86,6 @@ export class JobControl {
     const status = this.ctx.getStatus();
     const config = this.ctx.getConfig();
     const stateDir = this.ctx.getStateDir();
-    const scheduler = this.ctx.getScheduler();
     const logger = this.ctx.getLogger();
     const emitter = this.ctx.getEmitter();
 
@@ -103,10 +116,12 @@ export class JobControl {
       schedule = agent.schedules[scheduleName] as typeof schedule;
     }
 
-    // Check concurrency limits unless bypassed
+    // Check concurrency limits unless bypassed.
+    // Uses the local runningJobsByAgent counter which tracks ALL trigger sources
+    // (scheduled, Discord, manual), not just scheduler-triggered jobs.
     if (!options?.bypassConcurrencyLimit) {
       const maxConcurrent = agent.instances?.max_concurrent ?? 1;
-      const runningCount = scheduler?.getRunningJobCount(agentName) ?? 0;
+      const runningCount = this.runningJobsByAgent.get(agentName)?.size ?? 0;
 
       if (runningCount >= maxConcurrent) {
         throw new ConcurrencyLimitError(agentName, runningCount, maxConcurrent);
@@ -151,23 +166,52 @@ export class JobControl {
     const runtime = RuntimeFactory.create(agent, { stateDir });
     const executor = new JobExecutor(runtime, { logger });
 
+    // Wrap onJobCreated to track running jobs in the fleet-wide counter.
+    // This ensures ALL jobs (scheduled, Discord, manual) are counted for concurrency.
+    const originalOnJobCreated = options?.onJobCreated;
+    let trackedJobId: string | undefined;
+    const wrappedOnJobCreated = async (jobId: string) => {
+      trackedJobId = jobId;
+      if (!this.runningJobsByAgent.has(agentName)) {
+        this.runningJobsByAgent.set(agentName, new Set());
+      }
+      this.runningJobsByAgent.get(agentName)!.add(jobId);
+      await originalOnJobCreated?.(jobId);
+    };
+
     // Execute the job - this creates the job record and runs it
     // Note: Job output is written to JSONL by JobExecutor; log streaming picks it up
     // If onMessage callback is provided, it will be called for each SDK message
-    const result = await executor.execute({
-      agent,
-      prompt,
-      stateDir,
-      triggerType: (options?.triggerType ??
-        "manual") as import("../state/schemas/job-metadata.js").TriggerType,
-      schedule: scheduleName,
-      outputToFile: schedule?.outputToFile ?? false,
-      onMessage: options?.onMessage,
-      onJobCreated: options?.onJobCreated,
-      resume: sessionId,
-      injectedMcpServers: options?.injectedMcpServers,
-      systemPromptAppend: options?.systemPromptAppend,
-    });
+    let result;
+    try {
+      result = await executor.execute({
+        agent,
+        prompt,
+        stateDir,
+        triggerType: (options?.triggerType ??
+          "manual") as import("../state/schemas/job-metadata.js").TriggerType,
+        schedule: scheduleName,
+        outputToFile: schedule?.outputToFile ?? false,
+        onMessage: options?.onMessage,
+        onJobCreated: wrappedOnJobCreated,
+        resume: sessionId,
+        injectedMcpServers: options?.injectedMcpServers,
+        systemPromptAppend: options?.systemPromptAppend,
+      });
+    } finally {
+      // Clean up running job tracking. Uses trackedJobId captured by the
+      // wrappedOnJobCreated callback. If execute threw before onJobCreated
+      // fired, trackedJobId is undefined and this is a no-op.
+      if (trackedJobId) {
+        const agentJobs = this.runningJobsByAgent.get(agentName);
+        if (agentJobs) {
+          agentJobs.delete(trackedJobId);
+          if (agentJobs.size === 0) {
+            this.runningJobsByAgent.delete(agentName);
+          }
+        }
+      }
+    }
 
     // Emit job:created event
     const jobsDir = join(stateDir, "jobs");
