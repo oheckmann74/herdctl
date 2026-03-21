@@ -749,6 +749,27 @@ export class DiscordManager implements IChatManager {
       const showToolResults = outputConfig.tool_results;
       const enableDeltaStreaming = assistantMessages === "all";
 
+      // Synchronous guard: reject if a job is already active for this channel.
+      // Set a placeholder BEFORE calling trigger() to prevent race conditions
+      // when rapid messages arrive before onJobCreated fires.
+      const channelKey = this.getChannelKey(qualifiedName, event.metadata.channelId);
+      if (this.activeJobsByChannel.has(channelKey)) {
+        const existingJobId = this.activeJobsByChannel.get(channelKey);
+        logger.warn(
+          `Rejecting Discord message: job already active for ${channelKey} (${existingJobId})`,
+        );
+        await event.reply(
+          this.formatErrorMessage(
+            new Error(
+              `I'm still working on a previous message. Please wait for it to finish, or use \`/stop\` to cancel it.`,
+            ),
+            qualifiedName,
+          ),
+        );
+        return;
+      }
+      this.activeJobsByChannel.set(channelKey, "pending");
+
       // Execute job via FleetManager.trigger() through the context
       // Pass resume option for conversation continuity
       // The onMessage callback streams output incrementally to Discord
@@ -758,10 +779,7 @@ export class DiscordManager implements IChatManager {
         resume: existingSessionId,
         injectedMcpServers,
         onJobCreated: async (jobId) => {
-          this.activeJobsByChannel.set(
-            this.getChannelKey(qualifiedName, event.metadata.channelId),
-            jobId,
-          );
+          this.activeJobsByChannel.set(channelKey, jobId);
         },
         onMessage: async (message) => {
           for (const normalized of normalizeDiscordMessage(message as SDKMessage)) {
@@ -1222,6 +1240,12 @@ export class DiscordManager implements IChatManager {
       return {
         success: false,
         message: "No active run found for this channel.",
+      };
+    }
+    if (jobId === "pending") {
+      return {
+        success: false,
+        message: "A job is starting up. Try again in a moment.",
       };
     }
 
