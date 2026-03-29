@@ -124,6 +124,8 @@ export const WorkSourceSchema = z.union([GitHubWorkSourceSchema, BaseWorkSourceS
 
 export const InstancesSchema = z.object({
   max_concurrent: z.number().int().positive().optional().default(1),
+  /** Max concurrent chat (discord/slack) jobs per agent. Independent from scheduled job limit. */
+  max_concurrent_chat: z.number().int().positive().optional(),
 });
 
 // =============================================================================

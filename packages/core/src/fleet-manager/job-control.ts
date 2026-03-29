@@ -43,9 +43,14 @@ import type {
  * This class encapsulates the logic for triggering, cancelling, and forking jobs
  * using the FleetManagerContext pattern.
  */
+/** Chat trigger types that count against the chat concurrency pool */
+const CHAT_TRIGGER_TYPES = new Set(["discord", "slack", "chat"]);
+
 export class JobControl {
-  /** Tracks running job count per agent across ALL trigger types (schedule, discord, manual, etc.) */
-  private runningCountByAgent: Map<string, number> = new Map();
+  /** Tracks running scheduled/manual job count per agent */
+  private runningScheduledByAgent: Map<string, number> = new Map();
+  /** Tracks running chat (discord/slack) job count per agent */
+  private runningChatByAgent: Map<string, number> = new Map();
 
   constructor(
     private ctx: FleetManagerContext,
@@ -107,10 +112,16 @@ export class JobControl {
     }
 
     // Check concurrency limits unless bypassed
-    // Uses JobControl's own counter which tracks ALL trigger types (discord, schedule, manual)
+    // Scheduled and chat jobs have independent concurrency pools
     if (!options?.bypassConcurrencyLimit) {
-      const maxConcurrent = agent.instances?.max_concurrent ?? 1;
-      const runningCount = this.runningCountByAgent.get(agentName) ?? 0;
+      const triggerType = options?.triggerType ?? (scheduleName ? "schedule" : "manual");
+      const isChat = CHAT_TRIGGER_TYPES.has(triggerType);
+      const maxConcurrent = isChat
+        ? (agent.instances?.max_concurrent_chat ?? 1)
+        : (agent.instances?.max_concurrent ?? 1);
+      const runningCount = isChat
+        ? (this.runningChatByAgent.get(agentName) ?? 0)
+        : (this.runningScheduledByAgent.get(agentName) ?? 0);
 
       if (runningCount >= maxConcurrent) {
         throw new ConcurrencyLimitError(agentName, runningCount, maxConcurrent);
@@ -155,8 +166,11 @@ export class JobControl {
     const runtime = RuntimeFactory.create(agent, { stateDir });
     const executor = new JobExecutor(runtime, { logger });
 
-    // Track running count across all trigger types for concurrency enforcement
-    this.runningCountByAgent.set(agentName, (this.runningCountByAgent.get(agentName) ?? 0) + 1);
+    // Track running count in the appropriate pool (chat vs scheduled)
+    const effectiveTriggerType = options?.triggerType ?? (scheduleName ? "schedule" : "manual");
+    const isChatTrigger = CHAT_TRIGGER_TYPES.has(effectiveTriggerType);
+    const counterMap = isChatTrigger ? this.runningChatByAgent : this.runningScheduledByAgent;
+    counterMap.set(agentName, (counterMap.get(agentName) ?? 0) + 1);
 
     let result: Awaited<ReturnType<typeof executor.execute>>;
     try {
@@ -167,8 +181,7 @@ export class JobControl {
         agent,
         prompt,
         stateDir,
-        triggerType: (options?.triggerType ??
-          "manual") as import("../state/schemas/job-metadata.js").TriggerType,
+        triggerType: (effectiveTriggerType) as import("../state/schemas/job-metadata.js").TriggerType,
         schedule: scheduleName,
         outputToFile: schedule?.outputToFile ?? false,
         onMessage: options?.onMessage,
@@ -178,11 +191,11 @@ export class JobControl {
         systemPromptAppend: options?.systemPromptAppend,
       });
     } finally {
-      const count = (this.runningCountByAgent.get(agentName) ?? 1) - 1;
+      const count = (counterMap.get(agentName) ?? 1) - 1;
       if (count <= 0) {
-        this.runningCountByAgent.delete(agentName);
+        counterMap.delete(agentName);
       } else {
-        this.runningCountByAgent.set(agentName, count);
+        counterMap.set(agentName, count);
       }
     }
 
