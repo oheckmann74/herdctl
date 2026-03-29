@@ -112,6 +112,8 @@ export class DiscordManager implements IChatManager {
   private initialized: boolean = false;
   /** Per-agent FIFO queue for messages that arrived while the agent was busy */
   private messageQueue: Map<string, QueuedDiscordMessage[]> = new Map();
+  /** Message IDs that have already received a "queued" notification — prevents duplicate embeds */
+  private queueNotifiedMessages: Set<string> = new Set();
 
   constructor(private ctx: FleetManagerContext) {}
 
@@ -549,6 +551,8 @@ export class DiscordManager implements IChatManager {
 
     // Track if we've stopped typing to avoid multiple calls
     let typingStopped = false;
+    // Track if this message was re-queued due to concurrency — skip drainQueue in finally
+    let wasRequeued = false;
 
     // Add acknowledgement reaction if configured (non-fatal — don't abort message handling)
     const ackEmoji = outputConfig.acknowledge_emoji;
@@ -1133,6 +1137,7 @@ export class DiscordManager implements IChatManager {
     } catch (error) {
       // If the agent is busy, queue the message instead of erroring
       if (isConcurrencyLimitError(error)) {
+        wasRequeued = true;
         const queue = this.messageQueue.get(qualifiedName) ?? [];
         queue.push({ qualifiedName, event, queuedAt: Date.now() });
         this.messageQueue.set(qualifiedName, queue);
@@ -1140,18 +1145,23 @@ export class DiscordManager implements IChatManager {
         logger.info(
           `Agent '${qualifiedName}' busy — queued message at position ${position} for channel ${event.metadata.channelId}`,
         );
-        try {
-          await event.reply({
-            embeds: [
-              {
-                description: `Agent is busy — your message is queued at position **${position}**. It will be processed when the current run finishes.`,
-                color: 0xf59e0b, // amber
-                footer: { text: `herdctl · ${qualifiedName}` },
-              },
-            ],
-          });
-        } catch (replyError) {
-          logger.warn(`Failed to send queue notification: ${(replyError as Error).message}`);
+        // Only send the "queued" notification once per message (not on re-drain retries)
+        const msgId = event.metadata.messageId;
+        if (msgId && !this.queueNotifiedMessages.has(msgId)) {
+          this.queueNotifiedMessages.add(msgId);
+          try {
+            await event.reply({
+              embeds: [
+                {
+                  description: `Agent is busy — your message is queued at position **${position}**. It will be processed when the current run finishes.`,
+                  color: 0xf59e0b, // amber
+                  footer: { text: `herdctl · ${qualifiedName}` },
+                },
+              ],
+            });
+          } catch (replyError) {
+            logger.warn(`Failed to send queue notification: ${(replyError as Error).message}`);
+          }
         }
         // Stop typing and remove ack reaction since we're not processing now
         if (!typingStopped) {
@@ -1232,7 +1242,10 @@ export class DiscordManager implements IChatManager {
         }
       }
       // Drain the message queue: if there are queued messages for this agent, process the next one
-      this.drainQueue(qualifiedName);
+      // Skip if this invocation was a re-queued message that hit concurrency again (prevents infinite loop)
+      if (!wasRequeued) {
+        this.drainQueue(qualifiedName);
+      }
     }
   }
 
