@@ -44,6 +44,9 @@ import type {
  * using the FleetManagerContext pattern.
  */
 export class JobControl {
+  /** Tracks running job count per agent across ALL trigger types (schedule, discord, manual, etc.) */
+  private runningCountByAgent: Map<string, number> = new Map();
+
   constructor(
     private ctx: FleetManagerContext,
     private getAgentInfoFn: () => Promise<AgentInfo[]>,
@@ -104,9 +107,10 @@ export class JobControl {
     }
 
     // Check concurrency limits unless bypassed
+    // Uses JobControl's own counter which tracks ALL trigger types (discord, schedule, manual)
     if (!options?.bypassConcurrencyLimit) {
       const maxConcurrent = agent.instances?.max_concurrent ?? 1;
-      const runningCount = scheduler?.getRunningJobCount(agentName) ?? 0;
+      const runningCount = this.runningCountByAgent.get(agentName) ?? 0;
 
       if (runningCount >= maxConcurrent) {
         throw new ConcurrencyLimitError(agentName, runningCount, maxConcurrent);
@@ -151,23 +155,36 @@ export class JobControl {
     const runtime = RuntimeFactory.create(agent, { stateDir });
     const executor = new JobExecutor(runtime, { logger });
 
-    // Execute the job - this creates the job record and runs it
-    // Note: Job output is written to JSONL by JobExecutor; log streaming picks it up
-    // If onMessage callback is provided, it will be called for each SDK message
-    const result = await executor.execute({
-      agent,
-      prompt,
-      stateDir,
-      triggerType: (options?.triggerType ??
-        "manual") as import("../state/schemas/job-metadata.js").TriggerType,
-      schedule: scheduleName,
-      outputToFile: schedule?.outputToFile ?? false,
-      onMessage: options?.onMessage,
-      onJobCreated: options?.onJobCreated,
-      resume: sessionId,
-      injectedMcpServers: options?.injectedMcpServers,
-      systemPromptAppend: options?.systemPromptAppend,
-    });
+    // Track running count across all trigger types for concurrency enforcement
+    this.runningCountByAgent.set(agentName, (this.runningCountByAgent.get(agentName) ?? 0) + 1);
+
+    let result: Awaited<ReturnType<typeof executor.execute>>;
+    try {
+      // Execute the job - this creates the job record and runs it
+      // Note: Job output is written to JSONL by JobExecutor; log streaming picks it up
+      // If onMessage callback is provided, it will be called for each SDK message
+      result = await executor.execute({
+        agent,
+        prompt,
+        stateDir,
+        triggerType: (options?.triggerType ??
+          "manual") as import("../state/schemas/job-metadata.js").TriggerType,
+        schedule: scheduleName,
+        outputToFile: schedule?.outputToFile ?? false,
+        onMessage: options?.onMessage,
+        onJobCreated: options?.onJobCreated,
+        resume: sessionId,
+        injectedMcpServers: options?.injectedMcpServers,
+        systemPromptAppend: options?.systemPromptAppend,
+      });
+    } finally {
+      const count = (this.runningCountByAgent.get(agentName) ?? 1) - 1;
+      if (count <= 0) {
+        this.runningCountByAgent.delete(agentName);
+      } else {
+        this.runningCountByAgent.set(agentName, count);
+      }
+    }
 
     // Emit job:created event
     const jobsDir = join(stateDir, "jobs");
