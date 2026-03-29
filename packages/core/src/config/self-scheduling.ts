@@ -82,6 +82,7 @@ export function injectSchedulerMcpServers(agents: ResolvedAgent[], stateDir: str
       agent.mcp_servers["herdctl-scheduler"] = {
         command: "node",
         args: [mcpPath],
+        host: true,
         env: {
           HERDCTL_AGENT_NAME: agent.qualifiedName,
           HERDCTL_STATE_DIR: stateDir,

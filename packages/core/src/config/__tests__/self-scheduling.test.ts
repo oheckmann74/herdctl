@@ -33,6 +33,7 @@ describe("injectSchedulerMcpServers", () => {
     expect(server.env!.HERDCTL_STATE_DIR).toBe("/tmp/.herdctl");
     expect(server.env!.HERDCTL_MAX_SCHEDULES).toBe("10");
     expect(server.env!.HERDCTL_MIN_INTERVAL).toBe("5m");
+    expect(server.host).toBe(true);
   });
 
   it("does not inject when self_scheduling is not set", () => {
