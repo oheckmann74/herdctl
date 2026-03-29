@@ -12,10 +12,16 @@ export const resetCommand: SlashCommand = {
   description: "Clear conversation context (start fresh session)",
 
   async execute(context: CommandContext): Promise<void> {
-    const { interaction, sessionManager, agentName } = context;
+    const { interaction, sessionManager, commandActions, agentName } = context;
     const channelId = interaction.channelId;
 
     const wasCleared = await sessionManager.clearSession(channelId);
+
+    // Also clear the core herdctl session to prevent stale Docker session references
+    // on the next message (which would cause "Docker session file not found" errors)
+    if (commandActions?.clearCoreSession) {
+      await commandActions.clearCoreSession();
+    }
 
     await interaction.reply({
       embeds: [

@@ -62,6 +62,8 @@ export interface CommandActions {
     activeJobId?: string;
     lastPrompt?: string;
   }>;
+  /** Clear the core herdctl session (sessions/<agent>.json) to prevent stale Docker session references */
+  clearCoreSession?: () => Promise<CommandActionResult>;
 }
 
 // =============================================================================

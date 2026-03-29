@@ -29,9 +29,11 @@ import type {
   ResolvedAgent,
 } from "@herdctl/core";
 import {
+  clearSession,
   createFileSenderDef,
   type FileSenderContext,
   getToolInputSummary,
+  isConcurrencyLimitError,
   type SDKMessage,
   TOOL_EMOJIS,
 } from "@herdctl/core";
@@ -94,6 +96,13 @@ type DiscordErrorEvent = DiscordConnectorEventMap["error"];
  * Implements IChatManager so FleetManager can interact with it through
  * the generic chat manager interface.
  */
+/** A queued Discord message waiting for agent capacity */
+interface QueuedDiscordMessage {
+  qualifiedName: string;
+  event: DiscordMessageEvent;
+  queuedAt: number;
+}
+
 export class DiscordManager implements IChatManager {
   private connectors: Map<string, DiscordConnector> = new Map();
   private activeJobsByChannel: Map<string, string> = new Map();
@@ -101,6 +110,8 @@ export class DiscordManager implements IChatManager {
   private lastUsageByChannel: Map<string, ChannelRunUsage> = new Map();
   private cumulativeUsageByAgent: Map<string, CumulativeUsage> = new Map();
   private initialized: boolean = false;
+  /** Per-agent FIFO queue for messages that arrived while the agent was busy */
+  private messageQueue: Map<string, QueuedDiscordMessage[]> = new Map();
 
   constructor(private ctx: FleetManagerContext) {}
 
@@ -203,6 +214,8 @@ export class DiscordManager implements IChatManager {
             getAgentConfig: async () => this.getAgentConfigSummary(agent),
             getSessionInfo: async (channelId: string) =>
               this.getChannelRunInfo(agent.qualifiedName, channelId),
+            clearCoreSession: async () =>
+              this.clearAgentCoreSession(agent.qualifiedName),
           },
           commandRegistration: discordConfig.command_registration
             ? {
@@ -1118,6 +1131,42 @@ export class DiscordManager implements IChatManager {
         timestamp: new Date().toISOString(),
       });
     } catch (error) {
+      // If the agent is busy, queue the message instead of erroring
+      if (isConcurrencyLimitError(error)) {
+        const queue = this.messageQueue.get(qualifiedName) ?? [];
+        queue.push({ qualifiedName, event, queuedAt: Date.now() });
+        this.messageQueue.set(qualifiedName, queue);
+        const position = queue.length;
+        logger.info(
+          `Agent '${qualifiedName}' busy — queued message at position ${position} for channel ${event.metadata.channelId}`,
+        );
+        try {
+          await event.reply({
+            embeds: [
+              {
+                description: `Agent is busy — your message is queued at position **${position}**. It will be processed when the current run finishes.`,
+                color: 0xf59e0b, // amber
+                footer: { text: `herdctl · ${qualifiedName}` },
+              },
+            ],
+          });
+        } catch (replyError) {
+          logger.warn(`Failed to send queue notification: ${(replyError as Error).message}`);
+        }
+        // Stop typing and remove ack reaction since we're not processing now
+        if (!typingStopped) {
+          stopTyping();
+        }
+        if (ackEmoji) {
+          try {
+            await event.removeReaction(ackEmoji);
+          } catch {
+            // ignore
+          }
+        }
+        return;
+      }
+
       const err = error instanceof Error ? error : new Error(String(error));
       logger.error(`Discord message handling failed for agent '${qualifiedName}': ${err.message}`);
 
@@ -1182,7 +1231,34 @@ export class DiscordManager implements IChatManager {
           logger.warn(`Failed to cleanup attachments: ${(cleanupError as Error).message}`);
         }
       }
+      // Drain the message queue: if there are queued messages for this agent, process the next one
+      this.drainQueue(qualifiedName);
     }
+  }
+
+  /**
+   * Drain the message queue for an agent after a job completes.
+   * Pops the next queued message and processes it asynchronously.
+   */
+  private drainQueue(qualifiedName: string): void {
+    const queue = this.messageQueue.get(qualifiedName);
+    if (!queue || queue.length === 0) {
+      return;
+    }
+
+    const next = queue.shift()!;
+    const logger = this.ctx.getLogger();
+    const remaining = queue.length;
+    logger.info(
+      `Draining queue for '${qualifiedName}': processing next message (${remaining} remaining)`,
+    );
+
+    // Process asynchronously — don't block the finally block
+    void this.handleMessage(next.qualifiedName, next.event).catch((err: unknown) => {
+      logger.error(
+        `Failed to process queued message for '${qualifiedName}': ${err instanceof Error ? err.message : String(err)}`,
+      );
+    });
   }
 
   /**
@@ -1217,7 +1293,21 @@ export class DiscordManager implements IChatManager {
     channelId: string,
   ): Promise<{ success: boolean; message: string; jobId?: string }> {
     const key = this.getChannelKey(qualifiedName, channelId);
-    const jobId = this.activeJobsByChannel.get(key);
+    let jobId = this.activeJobsByChannel.get(key);
+
+    // Fallback: if no in-memory entry (e.g. after restart), check FleetManager
+    if (!jobId) {
+      try {
+        const fleetManager = this.ctx.getEmitter() as unknown as import("@herdctl/core").FleetManager;
+        const agentInfo = await fleetManager.getAgentInfoByName(qualifiedName);
+        if (agentInfo.currentJobId && agentInfo.status === "running") {
+          jobId = agentInfo.currentJobId;
+        }
+      } catch {
+        // ignore lookup errors — fall through to "no active run"
+      }
+    }
+
     if (!jobId) {
       return {
         success: false,
@@ -1239,6 +1329,30 @@ export class DiscordManager implements IChatManager {
         success: false,
         message: `Failed to stop active run: ${(error as Error).message}`,
         jobId,
+      };
+    }
+  }
+
+  private async clearAgentCoreSession(
+    qualifiedName: string,
+  ): Promise<{ success: boolean; message: string }> {
+    const logger = this.ctx.getLogger();
+    try {
+      const stateDir = this.ctx.getStateDir();
+      const sessionsDir = join(stateDir, "sessions");
+      const wasCleared = await clearSession(sessionsDir, qualifiedName);
+      if (wasCleared) {
+        logger.info(`Cleared core session for agent '${qualifiedName}'`);
+      }
+      return {
+        success: true,
+        message: wasCleared ? "Core session cleared." : "No core session to clear.",
+      };
+    } catch (error) {
+      logger.warn(`Failed to clear core session for '${qualifiedName}': ${(error as Error).message}`);
+      return {
+        success: false,
+        message: `Failed to clear core session: ${(error as Error).message}`,
       };
     }
   }

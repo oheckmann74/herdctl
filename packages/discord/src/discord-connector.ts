@@ -96,6 +96,12 @@ export class DiscordConnector extends EventEmitter implements IDiscordConnector 
   private _lastError: string | null = null;
   private _botUser: DiscordConnectorState["botUser"] = null;
 
+  // Message dedup: prevent reprocessing the same message after reconnects
+  private _processedMessageIds: Set<string> = new Set();
+  private _processedMessageCleanupTimer: ReturnType<typeof setInterval> | null = null;
+  private static readonly MESSAGE_DEDUP_TTL_MS = 5 * 60 * 1000; // 5 minutes
+  private static readonly MESSAGE_DEDUP_MAX_SIZE = 200;
+
   // Rate limit tracking
   private _rateLimitCount: number = 0;
   private _lastRateLimitAt: string | null = null;
@@ -592,6 +598,13 @@ export class DiscordConnector extends EventEmitter implements IDiscordConnector 
    * - Only configured channels are processed
    */
   private async _handleMessage(message: Message): Promise<void> {
+    // Dedup: skip messages already processed (prevents replays after reconnects)
+    if (this._processedMessageIds.has(message.id)) {
+      this._logger.debug("Skipping already-processed message", { messageId: message.id });
+      this._messagesIgnored++;
+      return;
+    }
+
     // Ignore messages from bots (including self)
     if (message.author.bot) {
       return;
@@ -673,8 +686,14 @@ export class DiscordConnector extends EventEmitter implements IDiscordConnector 
       prioritizeUserMessages: true,
     });
 
-    // Track message received
+    // Track message received and mark as processed for dedup
     this._messagesReceived++;
+    this._processedMessageIds.add(message.id);
+    // Evict oldest entries if the set grows too large
+    if (this._processedMessageIds.size > DiscordConnector.MESSAGE_DEDUP_MAX_SIZE) {
+      const iter = this._processedMessageIds.values();
+      this._processedMessageIds.delete(iter.next().value!);
+    }
 
     // Log at info level for standard mode (message counts)
     this._logger.debug("Message received", {
