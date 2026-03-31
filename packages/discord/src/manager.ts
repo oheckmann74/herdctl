@@ -1149,6 +1149,9 @@ export class DiscordManager implements IChatManager {
         const msgId = event.metadata.messageId;
         if (msgId && !this.queueNotifiedMessages.has(msgId)) {
           this.queueNotifiedMessages.add(msgId);
+          if (this.queueNotifiedMessages.size > 200) {
+            this.queueNotifiedMessages.delete(this.queueNotifiedMessages.values().next().value!);
+          }
           try {
             await event.reply({
               embeds: [

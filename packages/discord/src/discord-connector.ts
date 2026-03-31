@@ -98,8 +98,6 @@ export class DiscordConnector extends EventEmitter implements IDiscordConnector 
 
   // Message dedup: prevent reprocessing the same message after reconnects
   private _processedMessageIds: Set<string> = new Set();
-  private _processedMessageCleanupTimer: ReturnType<typeof setInterval> | null = null;
-  private static readonly MESSAGE_DEDUP_TTL_MS = 5 * 60 * 1000; // 5 minutes
   private static readonly MESSAGE_DEDUP_MAX_SIZE = 200;
 
   // Rate limit tracking

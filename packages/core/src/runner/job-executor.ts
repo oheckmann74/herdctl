@@ -557,17 +557,22 @@ export class JobExecutor {
     let jobTimedOut = false;
 
     if (jobTimeoutMs) {
+      // Only create a timeout-specific AbortController if one wasn't provided (e.g. by /stop)
+      // If the caller provided one, reuse it but don't attach our timeout to it —
+      // manual cancellation takes priority and shouldn't be overwritten as "timeout"
+      const callerProvidedAbort = !!options.abortController;
       const abortController = options.abortController ?? new AbortController();
-      // Patch the abort controller into the options so the runtime receives it
       if (!options.abortController) {
         options.abortController = abortController;
       }
       const timeoutHandle = setTimeout(() => {
-        jobTimedOut = true;
-        this.logger.warn(
-          `Job ${job.id} exceeded max_job_duration (${maxJobDuration}), aborting`,
-        );
-        abortController.abort();
+        if (!callerProvidedAbort || !abortController.signal.aborted) {
+          jobTimedOut = true;
+          this.logger.warn(
+            `Job ${job.id} exceeded max_job_duration (${maxJobDuration}), aborting`,
+          );
+          abortController.abort();
+        }
       }, jobTimeoutMs);
       try {
         await executeWithRetry(effectiveResume);
