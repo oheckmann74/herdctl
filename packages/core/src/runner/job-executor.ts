@@ -25,6 +25,7 @@ import {
   validateRuntimeContext,
   validateWorkingDirectory,
 } from "../state/index.js";
+import { parseTimeout } from "../state/session-validation.js";
 import { createLogger } from "../utils/logger.js";
 import {
   buildErrorMessage,
@@ -550,7 +551,37 @@ export class JobExecutor {
       }
     };
 
-    await executeWithRetry(effectiveResume);
+    // Apply job duration timeout (default: 1h)
+    const maxJobDuration = agent.session?.max_job_duration ?? "1h";
+    const jobTimeoutMs = parseTimeout(maxJobDuration);
+    let jobTimedOut = false;
+
+    if (jobTimeoutMs) {
+      const abortController = options.abortController ?? new AbortController();
+      // Patch the abort controller into the options so the runtime receives it
+      if (!options.abortController) {
+        options.abortController = abortController;
+      }
+      const timeoutHandle = setTimeout(() => {
+        jobTimedOut = true;
+        this.logger.warn(
+          `Job ${job.id} exceeded max_job_duration (${maxJobDuration}), aborting`,
+        );
+        abortController.abort();
+      }, jobTimeoutMs);
+      try {
+        await executeWithRetry(effectiveResume);
+      } finally {
+        clearTimeout(timeoutHandle);
+      }
+    } else {
+      await executeWithRetry(effectiveResume);
+    }
+
+    // If the job was killed by the duration timeout, ensure classifyError returns "timeout"
+    if (jobTimedOut) {
+      lastError = new Error(`Job timed out after ${maxJobDuration}`);
+    }
 
     // Build error details for programmatic access
     if (lastError) {

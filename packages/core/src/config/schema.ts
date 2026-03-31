@@ -395,7 +395,9 @@ export const DockerSchema = FleetDockerSchema;
 
 export const SessionSchema = z.object({
   max_turns: z.number().int().positive().optional(),
-  timeout: z.string().optional(), // e.g., "30m", "1h"
+  timeout: z.string().optional(), // e.g., "30m", "1h" — session expiry
+  /** Max wall-clock duration for a single job before it is killed. Default: "1h" */
+  max_job_duration: z.string().optional(),
   model: z.string().optional(),
 });
 
