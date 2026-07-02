@@ -105,6 +105,7 @@ interface QueuedDiscordMessage {
 
 export class DiscordManager implements IChatManager {
   private connectors: Map<string, DiscordConnector> = new Map();
+  private subscribedConnectorEvents: Set<string> = new Set();
   private activeJobsByChannel: Map<string, string> = new Map();
   private lastPromptByChannel: Map<string, string> = new Map();
   private lastUsageByChannel: Map<string, ChannelRunUsage> = new Map();
@@ -261,16 +262,20 @@ export class DiscordManager implements IChatManager {
     const connectPromises: Promise<void>[] = [];
 
     for (const [qualifiedName, connector] of this.connectors) {
-      // Subscribe to connector events before connecting
-      connector.on("message", (event: DiscordMessageEvent) => {
-        this.handleMessage(qualifiedName, event).catch((error: unknown) => {
-          this.handleError(qualifiedName, error);
+      if (!this.subscribedConnectorEvents.has(qualifiedName)) {
+        // Subscribe to connector events before connecting
+        connector.on("message", (event: DiscordMessageEvent) => {
+          this.handleMessage(qualifiedName, event).catch((error: unknown) => {
+            this.handleError(qualifiedName, error);
+          });
         });
-      });
 
-      connector.on("error", (event: DiscordErrorEvent) => {
-        this.handleError(qualifiedName, event.error);
-      });
+        connector.on("error", (event: DiscordErrorEvent) => {
+          this.handleError(qualifiedName, event.error);
+        });
+
+        this.subscribedConnectorEvents.add(qualifiedName);
+      }
 
       connectPromises.push(
         connector.connect().catch((error: unknown) => {

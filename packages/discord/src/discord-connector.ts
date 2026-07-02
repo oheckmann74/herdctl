@@ -106,6 +106,11 @@ export class DiscordConnector extends EventEmitter implements IDiscordConnector 
   private _rateLimitResetTime: number = 0;
   private _rateLimitResetTimer: ReturnType<typeof setTimeout> | null = null;
 
+  // Reconnect log throttling
+  private _lastReconnectLogAt: number = 0;
+  private _suppressedReconnectLogs: number = 0;
+  private static readonly RECONNECT_LOG_INTERVAL_MS = 60_000;
+
   // Message count tracking for standard logging
   private _messagesReceived: number = 0;
   private _messagesSent: number = 0;
@@ -422,11 +427,13 @@ export class DiscordConnector extends EventEmitter implements IDiscordConnector 
 
     // Reconnecting event - discord.js auto-reconnect
     this._client.on(Events.ShardReconnecting, () => {
+      if (this._status === "disconnecting" || this._status === "disconnected") {
+        return;
+      }
+
       this._status = "reconnecting";
       this._reconnectAttempts++;
-      this._logger.info("Reconnecting to Discord...", {
-        attempt: this._reconnectAttempts,
-      });
+      this._logReconnectAttempt();
 
       // Emit reconnecting event
       const payload: DiscordConnectorEventMap["reconnecting"] = {
@@ -439,7 +446,15 @@ export class DiscordConnector extends EventEmitter implements IDiscordConnector 
     // Resume event - successfully reconnected
     this._client.on(Events.ShardResume, () => {
       this._status = "connected";
-      this._logger.info("Reconnected to Discord");
+      const previousAttempts = this._reconnectAttempts;
+      this._reconnectAttempts = 0;
+
+      this._logger.info("Reconnected to Discord", {
+        attempts: previousAttempts,
+        suppressedReconnectLogs: this._suppressedReconnectLogs,
+      });
+      this._suppressedReconnectLogs = 0;
+      this._lastReconnectLogAt = 0;
 
       // Emit reconnected event
       const payload: DiscordConnectorEventMap["reconnected"] = {
@@ -507,6 +522,25 @@ export class DiscordConnector extends EventEmitter implements IDiscordConnector 
         this._errorHandler.handleError(error, "handling interaction");
       });
     });
+  }
+
+  private _logReconnectAttempt(): void {
+    const now = Date.now();
+    const shouldLog =
+      this._reconnectAttempts === 1 ||
+      now - this._lastReconnectLogAt >= DiscordConnector.RECONNECT_LOG_INTERVAL_MS;
+
+    if (!shouldLog) {
+      this._suppressedReconnectLogs++;
+      return;
+    }
+
+    this._logger.info("Reconnecting to Discord...", {
+      attempt: this._reconnectAttempts,
+      suppressedReconnectLogs: this._suppressedReconnectLogs,
+    });
+    this._suppressedReconnectLogs = 0;
+    this._lastReconnectLogAt = now;
   }
 
   /**

@@ -43,6 +43,21 @@ export interface StartOptions {
  */
 const DEFAULT_STATE_DIR = ".herdctl";
 
+function getCheckIntervalFromEnv(): number | undefined {
+  const value = process.env.HERDCTL_CHECK_INTERVAL_MS;
+  if (!value) {
+    return undefined;
+  }
+
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    console.warn(`Ignoring invalid HERDCTL_CHECK_INTERVAL_MS value: ${value}`);
+    return undefined;
+  }
+
+  return parsed;
+}
+
 /**
  * Format a FleetStatus for startup display
  */
@@ -213,6 +228,7 @@ export async function startCommand(options: StartOptions): Promise<void> {
     configPath: options.config,
     stateDir,
     configOverrides,
+    checkInterval: getCheckIntervalFromEnv(),
   });
 
   // Track if we're shutting down to prevent multiple shutdown attempts

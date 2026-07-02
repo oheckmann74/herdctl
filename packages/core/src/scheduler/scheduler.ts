@@ -5,7 +5,15 @@
  * due agents according to their configured schedules.
  */
 
+import { join } from "node:path";
 import type { ResolvedAgent } from "../config/index.js";
+import { readFleetState } from "../state/fleet-state.js";
+import {
+  createDefaultScheduleState,
+  type FleetState,
+  type ScheduleState,
+} from "../state/schemas/fleet-state.js";
+import { STATE_FILE_NAME } from "../state/types.js";
 import { createLogger } from "../utils/logger.js";
 import {
   calculateNextCronTrigger,
@@ -106,6 +114,16 @@ export class Scheduler {
   private triggerCount = 0;
   private lastCheckAt: string | null = null;
   private warnedSchedules = new Set<string>();
+  private validCronExpressions = new Set<string>();
+  private invalidCronExpressions = new Set<string>();
+  private cronNextTriggerCache: Map<
+    string,
+    {
+      cron: string;
+      lastRunAt: string;
+      nextTrigger: Date;
+    }
+  > = new Map();
 
   // Dynamic schedule cache — re-read from disk every N ticks to avoid excessive I/O
   private dynamicScheduleCache: Map<string, Record<string, DynamicSchedule>> = new Map();
@@ -169,6 +187,9 @@ export class Scheduler {
     this.triggerCount = 0;
     this.runningSchedules.clear();
     this.runningJobs.clear();
+    this.validCronExpressions.clear();
+    this.invalidCronExpressions.clear();
+    this.cronNextTriggerCache.clear();
     this.dynamicScheduleCache.clear();
     this.dynamicScheduleLastLoad = -Scheduler.DYNAMIC_SCHEDULE_RELOAD_INTERVAL;
 
@@ -328,6 +349,11 @@ export class Scheduler {
       }
     }
 
+    const stateLogger: ScheduleStateLogger = { warn: this.logger.warn };
+    const fleetState = await readFleetState(join(this.stateDir, STATE_FILE_NAME), {
+      logger: stateLogger,
+    });
+
     for (const agent of this.agents) {
       const staticSchedules = agent.schedules ?? {};
       const agentDynamic = this.dynamicScheduleCache.get(agent.qualifiedName) ?? {};
@@ -340,7 +366,12 @@ export class Scheduler {
       }
 
       for (const [scheduleName, schedule] of Object.entries(mergedSchedules)) {
-        const result = await this.checkSchedule(agent, scheduleName, schedule);
+        const result = await this.checkSchedule(
+          agent,
+          scheduleName,
+          schedule,
+          this.getScheduleStateFromFleet(fleetState, agent.qualifiedName, scheduleName),
+        );
 
         if (result.shouldTrigger) {
           await this.triggerSchedule(agent, scheduleName, schedule);
@@ -356,6 +387,7 @@ export class Scheduler {
     agent: ResolvedAgent,
     scheduleName: string,
     schedule: { type: string; interval?: string; cron?: string; enabled?: boolean },
+    scheduleState: ScheduleState,
   ): Promise<ScheduleCheckResult> {
     const baseResult = {
       agentName: agent.qualifiedName,
@@ -382,12 +414,6 @@ export class Scheduler {
         skipReason: "unsupported_type" as ScheduleSkipReason,
       };
     }
-
-    // Get current schedule state
-    const stateLogger: ScheduleStateLogger = { warn: this.logger.warn };
-    const scheduleState = await getScheduleState(this.stateDir, agent.qualifiedName, scheduleName, {
-      logger: stateLogger,
-    });
 
     // Skip disabled schedules
     if (scheduleState.status === "disabled") {
@@ -460,7 +486,7 @@ export class Scheduler {
       }
 
       // Validate cron expression (defense in depth - should be validated at config load time)
-      if (!isValidCronExpression(schedule.cron)) {
+      if (!this.isCronExpressionValid(schedule.cron)) {
         this.warnOnce(
           `${agent.qualifiedName}/${scheduleName}`,
           `Skipping ${agent.qualifiedName}/${scheduleName}: invalid cron expression "${schedule.cron}"`,
@@ -479,7 +505,12 @@ export class Scheduler {
         // If multiple occurrences were missed (e.g. scheduler was down),
         // only one catch-up trigger fires because last_run_at updates to now
         // on trigger, making the next calculation return a future time.
-        nextTrigger = calculateNextCronTrigger(schedule.cron, lastRunAt);
+        nextTrigger = this.getCachedNextCronTrigger(
+          agent.qualifiedName,
+          scheduleName,
+          schedule.cron,
+          lastRunAt,
+        );
       } else {
         // For NEW cron schedules (no lastRunAt), determine if we're in a "trigger window"
         // We use the previous cron time as a reference point and compare with current time
@@ -523,6 +554,54 @@ export class Scheduler {
       ...baseResult,
       shouldTrigger: true,
     };
+  }
+
+  private getScheduleStateFromFleet(
+    fleetState: FleetState,
+    agentName: string,
+    scheduleName: string,
+  ): ScheduleState {
+    return fleetState.agents[agentName]?.schedules?.[scheduleName] ?? createDefaultScheduleState();
+  }
+
+  private isCronExpressionValid(expression: string): boolean {
+    if (this.validCronExpressions.has(expression)) {
+      return true;
+    }
+    if (this.invalidCronExpressions.has(expression)) {
+      return false;
+    }
+
+    const valid = isValidCronExpression(expression);
+    if (valid) {
+      this.validCronExpressions.add(expression);
+    } else {
+      this.invalidCronExpressions.add(expression);
+    }
+    return valid;
+  }
+
+  private getCachedNextCronTrigger(
+    agentName: string,
+    scheduleName: string,
+    cron: string,
+    lastRunAt: Date,
+  ): Date {
+    const lastRunAtIso = lastRunAt.toISOString();
+    const key = `${agentName}/${scheduleName}`;
+    const cached = this.cronNextTriggerCache.get(key);
+
+    if (cached?.cron === cron && cached.lastRunAt === lastRunAtIso) {
+      return cached.nextTrigger;
+    }
+
+    const nextTrigger = calculateNextCronTrigger(cron, lastRunAt);
+    this.cronNextTriggerCache.set(key, {
+      cron,
+      lastRunAt: lastRunAtIso,
+      nextTrigger,
+    });
+    return nextTrigger;
   }
 
   /**
