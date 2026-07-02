@@ -217,8 +217,7 @@ export class DiscordManager implements IChatManager {
             getAgentConfig: async () => this.getAgentConfigSummary(agent),
             getSessionInfo: async (channelId: string) =>
               this.getChannelRunInfo(agent.qualifiedName, channelId),
-            clearCoreSession: async () =>
-              this.clearAgentCoreSession(agent.qualifiedName),
+            clearCoreSession: async () => this.clearAgentCoreSession(agent.qualifiedName),
           },
           commandRegistration: discordConfig.command_registration
             ? {
@@ -842,6 +841,16 @@ export class DiscordManager implements IChatManager {
                 }
               }
 
+              // Always track content for fallback BEFORE filtering, so that
+              // CLI-runtime partial messages (which may have stopReason=null
+              // but contain the full assistant text) are captured.  The
+              // ultimate-fallback path (lastSeenContent) fires when nothing
+              // else was delivered to Discord.
+              const content = normalized.content;
+              if (content) {
+                lastSeenContent = content;
+              }
+
               if (normalized.messageId && normalized.stopReason === null) {
                 continue;
               }
@@ -852,11 +861,6 @@ export class DiscordManager implements IChatManager {
                 deliveredAssistantIds.add(normalized.messageId);
               }
 
-              const content = normalized.content;
-              if (content) {
-                // Track final content for fallback (overwrites delta accumulation)
-                lastSeenContent = content;
-              }
               if (!content) {
                 streamedDeltaSinceFinal = false;
                 continue;
@@ -1319,7 +1323,8 @@ export class DiscordManager implements IChatManager {
     // Fallback: if no in-memory entry (e.g. after restart), check FleetManager
     if (!jobId) {
       try {
-        const fleetManager = this.ctx.getEmitter() as unknown as import("@herdctl/core").FleetManager;
+        const fleetManager =
+          this.ctx.getEmitter() as unknown as import("@herdctl/core").FleetManager;
         const agentInfo = await fleetManager.getAgentInfoByName(qualifiedName);
         if (agentInfo.currentJobId && agentInfo.status === "running") {
           jobId = agentInfo.currentJobId;
@@ -1370,7 +1375,9 @@ export class DiscordManager implements IChatManager {
         message: wasCleared ? "Core session cleared." : "No core session to clear.",
       };
     } catch (error) {
-      logger.warn(`Failed to clear core session for '${qualifiedName}': ${(error as Error).message}`);
+      logger.warn(
+        `Failed to clear core session for '${qualifiedName}': ${(error as Error).message}`,
+      );
       return {
         success: false,
         message: `Failed to clear core session: ${(error as Error).message}`,

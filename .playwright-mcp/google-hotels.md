@@ -1,0 +1,2497 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - button "Main menu" [ref=e6] [cursor=pointer]:
+          - img [ref=e7]
+        - link "Google" [ref=e11] [cursor=pointer]:
+          - /url: /
+      - generic [ref=e15]:
+        - generic:
+          - button "Skip to main content" [ref=e16]:
+            - generic: Skip to main content
+          - button "Accessibility feedback" [ref=e19]:
+            - generic: Accessibility feedback
+        - navigation [ref=e23]:
+          - link "Travel" [ref=e26]:
+            - img [ref=e29]
+            - generic: Travel
+          - link "Explore" [ref=e35]:
+            - img [ref=e38]
+            - generic: Explore
+          - link "Flights" [ref=e43]:
+            - img [ref=e46]
+            - generic: Flights
+          - link "Hotels" [ref=e51]:
+            - img [ref=e54]
+            - generic: Hotels
+          - link "Vacation rentals" [ref=e62]:
+            - img [ref=e65]
+            - generic: Vacation rentals
+      - generic [ref=e74]:
+        - button "Google apps" [ref=e78] [cursor=pointer]:
+          - img [ref=e79]
+        - link "Sign in" [ref=e82] [cursor=pointer]:
+          - /url: https://accounts.google.com/ServiceLogin?service=searchandassistant&passive=1209600&continue=https%3A%2F%2Fwww.google.com%2Ftravel%2Fsearch%3Fq%3Dhotels%2520in%2520carmel%2520by%2520the%2520sea%26qs%3DOAA%26dates%3D2026-05-05%252C2026-05-06%26hl%3Den%26gl%3Dus%26curr%3DUSD%26ved%3D0CAAQ5JsGahcKEwj4lovBtaCUAxUAAAAAHQAAAAAQCA%26utm_source%3Dsign_in_ogb&followup=https%3A%2F%2Fwww.google.com%2Ftravel%2Fsearch%3Fq%3Dhotels%2520in%2520carmel%2520by%2520the%2520sea%26qs%3DOAA%26dates%3D2026-05-05%252C2026-05-06%26hl%3Den%26gl%3Dus%26curr%3DUSD%26ved%3D0CAAQ5JsGahcKEwj4lovBtaCUAxUAAAAAHQAAAAAQCA%26utm_source%3Dsign_in_ogb&hl=en&ec=GAZAlQM
+  - generic [ref=e88]:
+    - generic [ref=e89]:
+      - generic [ref=e94]:
+        - form "Filters" [ref=e95]:
+          - generic [ref=e96]:
+            - generic [ref=e104]:
+              - img [ref=e106]
+              - combobox "Search for places, hotels and more" [ref=e109]: hotels in carmel by the sea
+              - button "Clear" [ref=e111] [cursor=pointer]:
+                - img [ref=e112]
+            - generic [ref=e117] [cursor=pointer]:
+              - generic [ref=e119]:
+                - img [ref=e121]
+                - textbox "Check-in" [ref=e124]: Wed, May 6
+                - button [ref=e127]:
+                  - img [ref=e130]
+                - button [ref=e134]:
+                  - img [ref=e137]
+              - generic [ref=e141]:
+                - textbox "Check-out" [ref=e142]: Thu, May 7
+                - button [ref=e145]:
+                  - img [ref=e148]
+                - button [ref=e152]:
+                  - img [ref=e155]
+            - button "Number of travelers. Current number of travelers is 2." [ref=e163] [cursor=pointer]:
+              - img [ref=e164]
+              - generic [ref=e166]: "2"
+              - img [ref=e167]
+          - generic [ref=e172]:
+            - button "All filters" [ref=e175]:
+              - img [ref=e178]
+              - generic [ref=e180]: All filters
+            - generic [ref=e183]:
+              - button "4+ rating, Guest rating, Not selected" [ref=e186]:
+                - img [ref=e189]
+                - generic [ref=e193]: 4+ rating
+              - button "4- or 5-star, Hotel class, Not selected" [ref=e196]:
+                - img [ref=e199]
+                - generic [ref=e204]: 4- or 5-star
+              - button "Under $150, Price, Not selected" [ref=e207]:
+                - img [ref=e210]
+                - generic [ref=e221]: Under $150
+              - button "Spa, Amenities, Not selected" [ref=e224]:
+                - img [ref=e227]
+                - generic [ref=e231]: Spa
+              - button "Pool, Amenities, Not selected" [ref=e234]:
+                - img [ref=e237]
+                - generic [ref=e242]: Pool
+              - button "Price, Not selected" [ref=e245]:
+                - img [ref=e248]
+                - generic [ref=e258]:
+                  - generic [ref=e259]: Price
+                  - img [ref=e260]
+              - button "Property type, Not selected" [ref=e264]:
+                - img [ref=e267]
+                - generic [ref=e276]:
+                  - generic [ref=e277]: Property type
+                  - img [ref=e278]
+              - button "Offers, Not selected" [ref=e282]:
+                - img [ref=e285]
+                - generic [ref=e289]:
+                  - generic [ref=e290]: Offers
+                  - img [ref=e291]
+              - button "Guest rating, Not selected" [ref=e295]:
+                - img [ref=e298]
+                - generic [ref=e301]:
+                  - generic [ref=e302]: Guest rating
+                  - img [ref=e303]
+              - button "Hotel class, Not selected" [ref=e307]:
+                - img [ref=e310]
+                - generic [ref=e314]:
+                  - generic [ref=e315]: Hotel class
+                  - img [ref=e316]
+              - button "Amenities, Not selected" [ref=e320]:
+                - img [ref=e323]
+                - generic [ref=e326]:
+                  - generic [ref=e327]: Amenities
+                  - img [ref=e328]
+              - button "Brands, Not selected" [ref=e332]:
+                - img [ref=e335]
+                - generic [ref=e338]:
+                  - generic [ref=e339]: Brands
+                  - img [ref=e340]
+              - button "Eco-certified, Not selected" [ref=e344]:
+                - img [ref=e347]
+                - generic [ref=e352]: Eco-certified
+              - button "Sort by, Not selected" [ref=e355]:
+                - img [ref=e358]
+                - generic [ref=e361]:
+                  - generic [ref=e362]: Sort by
+                  - img [ref=e363]
+        - generic [ref=e369]:
+          - button "When to visit" [ref=e370] [cursor=pointer]:
+            - generic [ref=e372]: When to visit
+          - button "What you'll pay" [ref=e374] [cursor=pointer]:
+            - generic [ref=e376]: What you'll pay
+      - generic [ref=e378]:
+        - main [ref=e379]:
+          - tabpanel [ref=e381]:
+            - generic [ref=e382]:
+              - generic [ref=e385]:
+                - generic [ref=e386]:
+                  - heading "Sponsored Carmel-By-The-Sea hotels" [level=2] [ref=e387]:
+                    - generic [ref=e388]: Sponsored·
+                    - text: Carmel-By-The-Sea hotels
+                  - button "My Ad Center" [ref=e390] [cursor=pointer]:
+                    - img [ref=e391]
+                - list [ref=e397]:
+                  - listitem [ref=e398]:
+                    - link "Holiday Inn Express $184 Booking.com Booking.com 4.2 out of 5 stars from 756 reviews4-star hotel Free cancellationBeach access":
+                      - /url: /aclk?sa=l&ai=DChsSEwjsq6vAtaCUAxVoH60GHRaALB4YACICCAEQDRoCcHY&co=1&ase=2&gclid=EAIaIQobChMI7KurwLWglAMVaB-tBh0WgCweEA0YASABEgKD5fD_BwE&cid=CAASuwHkaATFVN7d24OL72Te828Q2iKVdIiFWbf4t7q1h_sjLM6w7maQdnUftruHmIXlCsHMudvzvn4Z4ucUGZ6dv6lVB1W1sbjlXIurApoyOYSa10jP-EoKhbh62wocQ7IXX-vbxQV6nUKljEfIM_pYu8AQtZ1v8V95Q50VF3dMzz7xPr_IpG-_57SF3NVaC38eUibyMcJSIK3FNabO5WjslOir-tNDvyjvvklgqYwf3Eics8E9AwJwr2ciuslF&category=acrcp_v1_48&sig=AOD64_2RuBGYpECyKLDj9OwAvxWDLQvRZw&adurl=
+                      - generic [ref=e400] [cursor=pointer]:
+                        - generic [ref=e401]: Holiday Inn Express
+                        - generic [ref=e402]: $184
+                        - generic [ref=e404]:
+                          - img "Booking.com" [ref=e405]
+                          - text: Booking.com
+                        - generic [ref=e406]:
+                          - img "4.2 out of 5 stars from 756 reviews" [ref=e407]:
+                            - generic [ref=e408]:
+                              - generic [ref=e409]: 4.2/5
+                              - img [ref=e410]
+                              - generic [ref=e412]: (756)
+                          - generic [ref=e413]: · 4-star hotel
+                        - generic [ref=e414]: Free cancellation · Beach access
+                  - listitem [ref=e415]:
+                    - link "Seven Gables Inn, A Kirkwood Collection Hotel $205 Expedia.com Expedia.com 4.6 out of 5 stars from 353 reviews4-star hotel Beach accessFree parking":
+                      - /url: /aclk?sa=l&ai=DChsSEwjsq6vAtaCUAxVoH60GHRaALB4YACICCAEQAxoCcHY&co=1&ase=2&gclid=EAIaIQobChMI7KurwLWglAMVaB-tBh0WgCweEA0YAiABEgIGefD_BwE&cid=CAASuwHkaATFVN7d24OL72Te828Q2iKVdIiFWbf4t7q1h_sjLM6w7maQdnUftruHmIXlCsHMudvzvn4Z4ucUGZ6dv6lVB1W1sbjlXIurApoyOYSa10jP-EoKhbh62wocQ7IXX-vbxQV6nUKljEfIM_pYu8AQtZ1v8V95Q50VF3dMzz7xPr_IpG-_57SF3NVaC38eUibyMcJSIK3FNabO5WjslOir-tNDvyjvvklgqYwf3Eics8E9AwJwr2ciuslF&category=acrcp_v1_48&sig=AOD64_0UDy-ErUh4Ewf1Iy5aqo5yQlmV2g&adurl=
+                      - generic [ref=e417] [cursor=pointer]:
+                        - generic [ref=e418]: Seven Gables Inn, A Kirkwood Collection Hotel
+                        - generic [ref=e419]: $205
+                        - generic [ref=e421]:
+                          - img "Expedia.com" [ref=e422]
+                          - text: Expedia.com
+                        - generic [ref=e423]:
+                          - img "4.6 out of 5 stars from 353 reviews" [ref=e424]:
+                            - generic [ref=e425]:
+                              - generic [ref=e426]: 4.6/5
+                              - img [ref=e427]
+                              - generic [ref=e429]: (353)
+                          - generic [ref=e430]: · 4-star hotel
+                        - generic [ref=e431]: Beach access · Free parking
+                  - listitem [ref=e432]:
+                    - link "InterContinental the Clement Monterey by IHG $335 Priceline Priceline 4.5 out of 5 stars from 2,622 reviews4-star hotel Hot tubBeach access":
+                      - /url: /aclk?sa=l&ai=DChsSEwjsq6vAtaCUAxVoH60GHRaALB4YACICCAEQERoCcHY&co=1&ase=2&gclid=EAIaIQobChMI7KurwLWglAMVaB-tBh0WgCweEA0YAyABEgJ8avD_BwE&cid=CAASuwHkaATFVN7d24OL72Te828Q2iKVdIiFWbf4t7q1h_sjLM6w7maQdnUftruHmIXlCsHMudvzvn4Z4ucUGZ6dv6lVB1W1sbjlXIurApoyOYSa10jP-EoKhbh62wocQ7IXX-vbxQV6nUKljEfIM_pYu8AQtZ1v8V95Q50VF3dMzz7xPr_IpG-_57SF3NVaC38eUibyMcJSIK3FNabO5WjslOir-tNDvyjvvklgqYwf3Eics8E9AwJwr2ciuslF&category=acrcp_v1_48&sig=AOD64_0kqkivUWNUjch8wL3yMKrEYQDo_Q&adurl=
+                      - generic [ref=e434] [cursor=pointer]:
+                        - generic [ref=e435]: InterContinental the Clement Monterey by IHG
+                        - generic [ref=e436]: $335
+                        - generic [ref=e438]:
+                          - img "Priceline" [ref=e439]
+                          - text: Priceline
+                        - generic [ref=e440]:
+                          - img "4.5 out of 5 stars from 2,622 reviews" [ref=e441]:
+                            - generic [ref=e442]:
+                              - generic [ref=e443]: 4.5/5
+                              - img [ref=e444]
+                              - generic [ref=e446]: (2.6K)
+                          - generic [ref=e447]: · 4-star hotel
+                        - generic [ref=e448]: Hot tub · Beach access
+                  - listitem [ref=e449]:
+                    - link "Embassy Suites by Hilton Monterey Bay Seaside $235 Embassy Suites by Hilton Monterey Bay Seaside Embassy Suites by Hilton Monterey Bay Seaside 4.3 out of 5 stars from 2,713 reviews3-star hotel PoolPet-friendly":
+                      - /url: /aclk?sa=l&ai=DChsSEwjsq6vAtaCUAxVoH60GHRaALB4YACICCAEQARoCcHY&co=1&ase=2&gclid=EAIaIQobChMI7KurwLWglAMVaB-tBh0WgCweEA0YBCABEgKJEfD_BwE&cid=CAASuwHkaATFVN7d24OL72Te828Q2iKVdIiFWbf4t7q1h_sjLM6w7maQdnUftruHmIXlCsHMudvzvn4Z4ucUGZ6dv6lVB1W1sbjlXIurApoyOYSa10jP-EoKhbh62wocQ7IXX-vbxQV6nUKljEfIM_pYu8AQtZ1v8V95Q50VF3dMzz7xPr_IpG-_57SF3NVaC38eUibyMcJSIK3FNabO5WjslOir-tNDvyjvvklgqYwf3Eics8E9AwJwr2ciuslF&category=acrcp_v1_48&sig=AOD64_2njWGgN8aOPl0Apr0HrDOJubyfvQ&adurl=
+                      - generic [ref=e451] [cursor=pointer]:
+                        - generic [ref=e452]: Embassy Suites by Hilton Monterey Bay Seaside
+                        - generic [ref=e453]: $235
+                        - generic [ref=e455]:
+                          - img "Embassy Suites by Hilton Monterey Bay Seaside" [ref=e456]
+                          - text: Embassy Suites by Hilton Monterey Bay Seaside
+                        - generic [ref=e457]:
+                          - img "4.3 out of 5 stars from 2,713 reviews" [ref=e458]:
+                            - generic [ref=e459]:
+                              - generic [ref=e460]: 4.3/5
+                              - img [ref=e461]
+                              - generic [ref=e463]: (2.7K)
+                          - generic [ref=e464]: · 3-star hotel
+                        - generic [ref=e465]: Pool · Pet-friendly
+                  - listitem [ref=e466]:
+                    - link "Holiday Inn Express at Monterey Bay by IHG $155 Holiday Inn Express at Monterey Bay by IHG Holiday Inn Express at Monterey Bay by IHG 3.7 out of 5 stars from 1,072 reviews2-star hotel Free cancellationHot tub":
+                      - /url: /aclk?sa=l&ai=DChsSEwjsq6vAtaCUAxVoH60GHRaALB4YACICCAEQDxoCcHY&co=1&ase=2&gclid=EAIaIQobChMI7KurwLWglAMVaB-tBh0WgCweEA0YBSABEgIvKPD_BwE&cid=CAASuwHkaATFVN7d24OL72Te828Q2iKVdIiFWbf4t7q1h_sjLM6w7maQdnUftruHmIXlCsHMudvzvn4Z4ucUGZ6dv6lVB1W1sbjlXIurApoyOYSa10jP-EoKhbh62wocQ7IXX-vbxQV6nUKljEfIM_pYu8AQtZ1v8V95Q50VF3dMzz7xPr_IpG-_57SF3NVaC38eUibyMcJSIK3FNabO5WjslOir-tNDvyjvvklgqYwf3Eics8E9AwJwr2ciuslF&category=acrcp_v1_48&sig=AOD64_3WkGeonO0-BYETKoccAHcD0_3vXw&adurl=
+                      - generic [ref=e468] [cursor=pointer]:
+                        - generic [ref=e469]: Holiday Inn Express at Monterey Bay by IHG
+                        - generic [ref=e470]: $155
+                        - generic [ref=e472]:
+                          - img "Holiday Inn Express at Monterey Bay by IHG" [ref=e473]
+                          - text: Holiday Inn Express at Monterey Bay by IHG
+                        - generic [ref=e474]:
+                          - img "3.7 out of 5 stars from 1,072 reviews" [ref=e475]:
+                            - generic [ref=e476]:
+                              - generic [ref=e477]: 3.7/5
+                              - img [ref=e478]
+                              - generic [ref=e480]: (1.1K)
+                          - generic [ref=e481]: · 2-star hotel
+                        - generic [ref=e482]: Free cancellation · Hot tub
+                  - listitem [ref=e483]:
+                    - link "Comfort Inn Carmel By the Sea $210 Comfort Inn Carmel By the Sea Comfort Inn Carmel By the Sea 4.1 out of 5 stars from 265 reviews3-star hotel Kid-friendlyFree parking":
+                      - /url: /aclk?sa=l&ai=DChsSEwjsq6vAtaCUAxVoH60GHRaALB4YACICCAEQBRoCcHY&co=1&ase=2&gclid=EAIaIQobChMI7KurwLWglAMVaB-tBh0WgCweEA0YBiABEgKeJfD_BwE&cid=CAASuwHkaATFVN7d24OL72Te828Q2iKVdIiFWbf4t7q1h_sjLM6w7maQdnUftruHmIXlCsHMudvzvn4Z4ucUGZ6dv6lVB1W1sbjlXIurApoyOYSa10jP-EoKhbh62wocQ7IXX-vbxQV6nUKljEfIM_pYu8AQtZ1v8V95Q50VF3dMzz7xPr_IpG-_57SF3NVaC38eUibyMcJSIK3FNabO5WjslOir-tNDvyjvvklgqYwf3Eics8E9AwJwr2ciuslF&category=acrcp_v1_48&sig=AOD64_1yLG18XUasF8UQdjYDMC2a6GX6hw&adurl=
+                      - generic [ref=e485] [cursor=pointer]:
+                        - generic [ref=e486]: Comfort Inn Carmel By the Sea
+                        - generic [ref=e487]: $210
+                        - generic [ref=e489]:
+                          - img "Comfort Inn Carmel By the Sea" [ref=e490]
+                          - text: Comfort Inn Carmel By the Sea
+                        - generic [ref=e491]:
+                          - img "4.1 out of 5 stars from 265 reviews" [ref=e492]:
+                            - generic [ref=e493]:
+                              - generic [ref=e494]: 4.1/5
+                              - img [ref=e495]
+                              - generic [ref=e497]: (265)
+                          - generic [ref=e498]: · 3-star hotel
+                        - generic [ref=e499]: Kid-friendly · Free parking
+                  - listitem [ref=e500]:
+                    - link "The Normandy Inn $227 The Normandy Inn The Normandy Inn 4.3 out of 5 stars from 383 reviews3-star hotel PoolKid-friendly":
+                      - /url: /aclk?sa=l&ai=DChsSEwjsq6vAtaCUAxVoH60GHRaALB4YACICCAEQBxoCcHY&co=1&ase=2&gclid=EAIaIQobChMI7KurwLWglAMVaB-tBh0WgCweEA0YByABEgKqTvD_BwE&cid=CAASuwHkaATFVN7d24OL72Te828Q2iKVdIiFWbf4t7q1h_sjLM6w7maQdnUftruHmIXlCsHMudvzvn4Z4ucUGZ6dv6lVB1W1sbjlXIurApoyOYSa10jP-EoKhbh62wocQ7IXX-vbxQV6nUKljEfIM_pYu8AQtZ1v8V95Q50VF3dMzz7xPr_IpG-_57SF3NVaC38eUibyMcJSIK3FNabO5WjslOir-tNDvyjvvklgqYwf3Eics8E9AwJwr2ciuslF&category=acrcp_v1_48&sig=AOD64_1dUfMobAIRT8tOW4b1GljBMSVr3Q&adurl=
+                      - generic [ref=e502] [cursor=pointer]:
+                        - generic [ref=e503]: The Normandy Inn
+                        - generic [ref=e504]: $227
+                        - generic [ref=e506]:
+                          - img "The Normandy Inn" [ref=e507]
+                          - text: The Normandy Inn
+                        - generic [ref=e508]:
+                          - img "4.3 out of 5 stars from 383 reviews" [ref=e509]:
+                            - generic [ref=e510]:
+                              - generic [ref=e511]: 4.3/5
+                              - img [ref=e512]
+                              - generic [ref=e514]: (383)
+                          - generic [ref=e515]: · 3-star hotel
+                        - generic [ref=e516]: Pool · Kid-friendly
+                  - listitem [ref=e517]:
+                    - link "Hyatt Regency Monterey Hotel and Spa on Del Monte Golf Course $314 Hyatt Regency Monterey Hotel and Spa on Del Monte Golf Course Hyatt Regency Monterey Hotel and Spa on Del Monte Golf Course 4.1 out of 5 stars from 3,397 reviews4-star hotel Hot tubSpa":
+                      - /url: /aclk?sa=l&ai=DChsSEwjsq6vAtaCUAxVoH60GHRaALB4YACICCAEQCxoCcHY&co=1&ase=2&gclid=EAIaIQobChMI7KurwLWglAMVaB-tBh0WgCweEA0YCCABEgLXzfD_BwE&cid=CAASuwHkaATFVN7d24OL72Te828Q2iKVdIiFWbf4t7q1h_sjLM6w7maQdnUftruHmIXlCsHMudvzvn4Z4ucUGZ6dv6lVB1W1sbjlXIurApoyOYSa10jP-EoKhbh62wocQ7IXX-vbxQV6nUKljEfIM_pYu8AQtZ1v8V95Q50VF3dMzz7xPr_IpG-_57SF3NVaC38eUibyMcJSIK3FNabO5WjslOir-tNDvyjvvklgqYwf3Eics8E9AwJwr2ciuslF&category=acrcp_v1_48&sig=AOD64_3OwE2FUwR-CRkpR120uQFit03rGQ&adurl=
+                      - generic [ref=e519] [cursor=pointer]:
+                        - generic [ref=e520]: Hyatt Regency Monterey Hotel and Spa on Del Monte Golf Course
+                        - generic [ref=e521]: $314
+                        - generic [ref=e523]:
+                          - img "Hyatt Regency Monterey Hotel and Spa on Del Monte Golf Course" [ref=e524]
+                          - text: Hyatt Regency Monterey Hotel and Spa on Del Monte Golf Course
+                        - generic [ref=e525]:
+                          - img "4.1 out of 5 stars from 3,397 reviews" [ref=e526]:
+                            - generic [ref=e527]:
+                              - generic [ref=e528]: 4.1/5
+                              - img [ref=e529]
+                              - generic [ref=e531]: (3.4K)
+                          - generic [ref=e532]: · 4-star hotel
+                        - generic [ref=e533]: Hot tub · Spa
+                  - listitem [ref=e534]:
+                    - link "The Monterey Hotel $142 Hotels.com Hotels.com 3.8 out of 5 stars from 945 reviews3-star hotel Hot tubPet-friendly":
+                      - /url: /aclk?sa=l&ai=DChsSEwjsq6vAtaCUAxVoH60GHRaALB4YACICCAEQCRoCcHY&co=1&ase=2&gclid=EAIaIQobChMI7KurwLWglAMVaB-tBh0WgCweEA0YCSABEgKX7PD_BwE&cid=CAASuwHkaATFVN7d24OL72Te828Q2iKVdIiFWbf4t7q1h_sjLM6w7maQdnUftruHmIXlCsHMudvzvn4Z4ucUGZ6dv6lVB1W1sbjlXIurApoyOYSa10jP-EoKhbh62wocQ7IXX-vbxQV6nUKljEfIM_pYu8AQtZ1v8V95Q50VF3dMzz7xPr_IpG-_57SF3NVaC38eUibyMcJSIK3FNabO5WjslOir-tNDvyjvvklgqYwf3Eics8E9AwJwr2ciuslF&category=acrcp_v1_48&sig=AOD64_1Xn5kLLUu1odk9JKho3x3ZgaHPBw&adurl=
+                      - generic [ref=e536] [cursor=pointer]:
+                        - generic [ref=e537]: The Monterey Hotel
+                        - generic [ref=e538]: $142
+                        - generic [ref=e540]:
+                          - img "Hotels.com" [ref=e541]
+                          - text: Hotels.com
+                        - generic [ref=e542]:
+                          - img "3.8 out of 5 stars from 945 reviews" [ref=e543]:
+                            - generic [ref=e544]:
+                              - generic [ref=e545]: 3.8/5
+                              - img [ref=e546]
+                              - generic [ref=e548]: (945)
+                          - generic [ref=e549]: · 3-star hotel
+                        - generic [ref=e550]: Hot tub · Pet-friendly
+              - heading "Carmel-By-The-Sea · 1,097 results Learn more about these results" [level=1] [ref=e552]:
+                - generic [ref=e553]: Carmel-By-The-Sea · 1,097 results
+                - button "Learn more about these results" [ref=e558]:
+                  - img
+              - generic [ref=e562]:
+                - link "Carmel Mission Inn" [ref=e563] [cursor=pointer]:
+                  - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MidDaGtJeF9yRW9NdVE1UFdxQVJvTUwyY3ZNVEkwZERWM2VERjNFQUU4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyvcEegQIAxA7&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - heading "Carmel Mission Inn" [level=2]
+                          - link "Prices starting from $131, Carmel Mission Inn" [ref=e564] [cursor=pointer]:
+                            - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MidDaGtJeF9yRW9NdVE1UFdxQVJvTUwyY3ZNVEkwZERWM2VERjNFQUU4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQrsMEegQIAxA9&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                            - generic [ref=e569]: $131
+                        - link "4.2 out of 5 stars from 1,450 reviews, Carmel Mission Inn" [ref=e570] [cursor=pointer]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MidDaGtJeF9yRW9NdVE1UFdxQVJvTUwyY3ZNVEkwZERWM2VERjNFQUU4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQwIsFegQIAxA_&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEHcmV2aWV3cw
+                          - img [ref=e577]:
+                            - generic [ref=e578]:
+                              - generic [ref=e579]: "4.2"
+                              - img [ref=e580]
+                              - generic [ref=e582]: (1.5K)
+                        - generic:
+                          - generic:
+                            - document: "Amenities for Carmel Mission Inn, a 3-star hotel.: Breakfast, Free Wi-Fi, Parking ($), Outdoor pool, Hot tub, Air conditioning, Pet-friendly, Fitness center,"
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - img
+                                - generic: 3-star hotel
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Breakfast
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Free Wi-Fi
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Parking ($)
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Outdoor pool
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Hot tub
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Air conditioning
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Pet-friendly
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Fitness center
+                        - link "View prices for Carmel Mission Inn" [ref=e583] [cursor=pointer]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MidDaGtJeF9yRW9NdVE1UFdxQVJvTUwyY3ZNVEkwZERWM2VERjNFQUU4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQssMEegQIAxBC&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEGcHJpY2Vz
+                          - button [ref=e584]:
+                            - generic [ref=e586]: View prices
+                    - generic [ref=e587]:
+                      - generic [ref=e588] [cursor=pointer]:
+                        - link "Photos for Carmel Mission Inn" [ref=e589]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MidDaGtJeF9yRW9NdVE1UFdxQVJvTUwyY3ZNVEkwZERWM2VERjNFQUU4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyfcEegQIAxBD&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                        - list "Photos" [ref=e592]:
+                          - listitem [ref=e593]:
+                            - img "Photo 1" [ref=e594]
+                          - listitem [ref=e595]:
+                            - img "Photo 2" [ref=e596]
+                          - listitem [ref=e597]
+                          - listitem [ref=e598]
+                          - listitem [ref=e599]
+                          - listitem [ref=e600]
+                      - generic:
+                        - button "Back" [ref=e603]:
+                          - img
+                        - button "Next" [ref=e608]:
+                          - img
+              - generic [ref=e612]:
+                - link "Pine Inn" [ref=e613] [cursor=pointer]:
+                  - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJMnRLYnRjdlE1YVNhQVJvTEwyY3ZNWFJrYmpRNWQyY1FBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyvcEegQIAxBS&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - heading "Pine Inn" [level=2]
+                          - link "Prices starting from $194, Pine Inn" [ref=e614] [cursor=pointer]:
+                            - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJMnRLYnRjdlE1YVNhQVJvTEwyY3ZNWFJrYmpRNWQyY1FBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQrsMEegQIAxBU&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                            - generic [ref=e619]: $194
+                        - generic:
+                          - generic:
+                            - link "4 out of 5 stars from 411 reviews, Pine Inn" [ref=e620] [cursor=pointer]:
+                              - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJMnRLYnRjdlE1YVNhQVJvTEwyY3ZNWFJrYmpRNWQyY1FBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQwIsFegQIAxBW&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEHcmV2aWV3cw
+                              - img [ref=e627]:
+                                - generic [ref=e628]:
+                                  - generic [ref=e629]: "4.0"
+                                  - img [ref=e630]
+                                  - generic [ref=e632]: (411)
+                            - generic: ·
+                            - link "Excellent location" [ref=e633] [cursor=pointer]:
+                              - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJMnRLYnRjdlE1YVNhQVJvTEwyY3ZNWFJrYmpRNWQyY1FBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyocGegQIAxBY&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEIb3ZlcnZpZXc
+                              - generic [ref=e637]: Excellent location
+                        - generic:
+                          - generic:
+                            - document: "Amenities for Pine Inn, a 4-star hotel.: Breakfast, Free Wi-Fi, Free parking, Air conditioning, Bar, Restaurant, Room service, Accessible,"
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - img
+                                - generic: 4-star hotel
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Breakfast
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Free Wi-Fi
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Free parking
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Air conditioning
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Bar
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Restaurant
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Room service
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Accessible
+                        - link "View prices for Pine Inn" [ref=e638] [cursor=pointer]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJMnRLYnRjdlE1YVNhQVJvTEwyY3ZNWFJrYmpRNWQyY1FBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQssMEegQIAxBb&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEGcHJpY2Vz
+                          - button [ref=e639]:
+                            - generic [ref=e641]: View prices
+                    - generic [ref=e642]:
+                      - generic [ref=e643] [cursor=pointer]:
+                        - link "Photos for Pine Inn" [ref=e644]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJMnRLYnRjdlE1YVNhQVJvTEwyY3ZNWFJrYmpRNWQyY1FBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyfcEegQIAxBc&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                        - list "Photos" [ref=e647]:
+                          - listitem [ref=e648]:
+                            - img "Photo 1" [ref=e649]
+                          - listitem [ref=e650]:
+                            - img "Photo 2" [ref=e651]
+                          - listitem [ref=e652]
+                          - listitem [ref=e653]
+                          - listitem [ref=e654]
+                          - listitem [ref=e655]
+                      - generic:
+                        - button "Back" [ref=e658]:
+                          - img
+                        - button "Next" [ref=e663]:
+                          - img
+              - generic [ref=e667]:
+                - link "Hotel 1110" [ref=e668] [cursor=pointer]:
+                  - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJajdPUy11cnZxZDhxR2d3dlp5OHhNWGhyWDJkamRtb1FBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyvcEegQIAxBr&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - heading "Hotel 1110" [level=2]
+                          - link "Prices starting from $125, Hotel 1110 DEAL 25% less than usual" [ref=e669] [cursor=pointer]:
+                            - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJajdPUy11cnZxZDhxR2d3dlp5OHhNWGhyWDJkamRtb1FBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQrsMEegQIAxBt&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                            - generic [ref=e672]:
+                              - generic [ref=e673]:
+                                - generic [ref=e674]: DEAL
+                                - generic [ref=e677]: $125
+                              - generic [ref=e678]: 25% less than usual
+                        - link "4.2 out of 5 stars from 547 reviews, Hotel 1110" [ref=e679] [cursor=pointer]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJajdPUy11cnZxZDhxR2d3dlp5OHhNWGhyWDJkamRtb1FBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQwIsFegQIAxBw&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEHcmV2aWV3cw
+                          - img [ref=e686]:
+                            - generic [ref=e687]:
+                              - generic [ref=e688]: "4.2"
+                              - img [ref=e689]
+                              - generic [ref=e691]: (547)
+                        - generic:
+                          - generic:
+                            - document: "Amenities for Hotel 1110, a 4-star hotel.: Free breakfast, Free Wi-Fi, Parking ($), Hot tub, Beach access, Bar, Restaurant, Accessible,"
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - img
+                                - generic: 4-star hotel
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Free breakfast
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Free Wi-Fi
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Parking ($)
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Hot tub
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Beach access
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Bar
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Restaurant
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Accessible
+                        - link "View prices for Hotel 1110" [ref=e692] [cursor=pointer]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJajdPUy11cnZxZDhxR2d3dlp5OHhNWGhyWDJkamRtb1FBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQssMEegQIAxBz&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEGcHJpY2Vz
+                          - button [ref=e693]:
+                            - generic [ref=e695]: View prices
+                    - generic [ref=e696]:
+                      - generic [ref=e697] [cursor=pointer]:
+                        - link "Photos for Hotel 1110" [ref=e698]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJajdPUy11cnZxZDhxR2d3dlp5OHhNWGhyWDJkamRtb1FBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyfcEegQIAxB0&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                        - list "Photos" [ref=e701]:
+                          - listitem [ref=e702]:
+                            - img "Photo 1" [ref=e703]
+                          - listitem [ref=e704]:
+                            - img "Photo 2" [ref=e705]
+                          - listitem [ref=e706]
+                          - listitem [ref=e707]
+                          - listitem [ref=e708]
+                          - listitem [ref=e709]
+                      - generic:
+                        - button "Back" [ref=e712]:
+                          - img
+                        - button "Next" [ref=e717]:
+                          - img
+                      - generic [ref=e722]: DEAL
+              - generic [ref=e725]:
+                - generic [ref=e726]:
+                  - img [ref=e728]
+                  - generic [ref=e730]:
+                    - heading "Set your dates to update prices" [level=2] [ref=e731]
+                    - generic [ref=e732]:
+                      - text: Prices shown for
+                      - button "May 6 – 7" [ref=e733] [cursor=pointer]
+                - list [ref=e739]:
+                  - listitem [ref=e740]:
+                    - button "Change dates" [ref=e742]:
+                      - generic [ref=e746]:
+                        - img [ref=e747]
+                        - generic [ref=e750]: Change dates
+                  - listitem [ref=e751]:
+                    - button "This weekend" [ref=e753]:
+                      - generic [ref=e756]: This weekend
+                  - listitem [ref=e757]:
+                    - button "Next weekend" [ref=e759]:
+                      - generic [ref=e762]: Next weekend
+                  - listitem [ref=e763]:
+                    - button "Next work week" [ref=e765]:
+                      - generic [ref=e768]: Next work week
+              - generic [ref=e770]:
+                - link "Monte Verde Inn" [ref=e771] [cursor=pointer]:
+                  - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiRDaGNJbEtUOG5MNjBrWXgwR2dzdlp5OHhkbWQzT0haek14QUI4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyvcEegUIAxCNAQ&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - heading "Monte Verde Inn" [level=2]
+                          - link "Prices starting from $199, Monte Verde Inn DEAL 18% less than usual" [ref=e772] [cursor=pointer]:
+                            - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiRDaGNJbEtUOG5MNjBrWXgwR2dzdlp5OHhkbWQzT0haek14QUI4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQrsMEegUIAxCPAQ&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                            - generic [ref=e775]:
+                              - generic [ref=e776]:
+                                - generic [ref=e777]: DEAL
+                                - generic [ref=e780]: $199
+                              - generic [ref=e781]: 18% less than usual
+                        - generic:
+                          - generic:
+                            - link "4.4 out of 5 stars from 129 reviews, Monte Verde Inn" [ref=e782] [cursor=pointer]:
+                              - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiRDaGNJbEtUOG5MNjBrWXgwR2dzdlp5OHhkbWQzT0haek14QUI4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQwIsFegUIAxCSAQ&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEHcmV2aWV3cw
+                              - img [ref=e789]:
+                                - generic [ref=e790]:
+                                  - generic [ref=e791]: "4.4"
+                                  - img [ref=e792]
+                                  - generic [ref=e794]: (129)
+                            - generic: ·
+                            - link "Excellent location" [ref=e795] [cursor=pointer]:
+                              - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiRDaGNJbEtUOG5MNjBrWXgwR2dzdlp5OHhkbWQzT0haek14QUI4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyocGegUIAxCUAQ&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEIb3ZlcnZpZXc
+                              - generic [ref=e799]: Excellent location
+                        - generic:
+                          - generic:
+                            - document: "Amenities for Monte Verde Inn, a 2-star hotel.: Free breakfast, Free Wi-Fi, Free parking, Air conditioning, Pet-friendly, Kitchen in some rooms, Accessible, Kid-friendly,"
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - img
+                                - generic: 2-star hotel
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Free breakfast
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Free Wi-Fi
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Free parking
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Air conditioning
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Pet-friendly
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Kitchen in some rooms
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Accessible
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Kid-friendly
+                        - link "View prices for Monte Verde Inn" [ref=e800] [cursor=pointer]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiRDaGNJbEtUOG5MNjBrWXgwR2dzdlp5OHhkbWQzT0haek14QUI4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQssMEegUIAxCXAQ&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEGcHJpY2Vz
+                          - button [ref=e801]:
+                            - generic [ref=e803]: View prices
+                    - generic [ref=e804]:
+                      - generic [ref=e805] [cursor=pointer]:
+                        - link "Photos for Monte Verde Inn" [ref=e806]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiRDaGNJbEtUOG5MNjBrWXgwR2dzdlp5OHhkbWQzT0haek14QUI4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyfcEegUIAxCYAQ&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                        - list "Photos" [ref=e809]:
+                          - listitem [ref=e810]:
+                            - img "Photo 1" [ref=e811]
+                          - listitem [ref=e812]:
+                            - img "Photo 2" [ref=e813]
+                          - listitem [ref=e814]
+                          - listitem [ref=e815]
+                          - listitem [ref=e816]
+                          - listitem [ref=e817]
+                      - generic:
+                        - button "Back" [ref=e820]:
+                          - img
+                        - button "Next" [ref=e825]:
+                          - img
+                      - generic [ref=e830]: DEAL
+              - generic [ref=e832]:
+                - link "Carmel Wayfarer Inn" [ref=e833] [cursor=pointer]:
+                  - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiRDaGNJdjlYaHc5M0R2ZkpKR2dzdlp5OHhkR2RpWDE5dE5oQUI4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyvcEegUIAxCqAQ&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - heading "Carmel Wayfarer Inn" [level=2]
+                          - link "Prices starting from $131, Carmel Wayfarer Inn GREAT DEAL 25% less than usual" [ref=e834] [cursor=pointer]:
+                            - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiRDaGNJdjlYaHc5M0R2ZkpKR2dzdlp5OHhkR2RpWDE5dE5oQUI4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQrsMEegUIAxCsAQ&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                            - generic [ref=e837]:
+                              - generic [ref=e838]:
+                                - generic [ref=e839]: GREAT DEAL
+                                - generic [ref=e842]: $131
+                              - generic [ref=e843]: 25% less than usual
+                        - generic:
+                          - generic:
+                            - link "3.6 out of 5 stars from 379 reviews, Carmel Wayfarer Inn" [ref=e844] [cursor=pointer]:
+                              - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiRDaGNJdjlYaHc5M0R2ZkpKR2dzdlp5OHhkR2RpWDE5dE5oQUI4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQwIsFegUIAxCvAQ&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEHcmV2aWV3cw
+                              - img [ref=e851]:
+                                - generic [ref=e852]:
+                                  - generic [ref=e853]: "3.6"
+                                  - img [ref=e854]
+                                  - generic [ref=e856]: (379)
+                            - generic: ·
+                            - link "Excellent location" [ref=e857] [cursor=pointer]:
+                              - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiRDaGNJdjlYaHc5M0R2ZkpKR2dzdlp5OHhkR2RpWDE5dE5oQUI4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyocGegUIAxCxAQ&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEIb3ZlcnZpZXc
+                              - generic [ref=e861]: Excellent location
+                        - generic:
+                          - generic:
+                            - document: "Amenities for Carmel Wayfarer Inn, a 3-star hotel.: Free Wi-Fi, Free parking, Air conditioning, Pet-friendly, Breakfast, Kid-friendly, Smoke-free property,"
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - img
+                                - generic: 3-star hotel
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Free Wi-Fi
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Free parking
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Air conditioning
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Pet-friendly
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Breakfast
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Kid-friendly
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Smoke-free property
+                        - link "View prices for Carmel Wayfarer Inn" [ref=e862] [cursor=pointer]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiRDaGNJdjlYaHc5M0R2ZkpKR2dzdlp5OHhkR2RpWDE5dE5oQUI4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQssMEegUIAxC0AQ&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEGcHJpY2Vz
+                          - button [ref=e863]:
+                            - generic [ref=e865]: View prices
+                    - generic [ref=e866]:
+                      - generic [ref=e867] [cursor=pointer]:
+                        - link "Photos for Carmel Wayfarer Inn" [ref=e868]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiRDaGNJdjlYaHc5M0R2ZkpKR2dzdlp5OHhkR2RpWDE5dE5oQUI4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyfcEegUIAxC1AQ&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                        - list "Photos" [ref=e871]:
+                          - listitem [ref=e872]:
+                            - img "Photo 1" [ref=e873]
+                          - listitem [ref=e874]:
+                            - img "Photo 2" [ref=e875]
+                          - listitem [ref=e876]
+                          - listitem [ref=e877]
+                          - listitem [ref=e878]
+                          - listitem [ref=e879]
+                      - generic:
+                        - button "Back" [ref=e882]:
+                          - img
+                        - button "Next" [ref=e887]:
+                          - img
+                      - generic [ref=e892]: GREAT DEAL
+              - generic [ref=e894]:
+                - link "Carmel Green Lantern Inn" [ref=e895] [cursor=pointer]:
+                  - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJZ29TZGdjLW9udlREQVJvTEwyY3ZNWFJrWm01b1l6a1FBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyvcEegUIAxDIAQ&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - heading "Carmel Green Lantern Inn" [level=2]
+                          - link "Prices starting from $199, Carmel Green Lantern Inn DEAL 24% less than usual" [ref=e896] [cursor=pointer]:
+                            - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJZ29TZGdjLW9udlREQVJvTEwyY3ZNWFJrWm01b1l6a1FBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQrsMEegUIAxDKAQ&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                            - generic [ref=e899]:
+                              - generic [ref=e900]:
+                                - generic [ref=e901]: DEAL
+                                - generic [ref=e904]: $199
+                              - generic [ref=e905]: 24% less than usual
+                        - generic:
+                          - generic:
+                            - link "4.6 out of 5 stars from 528 reviews, Carmel Green Lantern Inn" [ref=e906] [cursor=pointer]:
+                              - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJZ29TZGdjLW9udlREQVJvTEwyY3ZNWFJrWm01b1l6a1FBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQwIsFegUIAxDNAQ&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEHcmV2aWV3cw
+                              - img [ref=e913]:
+                                - generic [ref=e914]:
+                                  - generic [ref=e915]: "4.6"
+                                  - img [ref=e916]
+                                  - generic [ref=e918]: (528)
+                            - generic: ·
+                            - link "Excellent location" [ref=e919] [cursor=pointer]:
+                              - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJZ29TZGdjLW9udlREQVJvTEwyY3ZNWFJrWm01b1l6a1FBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyocGegUIAxDPAQ&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEIb3ZlcnZpZXc
+                              - generic [ref=e923]: Excellent location
+                        - generic:
+                          - generic:
+                            - document: "Amenities for Carmel Green Lantern Inn, a 3-star hotel.: Free Wi-Fi, Free parking, Pet-friendly, Breakfast, Restaurant, Accessible, Kid-friendly, Smoke-free property,"
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - img
+                                - generic: 3-star hotel
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Free Wi-Fi
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Free parking
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Pet-friendly
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Breakfast
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Restaurant
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Accessible
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Kid-friendly
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Smoke-free property
+                        - link "View prices for Carmel Green Lantern Inn" [ref=e924] [cursor=pointer]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJZ29TZGdjLW9udlREQVJvTEwyY3ZNWFJrWm01b1l6a1FBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQssMEegUIAxDSAQ&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEGcHJpY2Vz
+                          - button [ref=e925]:
+                            - generic [ref=e927]: View prices
+                    - generic [ref=e928]:
+                      - generic [ref=e929] [cursor=pointer]:
+                        - link "Photos for Carmel Green Lantern Inn" [ref=e930]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJZ29TZGdjLW9udlREQVJvTEwyY3ZNWFJrWm01b1l6a1FBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyfcEegUIAxDTAQ&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                        - list "Photos" [ref=e933]:
+                          - listitem [ref=e934]:
+                            - img "Photo 1" [ref=e935]
+                          - listitem [ref=e936]:
+                            - img "Photo 2" [ref=e937]
+                          - listitem [ref=e938]
+                          - listitem [ref=e939]
+                          - listitem [ref=e940]
+                          - listitem [ref=e941]
+                      - generic:
+                        - button "Back" [ref=e944]:
+                          - img
+                        - button "Next" [ref=e949]:
+                          - img
+                      - generic [ref=e954]: DEAL
+              - generic [ref=e956]:
+                - link "Carmel Resort Inn" [ref=e957] [cursor=pointer]:
+                  - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiRDaGNJdjZ2MTRNbW44X2xUR2dzdlp5OHhkR3BtWW1oaVpCQUI4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyvcEegUIAxDlAQ&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - heading "Carmel Resort Inn" [level=2]
+                          - link "Prices starting from $118, Carmel Resort Inn" [ref=e958] [cursor=pointer]:
+                            - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiRDaGNJdjZ2MTRNbW44X2xUR2dzdlp5OHhkR3BtWW1oaVpCQUI4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQrsMEegUIAxDnAQ&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                            - generic [ref=e963]: $118
+                        - link "4 out of 5 stars from 525 reviews, Carmel Resort Inn" [ref=e964] [cursor=pointer]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiRDaGNJdjZ2MTRNbW44X2xUR2dzdlp5OHhkR3BtWW1oaVpCQUI4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQwIsFegUIAxDpAQ&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEHcmV2aWV3cw
+                          - img [ref=e971]:
+                            - generic [ref=e972]:
+                              - generic [ref=e973]: "4.0"
+                              - img [ref=e974]
+                              - generic [ref=e976]: (525)
+                        - generic:
+                          - generic:
+                            - document: "Amenities for Carmel Resort Inn, a 2-star hotel.: Free Wi-Fi, Free parking, Pet-friendly, Breakfast, Kitchen in some rooms, Golf, Accessible, Kid-friendly,"
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - img
+                                - generic: 2-star hotel
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Free Wi-Fi
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Free parking
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Pet-friendly
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Breakfast
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Kitchen in some rooms
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Golf
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Accessible
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Kid-friendly
+                        - link "View prices for Carmel Resort Inn" [ref=e977] [cursor=pointer]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiRDaGNJdjZ2MTRNbW44X2xUR2dzdlp5OHhkR3BtWW1oaVpCQUI4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQssMEegUIAxDsAQ&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEGcHJpY2Vz
+                          - button [ref=e978]:
+                            - generic [ref=e980]: View prices
+                    - generic [ref=e981]:
+                      - generic [ref=e982] [cursor=pointer]:
+                        - link "Photos for Carmel Resort Inn" [ref=e983]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiRDaGNJdjZ2MTRNbW44X2xUR2dzdlp5OHhkR3BtWW1oaVpCQUI4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyfcEegUIAxDtAQ&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                        - list "Photos" [ref=e986]:
+                          - listitem [ref=e987]:
+                            - img "Photo 1" [ref=e988]
+                          - listitem [ref=e989]:
+                            - img "Photo 2" [ref=e990]
+                          - listitem [ref=e991]
+                          - listitem [ref=e992]
+                          - listitem [ref=e993]
+                          - listitem [ref=e994]
+                      - generic:
+                        - button "Back" [ref=e997]:
+                          - img
+                        - button "Next" [ref=e1002]:
+                          - img
+              - generic [ref=e1006]:
+                - link "Best Western Carmel's Town House Lodge" [ref=e1007] [cursor=pointer]:
+                  - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJMDRlcTRhZTdzWW1NQVJvTEwyY3ZNWGRuTlhrM05HMFFBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyvcEegUIAxD8AQ&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - heading "Best Western Carmel's Town House Lodge" [level=2]
+                          - link "Prices starting from $159, Best Western Carmel's Town House Lodge DEAL 18% less than usual" [ref=e1008] [cursor=pointer]:
+                            - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJMDRlcTRhZTdzWW1NQVJvTEwyY3ZNWGRuTlhrM05HMFFBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQrsMEegUIAxD-AQ&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                            - generic [ref=e1011]:
+                              - generic [ref=e1012]:
+                                - generic [ref=e1013]: DEAL
+                                - generic [ref=e1016]: $159
+                              - generic [ref=e1017]: 18% less than usual
+                        - generic:
+                          - generic:
+                            - link "3.9 out of 5 stars from 305 reviews, Best Western Carmel's Town House Lodge" [ref=e1018] [cursor=pointer]:
+                              - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJMDRlcTRhZTdzWW1NQVJvTEwyY3ZNWGRuTlhrM05HMFFBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQwIsFegUIAxCBAg&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEHcmV2aWV3cw
+                              - img [ref=e1025]:
+                                - generic [ref=e1026]:
+                                  - generic [ref=e1027]: "3.9"
+                                  - img [ref=e1028]
+                                  - generic [ref=e1030]: (305)
+                            - generic: ·
+                            - link "Excellent location" [ref=e1031] [cursor=pointer]:
+                              - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJMDRlcTRhZTdzWW1NQVJvTEwyY3ZNWGRuTlhrM05HMFFBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyocGegUIAxCDAg&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEIb3ZlcnZpZXc
+                              - generic [ref=e1035]: Excellent location
+                        - generic:
+                          - generic:
+                            - document: "Amenities for Best Western Carmel's Town House Lodge, a 3-star hotel.: Free breakfast, Free Wi-Fi, Free parking, Outdoor pool, Accessible, Business center, Kid-friendly, Smoke-free property,"
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - img
+                                - generic: 3-star hotel
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Free breakfast
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Free Wi-Fi
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Free parking
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Outdoor pool
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Accessible
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Business center
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Kid-friendly
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Smoke-free property
+                        - link "View prices for Best Western Carmel's Town House Lodge" [ref=e1036] [cursor=pointer]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJMDRlcTRhZTdzWW1NQVJvTEwyY3ZNWGRuTlhrM05HMFFBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQssMEegUIAxCGAg&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEGcHJpY2Vz
+                          - button [ref=e1037]:
+                            - generic [ref=e1039]: View prices
+                    - generic [ref=e1040]:
+                      - generic [ref=e1041] [cursor=pointer]:
+                        - link "Photos for Best Western Carmel's Town House Lodge" [ref=e1042]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJMDRlcTRhZTdzWW1NQVJvTEwyY3ZNWGRuTlhrM05HMFFBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyfcEegUIAxCHAg&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                        - list "Photos" [ref=e1045]:
+                          - listitem [ref=e1046]:
+                            - img "Photo 1" [ref=e1047]
+                          - listitem [ref=e1048]:
+                            - img "Photo 2" [ref=e1049]
+                          - listitem [ref=e1050]
+                          - listitem [ref=e1051]
+                          - listitem [ref=e1052]
+                          - listitem [ref=e1053]
+                      - generic:
+                        - button "Back" [ref=e1056]:
+                          - img
+                        - button "Next" [ref=e1061]:
+                          - img
+                      - generic [ref=e1066]: DEAL
+              - generic [ref=e1068]:
+                - link "Comfort Inn Carmel By the Sea" [ref=e1069] [cursor=pointer]:
+                  - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MidDaGtJcWZ5cXA3cUZxNmJQQVJvTUwyY3ZNV2hqTmpSc01qSnNFQUU4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyvcEegUIAxCZAg&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - heading "Comfort Inn Carmel By the Sea" [level=2]
+                          - link "Prices starting from $203, Comfort Inn Carmel By the Sea DEAL 20% less than usual" [ref=e1070] [cursor=pointer]:
+                            - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MidDaGtJcWZ5cXA3cUZxNmJQQVJvTUwyY3ZNV2hqTmpSc01qSnNFQUU4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQrsMEegUIAxCbAg&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                            - generic [ref=e1073]:
+                              - generic [ref=e1074]:
+                                - generic [ref=e1075]: DEAL
+                                - generic [ref=e1078]: $203
+                              - generic [ref=e1079]: 20% less than usual
+                        - generic:
+                          - generic:
+                            - link "4.1 out of 5 stars from 265 reviews, Comfort Inn Carmel By the Sea" [ref=e1080] [cursor=pointer]:
+                              - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MidDaGtJcWZ5cXA3cUZxNmJQQVJvTUwyY3ZNV2hqTmpSc01qSnNFQUU4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQwIsFegUIAxCeAg&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEHcmV2aWV3cw
+                              - img [ref=e1087]:
+                                - generic [ref=e1088]:
+                                  - generic [ref=e1089]: "4.1"
+                                  - img [ref=e1090]
+                                  - generic [ref=e1092]: (265)
+                            - generic: ·
+                            - link "Excellent location" [ref=e1093] [cursor=pointer]:
+                              - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MidDaGtJcWZ5cXA3cUZxNmJQQVJvTUwyY3ZNV2hqTmpSc01qSnNFQUU4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyocGegUIAxCgAg&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEIb3ZlcnZpZXc
+                              - generic [ref=e1097]: Excellent location
+                        - generic:
+                          - generic:
+                            - document: "Amenities for Comfort Inn Carmel By the Sea, a 3-star hotel.: Free breakfast, Free Wi-Fi, Free parking, Air conditioning, Fitness center, Accessible, Business center, Kid-friendly,"
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - img
+                                - generic: 3-star hotel
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Free breakfast
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Free Wi-Fi
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Free parking
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Air conditioning
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Fitness center
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Accessible
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Business center
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Kid-friendly
+                        - link "View prices for Comfort Inn Carmel By the Sea" [ref=e1098] [cursor=pointer]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MidDaGtJcWZ5cXA3cUZxNmJQQVJvTUwyY3ZNV2hqTmpSc01qSnNFQUU4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQssMEegUIAxCjAg&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEGcHJpY2Vz
+                          - button [ref=e1099]:
+                            - generic [ref=e1101]: View prices
+                    - generic [ref=e1102]:
+                      - generic [ref=e1103] [cursor=pointer]:
+                        - link "Photos for Comfort Inn Carmel By the Sea" [ref=e1104]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MidDaGtJcWZ5cXA3cUZxNmJQQVJvTUwyY3ZNV2hqTmpSc01qSnNFQUU4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyfcEegUIAxCkAg&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                        - list "Photos" [ref=e1107]:
+                          - listitem [ref=e1108]:
+                            - img "Photo 1" [ref=e1109]
+                          - listitem [ref=e1110]:
+                            - img "Photo 2" [ref=e1111]
+                          - listitem [ref=e1112]
+                          - listitem [ref=e1113]
+                          - listitem [ref=e1114]
+                          - listitem [ref=e1115]
+                      - generic:
+                        - button "Back" [ref=e1118]:
+                          - img
+                        - button "Next" [ref=e1123]:
+                          - img
+                      - generic [ref=e1128]: DEAL
+              - generic [ref=e1130]:
+                - link "Carmel Inn & Suites" [ref=e1131] [cursor=pointer]:
+                  - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJeHREZGt1LU1wN25EQVJvTEwyY3ZNWFp0TjJKd2F6QVFBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyvcEegUIAxC2Ag&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - heading "Carmel Inn & Suites" [level=2]
+                          - link "Prices starting from $139, Carmel Inn & Suites" [ref=e1132] [cursor=pointer]:
+                            - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJeHREZGt1LU1wN25EQVJvTEwyY3ZNWFp0TjJKd2F6QVFBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQrsMEegUIAxC4Ag&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                            - generic [ref=e1137]: $139
+                        - generic:
+                          - generic:
+                            - link "3.7 out of 5 stars from 258 reviews, Carmel Inn & Suites" [ref=e1138] [cursor=pointer]:
+                              - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJeHREZGt1LU1wN25EQVJvTEwyY3ZNWFp0TjJKd2F6QVFBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQwIsFegUIAxC6Ag&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEHcmV2aWV3cw
+                              - img [ref=e1145]:
+                                - generic [ref=e1146]:
+                                  - generic [ref=e1147]: "3.7"
+                                  - img [ref=e1148]
+                                  - generic [ref=e1150]: (258)
+                            - generic: ·
+                            - link "Excellent location" [ref=e1151] [cursor=pointer]:
+                              - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJeHREZGt1LU1wN25EQVJvTEwyY3ZNWFp0TjJKd2F6QVFBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyocGegUIAxC8Ag&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEIb3ZlcnZpZXc
+                              - generic [ref=e1155]: Excellent location
+                        - generic:
+                          - generic:
+                            - document: "Amenities for Carmel Inn & Suites, a 3-star hotel.: Free breakfast, Free Wi-Fi, Free parking, Accessible, Kid-friendly, Smoke-free property,"
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - img
+                                - generic: 3-star hotel
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Free breakfast
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Free Wi-Fi
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Free parking
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Accessible
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Kid-friendly
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Smoke-free property
+                        - link "View prices for Carmel Inn & Suites" [ref=e1156] [cursor=pointer]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJeHREZGt1LU1wN25EQVJvTEwyY3ZNWFp0TjJKd2F6QVFBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQssMEegUIAxC_Ag&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEGcHJpY2Vz
+                          - button [ref=e1157]:
+                            - generic [ref=e1159]: View prices
+                    - generic [ref=e1160]:
+                      - generic [ref=e1161] [cursor=pointer]:
+                        - link "Photos for Carmel Inn & Suites" [ref=e1162]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJeHREZGt1LU1wN25EQVJvTEwyY3ZNWFp0TjJKd2F6QVFBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyfcEegUIAxDAAg&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                        - list "Photos" [ref=e1165]:
+                          - listitem [ref=e1166]:
+                            - img "Photo 1" [ref=e1167]
+                          - listitem [ref=e1168]:
+                            - img "Photo 2" [ref=e1169]
+                          - listitem [ref=e1170]
+                          - listitem [ref=e1171]
+                          - listitem [ref=e1172]
+                          - listitem [ref=e1173]
+                      - generic:
+                        - button "Back" [ref=e1176]:
+                          - img
+                        - button "Next" [ref=e1181]:
+                          - img
+              - generic [ref=e1185]:
+                - link "Stargazer Hotel" [ref=e1186] [cursor=pointer]:
+                  - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiRDaGNJZ2ZuVDBxYkF0TndJR2dzdlp5OHhkR2RtTTJaeFloQUI4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyvcEegUIAxDPAg&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - heading "Stargazer Hotel" [level=2]
+                          - link "Prices starting from $79, Stargazer Hotel" [ref=e1187] [cursor=pointer]:
+                            - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiRDaGNJZ2ZuVDBxYkF0TndJR2dzdlp5OHhkR2RtTTJaeFloQUI4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQrsMEegUIAxDRAg&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                            - generic [ref=e1190]:
+                              - generic [ref=e1191]:
+                                - generic [ref=e1192]: GREAT PRICE
+                                - generic [ref=e1195]: $79
+                              - generic [ref=e1196]: for a 3-star hotel
+                        - link "4.1 out of 5 stars from 1,156 reviews, Stargazer Hotel" [ref=e1197] [cursor=pointer]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiRDaGNJZ2ZuVDBxYkF0TndJR2dzdlp5OHhkR2RtTTJaeFloQUI4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQwIsFegUIAxDUAg&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEHcmV2aWV3cw
+                          - img [ref=e1204]:
+                            - generic [ref=e1205]:
+                              - generic [ref=e1206]: "4.1"
+                              - img [ref=e1207]
+                              - generic [ref=e1209]: (1.2K)
+                        - generic:
+                          - generic:
+                            - document: "Amenities for Stargazer Hotel, a 3-star hotel.: Free Wi-Fi, Parking ($), Indoor pool, Hot tub, Air conditioning, Breakfast, Golf, Accessible,"
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - img
+                                - generic: 3-star hotel
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Free Wi-Fi
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Parking ($)
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Indoor pool
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Hot tub
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Air conditioning
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Breakfast
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Golf
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Accessible
+                        - link "View prices for Stargazer Hotel" [ref=e1210] [cursor=pointer]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiRDaGNJZ2ZuVDBxYkF0TndJR2dzdlp5OHhkR2RtTTJaeFloQUI4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQssMEegUIAxDXAg&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEGcHJpY2Vz
+                          - button [ref=e1211]:
+                            - generic [ref=e1213]: View prices
+                    - generic [ref=e1214]:
+                      - generic [ref=e1215] [cursor=pointer]:
+                        - link "Photos for Stargazer Hotel" [ref=e1216]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiRDaGNJZ2ZuVDBxYkF0TndJR2dzdlp5OHhkR2RtTTJaeFloQUI4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyfcEegUIAxDYAg&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                        - list "Photos" [ref=e1219]:
+                          - listitem [ref=e1220]:
+                            - img "Photo 1" [ref=e1221]
+                          - listitem [ref=e1222]:
+                            - img "Photo 2" [ref=e1223]
+                          - listitem [ref=e1224]
+                          - listitem [ref=e1225]
+                          - listitem [ref=e1226]
+                          - listitem [ref=e1227]
+                      - generic:
+                        - button "Back" [ref=e1230]:
+                          - img
+                        - button "Next" [ref=e1235]:
+                          - img
+                      - generic [ref=e1240]: GREAT PRICE
+              - generic [ref=e1242]:
+                - link "Tradewinds Carmel" [ref=e1243] [cursor=pointer]:
+                  - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJaHUzSXdJTGMzdWYyQVJvTEwyY3ZNWFJ0Y1cwd01tSVFBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyvcEegUIAxDqAg&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - heading "Tradewinds Carmel" [level=2]
+                          - link "Prices starting from $240, Tradewinds Carmel" [ref=e1244] [cursor=pointer]:
+                            - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJaHUzSXdJTGMzdWYyQVJvTEwyY3ZNWFJ0Y1cwd01tSVFBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQrsMEegUIAxDsAg&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                            - generic [ref=e1249]: $240
+                        - generic:
+                          - generic:
+                            - link "4.6 out of 5 stars from 266 reviews, Tradewinds Carmel" [ref=e1250] [cursor=pointer]:
+                              - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJaHUzSXdJTGMzdWYyQVJvTEwyY3ZNWFJ0Y1cwd01tSVFBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQwIsFegUIAxDuAg&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEHcmV2aWV3cw
+                              - img [ref=e1257]:
+                                - generic [ref=e1258]:
+                                  - generic [ref=e1259]: "4.6"
+                                  - img [ref=e1260]
+                                  - generic [ref=e1262]: (266)
+                            - generic: ·
+                            - link "Excellent location" [ref=e1263] [cursor=pointer]:
+                              - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJaHUzSXdJTGMzdWYyQVJvTEwyY3ZNWFJ0Y1cwd01tSVFBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyocGegUIAxDwAg&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEIb3ZlcnZpZXc
+                              - generic [ref=e1267]: Excellent location
+                        - generic:
+                          - generic:
+                            - document: "Amenities for Tradewinds Carmel, a 3-star hotel.: Free breakfast, Free Wi-Fi, Free parking, Pet-friendly, Golf, Accessible, Kid-friendly, Smoke-free property,"
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - img
+                                - generic: 3-star hotel
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Free breakfast
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Free Wi-Fi
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Free parking
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Pet-friendly
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Golf
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Accessible
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Kid-friendly
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Smoke-free property
+                        - link "View prices for Tradewinds Carmel" [ref=e1268] [cursor=pointer]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJaHUzSXdJTGMzdWYyQVJvTEwyY3ZNWFJ0Y1cwd01tSVFBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQssMEegUIAxDzAg&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEGcHJpY2Vz
+                          - button [ref=e1269]:
+                            - generic [ref=e1271]: View prices
+                    - generic [ref=e1272]:
+                      - generic [ref=e1273] [cursor=pointer]:
+                        - link "Photos for Tradewinds Carmel" [ref=e1274]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJaHUzSXdJTGMzdWYyQVJvTEwyY3ZNWFJ0Y1cwd01tSVFBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyfcEegUIAxD0Ag&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                        - list "Photos" [ref=e1277]:
+                          - listitem [ref=e1278]:
+                            - img "Photo 1" [ref=e1279]
+                          - listitem [ref=e1280]:
+                            - img "Photo 2" [ref=e1281]
+                          - listitem [ref=e1282]
+                          - listitem [ref=e1283]
+                          - listitem [ref=e1284]
+                          - listitem [ref=e1285]
+                      - generic:
+                        - button "Back" [ref=e1288]:
+                          - img
+                        - button "Next" [ref=e1293]:
+                          - img
+              - generic [ref=e1297]:
+                - link "The Normandy Inn" [ref=e1298] [cursor=pointer]:
+                  - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiRDaGNJc3BlOHBadjgtTlphR2dzdlp5OHhkR2hrTWpCc09SQUI4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyvcEegUIAxCDAw&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - heading "The Normandy Inn" [level=2]
+                          - link "Prices starting from $227, The Normandy Inn" [ref=e1299] [cursor=pointer]:
+                            - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiRDaGNJc3BlOHBadjgtTlphR2dzdlp5OHhkR2hrTWpCc09SQUI4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQrsMEegUIAxCFAw&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                            - generic [ref=e1304]: $227
+                        - generic:
+                          - generic:
+                            - link "4.3 out of 5 stars from 383 reviews, The Normandy Inn" [ref=e1305] [cursor=pointer]:
+                              - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiRDaGNJc3BlOHBadjgtTlphR2dzdlp5OHhkR2hrTWpCc09SQUI4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQwIsFegUIAxCHAw&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEHcmV2aWV3cw
+                              - img [ref=e1312]:
+                                - generic [ref=e1313]:
+                                  - generic [ref=e1314]: "4.3"
+                                  - img [ref=e1315]
+                                  - generic [ref=e1317]: (383)
+                            - generic: ·
+                            - link "Excellent location" [ref=e1318] [cursor=pointer]:
+                              - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiRDaGNJc3BlOHBadjgtTlphR2dzdlp5OHhkR2hrTWpCc09SQUI4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyocGegUIAxCJAw&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEIb3ZlcnZpZXc
+                              - generic [ref=e1322]: Excellent location
+                        - generic:
+                          - generic:
+                            - document: "Amenities for The Normandy Inn, a 3-star hotel.: Free Wi-Fi, Outdoor pool, Breakfast, Kid-friendly, Smoke-free property,"
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - img
+                                - generic: 3-star hotel
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Free Wi-Fi
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Outdoor pool
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Breakfast
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Kid-friendly
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Smoke-free property
+                        - link "View prices for The Normandy Inn" [ref=e1323] [cursor=pointer]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiRDaGNJc3BlOHBadjgtTlphR2dzdlp5OHhkR2hrTWpCc09SQUI4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQssMEegUIAxCMAw&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEGcHJpY2Vz
+                          - button [ref=e1324]:
+                            - generic [ref=e1326]: View prices
+                    - generic [ref=e1327]:
+                      - generic [ref=e1328] [cursor=pointer]:
+                        - link "Photos for The Normandy Inn" [ref=e1329]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiRDaGNJc3BlOHBadjgtTlphR2dzdlp5OHhkR2hrTWpCc09SQUI4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyfcEegUIAxCNAw&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                        - list "Photos" [ref=e1332]:
+                          - listitem [ref=e1333]:
+                            - img "Photo 1" [ref=e1334]
+                          - listitem [ref=e1335]:
+                            - img "Photo 2" [ref=e1336]
+                          - listitem [ref=e1337]
+                          - listitem [ref=e1338]
+                          - listitem [ref=e1339]
+                          - listitem [ref=e1340]
+                      - generic:
+                        - button "Back" [ref=e1343]:
+                          - img
+                        - button "Next" [ref=e1348]:
+                          - img
+              - generic [ref=e1352]:
+                - link "Briarwood Inn" [ref=e1353] [cursor=pointer]:
+                  - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiRDaGNJdHBLdnJjU04tYUpYR2dzdlp5OHhkR1I0ZHpkeE1SQUI4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyvcEegUIAxCcAw&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - heading "Briarwood Inn" [level=2]
+                          - link "Prices starting from $173, Briarwood Inn" [ref=e1354] [cursor=pointer]:
+                            - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiRDaGNJdHBLdnJjU04tYUpYR2dzdlp5OHhkR1I0ZHpkeE1SQUI4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQrsMEegUIAxCeAw&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                            - generic [ref=e1359]: $173
+                        - generic:
+                          - generic:
+                            - link "4.1 out of 5 stars from 220 reviews, Briarwood Inn" [ref=e1360] [cursor=pointer]:
+                              - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiRDaGNJdHBLdnJjU04tYUpYR2dzdlp5OHhkR1I0ZHpkeE1SQUI4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQwIsFegUIAxCgAw&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEHcmV2aWV3cw
+                              - img [ref=e1367]:
+                                - generic [ref=e1368]:
+                                  - generic [ref=e1369]: "4.1"
+                                  - img [ref=e1370]
+                                  - generic [ref=e1372]: (220)
+                            - generic: ·
+                            - link "Excellent location" [ref=e1373] [cursor=pointer]:
+                              - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiRDaGNJdHBLdnJjU04tYUpYR2dzdlp5OHhkR1I0ZHpkeE1SQUI4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyocGegUIAxCiAw&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEIb3ZlcnZpZXc
+                              - generic [ref=e1377]: Excellent location
+                        - generic:
+                          - generic:
+                            - document: "Amenities for Briarwood Inn, a 3-star hotel.: Free Wi-Fi, Free parking, Pet-friendly, Breakfast, Kitchen in some rooms, Kid-friendly, Smoke-free property,"
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - img
+                                - generic: 3-star hotel
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Free Wi-Fi
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Free parking
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Pet-friendly
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Breakfast
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Kitchen in some rooms
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Kid-friendly
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Smoke-free property
+                        - link "View prices for Briarwood Inn" [ref=e1378] [cursor=pointer]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiRDaGNJdHBLdnJjU04tYUpYR2dzdlp5OHhkR1I0ZHpkeE1SQUI4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQssMEegUIAxClAw&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEGcHJpY2Vz
+                          - button [ref=e1379]:
+                            - generic [ref=e1381]: View prices
+                    - generic [ref=e1382]:
+                      - generic [ref=e1383] [cursor=pointer]:
+                        - link "Photos for Briarwood Inn" [ref=e1384]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiRDaGNJdHBLdnJjU04tYUpYR2dzdlp5OHhkR1I0ZHpkeE1SQUI4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyfcEegUIAxCmAw&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                        - list "Photos" [ref=e1387]:
+                          - listitem [ref=e1388]:
+                            - img "Photo 1" [ref=e1389]
+                          - listitem [ref=e1390]:
+                            - img "Photo 2" [ref=e1391]
+                          - listitem [ref=e1392]
+                          - listitem [ref=e1393]
+                          - listitem [ref=e1394]
+                          - listitem [ref=e1395]
+                      - generic:
+                        - button "Back" [ref=e1398]:
+                          - img
+                        - button "Next" [ref=e1403]:
+                          - img
+              - generic [ref=e1407]:
+                - link "Hotel Pacific" [ref=e1408] [cursor=pointer]:
+                  - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiRDaGNJemN6dDE4MmEtb1JXR2dzdlp5OHhkR1p3WHpGeGVoQUI4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyvcEegUIAxC1Aw&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - heading "Hotel Pacific" [level=2]
+                          - link "Prices starting from $127, Hotel Pacific GREAT DEAL 27% less than usual" [ref=e1409] [cursor=pointer]:
+                            - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiRDaGNJemN6dDE4MmEtb1JXR2dzdlp5OHhkR1p3WHpGeGVoQUI4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQrsMEegUIAxC3Aw&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                            - generic [ref=e1412]:
+                              - generic [ref=e1413]:
+                                - generic [ref=e1414]: GREAT DEAL
+                                - generic [ref=e1417]: $127
+                              - generic [ref=e1418]: 27% less than usual
+                        - generic:
+                          - generic:
+                            - link "3.9 out of 5 stars from 1,870 reviews, Hotel Pacific" [ref=e1419] [cursor=pointer]:
+                              - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiRDaGNJemN6dDE4MmEtb1JXR2dzdlp5OHhkR1p3WHpGeGVoQUI4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQwIsFegUIAxC6Aw&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEHcmV2aWV3cw
+                              - img [ref=e1426]:
+                                - generic [ref=e1427]:
+                                  - generic [ref=e1428]: "3.9"
+                                  - img [ref=e1429]
+                                  - generic [ref=e1431]: (1.9K)
+                            - generic: ·
+                            - link "Excellent location" [ref=e1432] [cursor=pointer]:
+                              - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiRDaGNJemN6dDE4MmEtb1JXR2dzdlp5OHhkR1p3WHpGeGVoQUI4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyocGegUIAxC8Aw&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEIb3ZlcnZpZXc
+                              - generic [ref=e1436]: Excellent location
+                        - generic:
+                          - generic:
+                            - document: "Amenities for Hotel Pacific, a 3-star hotel.: Free Wi-Fi, Parking ($), Hot tub, Pet-friendly, Breakfast, Accessible, Business center, Kid-friendly,"
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - img
+                                - generic: 3-star hotel
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Free Wi-Fi
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Parking ($)
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Hot tub
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Pet-friendly
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Breakfast
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Accessible
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Business center
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Kid-friendly
+                        - link "View prices for Hotel Pacific" [ref=e1437] [cursor=pointer]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiRDaGNJemN6dDE4MmEtb1JXR2dzdlp5OHhkR1p3WHpGeGVoQUI4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQssMEegUIAxC_Aw&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEGcHJpY2Vz
+                          - button [ref=e1438]:
+                            - generic [ref=e1440]: View prices
+                    - generic [ref=e1441]:
+                      - generic [ref=e1442] [cursor=pointer]:
+                        - link "Photos for Hotel Pacific" [ref=e1443]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiRDaGNJemN6dDE4MmEtb1JXR2dzdlp5OHhkR1p3WHpGeGVoQUI4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyfcEegUIAxDAAw&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                        - list "Photos" [ref=e1446]:
+                          - listitem [ref=e1447]:
+                            - img "Photo 1" [ref=e1448]
+                          - listitem [ref=e1449]:
+                            - img "Photo 2" [ref=e1450]
+                          - listitem [ref=e1451]
+                          - listitem [ref=e1452]
+                          - listitem [ref=e1453]
+                          - listitem [ref=e1454]
+                      - generic:
+                        - button "Back" [ref=e1457]:
+                          - img
+                        - button "Next" [ref=e1462]:
+                          - img
+                      - generic [ref=e1467]: GREAT DEAL
+              - generic [ref=e1469]:
+                - link "Vendange Carmel Inn & Suites" [ref=e1470] [cursor=pointer]:
+                  - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJN05QZnBmcnF5dm9KR2d3dlp5OHhNbWg1TUdSMmFtNFFBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyvcEegUIAxDSAw&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - heading "Vendange Carmel Inn & Suites" [level=2]
+                          - link "Prices starting from $149, Vendange Carmel Inn & Suites" [ref=e1471] [cursor=pointer]:
+                            - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJN05QZnBmcnF5dm9KR2d3dlp5OHhNbWg1TUdSMmFtNFFBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQrsMEegUIAxDUAw&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                            - generic [ref=e1476]: $149
+                        - link "4.2 out of 5 stars from 282 reviews, Vendange Carmel Inn & Suites" [ref=e1477] [cursor=pointer]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJN05QZnBmcnF5dm9KR2d3dlp5OHhNbWg1TUdSMmFtNFFBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQwIsFegUIAxDWAw&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEHcmV2aWV3cw
+                          - img [ref=e1484]:
+                            - generic [ref=e1485]:
+                              - generic [ref=e1486]: "4.2"
+                              - img [ref=e1487]
+                              - generic [ref=e1489]: (282)
+                        - generic:
+                          - generic:
+                            - document: "Amenities for Vendange Carmel Inn & Suites, a 3-star hotel.: Free Wi-Fi, Free parking, Breakfast, Kid-friendly, Smoke-free property,"
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - img
+                                - generic: 3-star hotel
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Free Wi-Fi
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Free parking
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Breakfast
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Kid-friendly
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Smoke-free property
+                        - link "View prices for Vendange Carmel Inn & Suites" [ref=e1490] [cursor=pointer]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJN05QZnBmcnF5dm9KR2d3dlp5OHhNbWg1TUdSMmFtNFFBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQssMEegUIAxDZAw&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEGcHJpY2Vz
+                          - button [ref=e1491]:
+                            - generic [ref=e1493]: View prices
+                    - generic [ref=e1494]:
+                      - generic [ref=e1495] [cursor=pointer]:
+                        - link "Photos for Vendange Carmel Inn & Suites" [ref=e1496]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJN05QZnBmcnF5dm9KR2d3dlp5OHhNbWg1TUdSMmFtNFFBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyfcEegUIAxDaAw&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                        - list "Photos" [ref=e1499]:
+                          - listitem [ref=e1500]:
+                            - img "Photo 1" [ref=e1501]
+                          - listitem [ref=e1502]:
+                            - img "Photo 2" [ref=e1503]
+                          - listitem [ref=e1504]
+                          - listitem [ref=e1505]
+                          - listitem [ref=e1506]
+                          - listitem [ref=e1507]
+                      - generic:
+                        - button "Back" [ref=e1510]:
+                          - img
+                        - button "Next" [ref=e1515]:
+                          - img
+              - generic [ref=e1519]:
+                - link "Carmel River Inn & Cottages - Carmel, CA" [ref=e1520] [cursor=pointer]:
+                  - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJbnBlZTNZdVFqY0txQVJvTEwyY3ZNWFJtZGpWaWVuWVFBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyvcEegUIAxDpAw&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - heading "Carmel River Inn & Cottages - Carmel, CA" [level=2]
+                          - link "Prices starting from $231, Carmel River Inn & Cottages - Carmel, CA" [ref=e1521] [cursor=pointer]:
+                            - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJbnBlZTNZdVFqY0txQVJvTEwyY3ZNWFJtZGpWaWVuWVFBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQrsMEegUIAxDrAw&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                            - generic [ref=e1526]: $231
+                        - link "4.4 out of 5 stars from 528 reviews, Carmel River Inn & Cottages - Carmel, CA" [ref=e1527] [cursor=pointer]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJbnBlZTNZdVFqY0txQVJvTEwyY3ZNWFJtZGpWaWVuWVFBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQwIsFegUIAxDtAw&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEHcmV2aWV3cw
+                          - img [ref=e1534]:
+                            - generic [ref=e1535]:
+                              - generic [ref=e1536]: "4.4"
+                              - img [ref=e1537]
+                              - generic [ref=e1539]: (528)
+                        - generic:
+                          - generic:
+                            - document: "Amenities for Carmel River Inn & Cottages - Carmel, CA, a 3-star hotel.: Free Wi-Fi, Free parking, Outdoor pool, Air conditioning, Pet-friendly, Breakfast, Kitchen in some rooms, Golf,"
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - img
+                                - generic: 3-star hotel
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Free Wi-Fi
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Free parking
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Outdoor pool
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Air conditioning
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Pet-friendly
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Breakfast
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Kitchen in some rooms
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Golf
+                        - link "View prices for Carmel River Inn & Cottages - Carmel, CA" [ref=e1540] [cursor=pointer]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJbnBlZTNZdVFqY0txQVJvTEwyY3ZNWFJtZGpWaWVuWVFBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQssMEegUIAxDwAw&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEGcHJpY2Vz
+                          - button [ref=e1541]:
+                            - generic [ref=e1543]: View prices
+                    - generic [ref=e1544]:
+                      - generic [ref=e1545] [cursor=pointer]:
+                        - link "Photos for Carmel River Inn & Cottages - Carmel, CA" [ref=e1546]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MiZDaGdJbnBlZTNZdVFqY0txQVJvTEwyY3ZNWFJtZGpWaWVuWVFBUTgA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyfcEegUIAxDxAw&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                        - list "Photos" [ref=e1549]:
+                          - listitem [ref=e1550]:
+                            - img "Photo 1" [ref=e1551]
+                          - listitem [ref=e1552]:
+                            - img "Photo 2" [ref=e1553]
+                          - listitem [ref=e1554]
+                          - listitem [ref=e1555]
+                          - listitem [ref=e1556]
+                          - listitem [ref=e1557]
+                      - generic:
+                        - button "Back" [ref=e1560]:
+                          - img
+                        - button "Next" [ref=e1565]:
+                          - img
+              - generic [ref=e1569]:
+                - link "Casa Munras Garden Hotel & Spa" [ref=e1570] [cursor=pointer]:
+                  - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MidDaGtJMXNMQnlfSDJfcXlsQVJvTUwyY3ZNVEo0Y1dnME9UVmpFQUU4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyvcEegUIAxCABA&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - heading "Casa Munras Garden Hotel & Spa" [level=2]
+                          - link "Prices starting from $181, Casa Munras Garden Hotel & Spa" [ref=e1571] [cursor=pointer]:
+                            - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MidDaGtJMXNMQnlfSDJfcXlsQVJvTUwyY3ZNVEo0Y1dnME9UVmpFQUU4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQrsMEegUIAxCCBA&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                            - generic [ref=e1576]: $181
+                        - generic:
+                          - generic:
+                            - link "4.3 out of 5 stars from 1,263 reviews, Casa Munras Garden Hotel & Spa" [ref=e1577] [cursor=pointer]:
+                              - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MidDaGtJMXNMQnlfSDJfcXlsQVJvTUwyY3ZNVEo0Y1dnME9UVmpFQUU4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQwIsFegUIAxCEBA&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEHcmV2aWV3cw
+                              - img [ref=e1584]:
+                                - generic [ref=e1585]:
+                                  - generic [ref=e1586]: "4.3"
+                                  - img [ref=e1587]
+                                  - generic [ref=e1589]: (1.3K)
+                            - generic: ·
+                            - link "Excellent location" [ref=e1590] [cursor=pointer]:
+                              - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MidDaGtJMXNMQnlfSDJfcXlsQVJvTUwyY3ZNVEo0Y1dnME9UVmpFQUU4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyocGegUIAxCGBA&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEIb3ZlcnZpZXc
+                              - generic [ref=e1594]: Excellent location
+                        - generic:
+                          - generic:
+                            - document: "Amenities for Casa Munras Garden Hotel & Spa, a 3-star hotel.: Free Wi-Fi, Parking ($), Outdoor pool, Air conditioning, Pet-friendly, Fitness center, Spa, Breakfast,"
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - img
+                                - generic: 3-star hotel
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Free Wi-Fi
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Parking ($)
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Outdoor pool
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Air conditioning
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Pet-friendly
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Fitness center
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Spa
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Breakfast
+                        - link "View prices for Casa Munras Garden Hotel & Spa" [ref=e1595] [cursor=pointer]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MidDaGtJMXNMQnlfSDJfcXlsQVJvTUwyY3ZNVEo0Y1dnME9UVmpFQUU4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQssMEegUIAxCJBA&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA&ap=ugEGcHJpY2Vz
+                          - button [ref=e1596]:
+                            - generic [ref=e1598]: View prices
+                    - generic [ref=e1599]:
+                      - generic [ref=e1600] [cursor=pointer]:
+                        - link "Photos for Casa Munras Garden Hotel & Spa" [ref=e1601]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MidDaGtJMXNMQnlfSDJfcXlsQVJvTUwyY3ZNVEo0Y1dnME9UVmpFQUU4AA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyfcEegUIAxCKBA&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                        - list "Photos" [ref=e1604]:
+                          - listitem [ref=e1605]:
+                            - img "Photo 1" [ref=e1606]
+                          - listitem [ref=e1607]:
+                            - img "Photo 2" [ref=e1608]
+                          - listitem [ref=e1609]
+                          - listitem [ref=e1610]
+                          - listitem [ref=e1611]
+                          - listitem [ref=e1612]
+                      - generic:
+                        - button "Back" [ref=e1615]:
+                          - img
+                        - button "Next" [ref=e1620]:
+                          - img
+              - generic [ref=e1624]:
+                - link "Luxury Carmel Suite Walk 25min Carmel Beach 109" [ref=e1625] [cursor=pointer]:
+                  - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MihDaG9RODVIVnZOU1MyOVA0QVJvTkwyY3ZNVEY1ZVdKek1WOW1aeEFDOAA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyvcEegUIAxCZBA&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - heading "Luxury Carmel Suite Walk 25min Carmel Beach 109" [level=2]
+                          - link "Prices starting from $225, Luxury Carmel Suite Walk 25min Carmel Beach 109" [ref=e1626] [cursor=pointer]:
+                            - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MihDaG9RODVIVnZOU1MyOVA0QVJvTkwyY3ZNVEY1ZVdKek1WOW1aeEFDOAA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQrsMEegUIAxCbBA&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                            - generic [ref=e1631]: $225
+                        - generic:
+                          - generic:
+                            - document: "Amenities for Luxury Carmel Suite Walk 25min Carmel Beach 109: Sleeps 6, 1 bedroom, 1 bathroom, 2 beds, Kid-friendly, Fireplace, Fitness center, Heating, Ironing board,"
+                            - generic:
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Sleeps 6
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: 1 bedroom
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: 1 bathroom
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: 2 beds
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Kid-friendly
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Fireplace
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Fitness center
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Heating
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Ironing board
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic: ... in the heart of Carmel ...
+                          - link "View details for Luxury Carmel Suite Walk 25min Carmel Beach 109" [ref=e1632] [cursor=pointer]:
+                            - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MihDaG9RODVIVnZOU1MyOVA0QVJvTkwyY3ZNVEY1ZVdKek1WOW1aeEFDOAA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQssMEegUIAxCfBA&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                            - button [ref=e1633]:
+                              - generic [ref=e1635]: View details
+                    - generic [ref=e1636]:
+                      - generic [ref=e1637] [cursor=pointer]:
+                        - link "Photos for Luxury Carmel Suite Walk 25min Carmel Beach 109" [ref=e1638]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MihDaG9RODVIVnZOU1MyOVA0QVJvTkwyY3ZNVEY1ZVdKek1WOW1aeEFDOAA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyfcEegUIAxCgBA&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                        - list "Photos" [ref=e1641]:
+                          - listitem [ref=e1642]:
+                            - img "Photo 1" [ref=e1643]
+                          - listitem [ref=e1644]:
+                            - img "Photo 2" [ref=e1645]
+                          - listitem [ref=e1646]
+                          - listitem [ref=e1647]
+                          - listitem [ref=e1648]
+                          - listitem [ref=e1649]
+                      - generic:
+                        - button "Back" [ref=e1652]:
+                          - img
+                        - button "Next" [ref=e1657]:
+                          - img
+                      - generic:
+                        - generic: VACATION RENTAL
+              - generic [ref=e1661]:
+                - link "The Vendange Carmel Inn Suites - King Room with Garden View" [ref=e1662] [cursor=pointer]:
+                  - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MihDaG9RNVltZG5abXp6NnFWQVJvTkwyY3ZNVEZ1WW0xek1qVjNjUkFDOAA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyvcEegUIAxCvBA&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - heading "The Vendange Carmel Inn Suites - King Room with Garden View" [level=2]
+                          - link "Prices starting from $221, The Vendange Carmel Inn Suites - King Room with Garden View" [ref=e1663] [cursor=pointer]:
+                            - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MihDaG9RNVltZG5abXp6NnFWQVJvTkwyY3ZNVEZ1WW0xek1qVjNjUkFDOAA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQrsMEegUIAxCxBA&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                            - generic [ref=e1668]: $221
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - img "5 out of 5 stars from 8 reviews":
+                                  - generic:
+                                    - generic: "5.0"
+                                    - img
+                                    - generic: (8)
+                        - generic:
+                          - generic:
+                            - document: "Amenities for The Vendange Carmel Inn Suites - King Room with Garden View: Sleeps 2, 10 bedrooms, 7 bathrooms, 1 bed, Air conditioning, Ironing board, Kitchen, Pet-friendly, Smoke-free,"
+                            - generic:
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Sleeps 2
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: 10 bedrooms
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: 7 bathrooms
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: 1 bed
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Air conditioning
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Ironing board
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Kitchen
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Pet-friendly
+                              - listitem:
+                                - generic:
+                                  - img
+                                - generic: Smoke-free
+                        - link "View details for The Vendange Carmel Inn Suites - King Room with Garden View" [ref=e1669] [cursor=pointer]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MihDaG9RNVltZG5abXp6NnFWQVJvTkwyY3ZNVEZ1WW0xek1qVjNjUkFDOAA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQssMEegUIAxC1BA&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                          - button [ref=e1670]:
+                            - generic [ref=e1672]: View details
+                    - generic [ref=e1673]:
+                      - generic [ref=e1674] [cursor=pointer]:
+                        - link "Photos for The Vendange Carmel Inn Suites - King Room with Garden View" [ref=e1675]:
+                          - /url: /travel/search?q=hotels%20in%20carmel%20by%20the%20sea&qs=MihDaG9RNVltZG5abXp6NnFWQVJvTkwyY3ZNVEZ1WW0xek1qVjNjUkFDOAA&dates=2026-05-05%2C2026-05-06&hl=en&gl=us&curr=USD&ved=2ahUKEwiS4_G_taCUAxW_BPkAHcuDDsoQyfcEegUIAxC2BA&ts=CAESCgoCCAMKAggDEAAaWgo8EjoyJTB4ODA4ZGU2MTViNzE3ZWM1MzoweGQyYzIyYmE2Y2E1MTU0MWM6EUNhcm1lbC1CeS1UaGUtU2VhEhoSFAoHCOoPEAUYBhIHCOoPEAUYBxgBMgIQACoHCgU6A1VTRA
+                        - list "Photos" [ref=e1678]:
+                          - listitem [ref=e1679]:
+                            - img "Photo 1" [ref=e1680]
+                          - listitem [ref=e1681]:
+                            - img "Photo 2" [ref=e1682]
+                          - listitem [ref=e1683]
+                          - listitem [ref=e1684]
+                          - listitem [ref=e1685]
+                          - listitem [ref=e1686]
+                      - generic:
+                        - button "Back" [ref=e1689]:
+                          - img
+                        - button "Next" [ref=e1694]:
+                          - img
+                      - generic:
+                        - generic: VACATION RENTAL
+              - generic [ref=e1697]:
+                - button "Next" [ref=e1699]:
+                  - generic [ref=e1702]: Next
+                  - img [ref=e1703]
+                - generic [ref=e1705]: Showing results 1 - 20 of 1,097
+        - contentinfo [ref=e1710]:
+          - button "Currency·USD" [ref=e1713]:
+            - generic [ref=e1715]: Currency·USD
+            - img [ref=e1716]
+          - generic [ref=e1718]:
+            - generic [ref=e1719]: Los Altos, CA, USA - From your Internet address
+            - link "Learn more about location link" [ref=e1721] [cursor=pointer]:
+              - /url: https://support.google.com/websearch/answer/179386?gl=US&hl=en-US
+              - text: Learn more
+          - generic [ref=e1722]:
+            - link "About Google Travel" [ref=e1723] [cursor=pointer]:
+              - /url: https://about.google/?hl=en-US
+              - text: About
+            - link "Privacy" [ref=e1724] [cursor=pointer]:
+              - /url: https://policies.google.com/privacy?hl=en-US
+            - link "Terms" [ref=e1725] [cursor=pointer]:
+              - /url: https://policies.google.com/terms?hl=en-US
+            - link "Join user studies" [ref=e1726] [cursor=pointer]:
+              - /url: https://google.qualtrics.com/jfe/form/SV_3NMIMtX0F2zkakR?reserved%3D1%26utm_source%3DFooter%2520link%26utm_medium%3Down_web%26%20utm_campaign%3DQ1%26productTag%3Dothr%26campaignDate%3DMarch2020%26referral_code%3DUXTX379748&Q_Language=en-US
+            - link "Feedback" [ref=e1727] [cursor=pointer]:
+              - /url: ./#0
+            - link "Help Center" [ref=e1728] [cursor=pointer]:
+              - /url: https://support.google.com/travel/?hl=en-US#topic=7687750
+          - paragraph [ref=e1730]:
+            - text: Displayed currencies may differ from the currencies used to book properties.
+            - link "Learn more about currencies" [ref=e1731] [cursor=pointer]:
+              - /url: https://www.google.com/googlefinance/disclaimer?hl=en-US&gl=US
+              - text: Learn more
+    - generic [ref=e1735]:
+      - generic:
+        - button "View larger map" [ref=e1873] [cursor=pointer]:
+          - img [ref=e1874]
+        - generic [ref=e1739]:
+          - generic [ref=e1740] [cursor=pointer]:
+            - checkbox "Update list when map moves" [ref=e1741]
+            - generic:
+              - img
+          - generic [ref=e1742]: Update list when map moves
+        - generic [ref=e1744]:
+          - button "Zoom in map" [ref=e1745] [cursor=pointer]:
+            - img [ref=e1746]
+          - button "Zoom out map" [ref=e1749] [cursor=pointer]:
+            - img [ref=e1750]
+      - generic [ref=e1752]:
+        - switch "Toggle reachability layer" [ref=e1753] [cursor=pointer]:
+          - generic [ref=e1758]:
+            - img [ref=e1759]
+            - img [ref=e1761]
+        - button "Off" [ref=e1765]:
+          - generic [ref=e1768]:
+            - img [ref=e1769]
+            - generic [ref=e1771]: "Off"
+            - img [ref=e1772]
+        - generic:
+          - button "Walk":
+            - generic:
+              - img
+              - text: Walk
+          - button "Drive":
+            - generic:
+              - img
+              - text: Drive
+        - generic [ref=e1780] [cursor=pointer]:
+          - slider "Reachability slider": "0"
+      - generic [ref=e1783]:
+        - generic [ref=e1785]:
+          - button "Transit" [ref=e1786] [cursor=pointer]:
+            - img [ref=e1789]
+          - tooltip [ref=e1793]: Transit
+        - generic [ref=e1795]:
+          - button "Areas for dining" [ref=e1796] [cursor=pointer]:
+            - img [ref=e1799]
+          - tooltip [ref=e1801]: Areas for dining
+        - generic [ref=e1803]:
+          - button "Attractions" [ref=e1804] [cursor=pointer]:
+            - img [ref=e1807]
+          - tooltip [ref=e1809]: Attractions
+        - generic [ref=e1811]:
+          - button "Areas for shopping" [ref=e1812] [cursor=pointer]:
+            - img [ref=e1815]
+          - tooltip [ref=e1818]: Areas for shopping
+      - generic [ref=e1820]:
+        - generic:
+          - button "Keyboard shortcuts"
+        - region "Map" [ref=e1876]
+        - generic [ref=e1877]:
+          - generic [ref=e1943]:
+            - generic:
+              - generic:
+                - generic:
+                  - generic "Holiday Inn Express, $184" [ref=e1945]:
+                    - generic [ref=e1946]:
+                      - generic [ref=e1947]:
+                        - img [ref=e1949]
+                        - generic [ref=e1955]: $184
+                      - img [ref=e1956]
+                  - generic "Seven Gables Inn, A Kirkwood Collection Hotel, $205" [ref=e1959]:
+                    - generic [ref=e1960]:
+                      - generic [ref=e1961]:
+                        - img [ref=e1963]
+                        - generic [ref=e1969]: $205
+                      - img [ref=e1970]
+                  - generic "InterContinental the Clement Monterey by IHG, $335" [ref=e1973]:
+                    - generic [ref=e1974]:
+                      - generic [ref=e1975]:
+                        - img [ref=e1977]
+                        - generic [ref=e1983]: $335
+                      - img [ref=e1984]
+                  - generic "Embassy Suites by Hilton Monterey Bay Seaside, $235" [ref=e1987]:
+                    - generic [ref=e1988]:
+                      - generic [ref=e1989]:
+                        - img [ref=e1991]
+                        - generic [ref=e1997]: $235
+                      - img [ref=e1998]
+                  - generic "Holiday Inn Express at Monterey Bay by IHG, $155" [ref=e2001]:
+                    - generic [ref=e2002]:
+                      - generic [ref=e2003]:
+                        - img [ref=e2005]
+                        - generic [ref=e2011]: $155
+                      - img [ref=e2012]
+                  - generic "Hyatt Regency Monterey Hotel and Spa on Del Monte Golf Course, $314" [ref=e2015]:
+                    - generic [ref=e2016]:
+                      - generic [ref=e2017]:
+                        - img [ref=e2019]
+                        - generic [ref=e2025]: $314
+                      - img [ref=e2026]
+                  - generic "The Monterey Hotel, $142" [ref=e2029]:
+                    - generic [ref=e2030]:
+                      - generic [ref=e2031]:
+                        - img [ref=e2033]
+                        - generic [ref=e2039]: $142
+                      - img [ref=e2040]
+                  - generic "Carmel Mission Inn, $131" [ref=e2043]:
+                    - generic [ref=e2044]:
+                      - generic [ref=e2045]:
+                        - img [ref=e2047]
+                        - generic [ref=e2053]: $131
+                      - img [ref=e2054]
+                  - generic "Pine Inn, $194" [ref=e2057]:
+                    - generic [ref=e2058]:
+                      - generic [ref=e2059]:
+                        - img [ref=e2061]
+                        - generic [ref=e2067]: $194
+                      - img [ref=e2068]
+                  - generic "Hotel 1110, $125" [ref=e2071]:
+                    - generic [ref=e2072]:
+                      - generic [ref=e2073]:
+                        - img [ref=e2075]
+                        - generic [ref=e2081]: $125
+                      - img [ref=e2082]
+                  - generic "Monte Verde Inn, $199" [ref=e2085]:
+                    - generic [ref=e2086]:
+                      - generic [ref=e2087]:
+                        - img [ref=e2089]
+                        - generic [ref=e2095]: $199
+                      - img [ref=e2096]
+                  - generic "Carmel Wayfarer Inn, $131" [ref=e2099]:
+                    - generic [ref=e2100]:
+                      - generic [ref=e2101]:
+                        - img [ref=e2103]
+                        - generic [ref=e2109]: $131
+                      - img [ref=e2110]
+                  - generic "Carmel Green Lantern Inn, $199" [ref=e2113]:
+                    - generic [ref=e2114]:
+                      - generic [ref=e2115]:
+                        - img [ref=e2117]
+                        - generic [ref=e2123]: $199
+                      - img [ref=e2124]
+                  - generic "Carmel Resort Inn, $118" [ref=e2127]:
+                    - generic [ref=e2128]:
+                      - generic [ref=e2129]:
+                        - img [ref=e2131]
+                        - generic [ref=e2137]: $118
+                      - img [ref=e2138]
+                  - generic "Best Western Carmel's Town House Lodge, $159" [ref=e2141]:
+                    - generic [ref=e2142]:
+                      - generic [ref=e2143]:
+                        - img [ref=e2145]
+                        - generic [ref=e2151]: $159
+                      - img [ref=e2152]
+                  - generic "Comfort Inn Carmel By the Sea, $203" [ref=e2155]:
+                    - generic [ref=e2156]:
+                      - generic [ref=e2157]:
+                        - img [ref=e2159]
+                        - generic [ref=e2165]: $203
+                      - img [ref=e2166]
+                  - generic "Carmel Inn & Suites, $139" [ref=e2169]:
+                    - generic [ref=e2170]:
+                      - generic [ref=e2171]:
+                        - img [ref=e2173]
+                        - generic [ref=e2179]: $139
+                      - img [ref=e2180]
+                  - generic "Stargazer Hotel, $79" [ref=e2183]:
+                    - generic [ref=e2184]:
+                      - generic [ref=e2185]:
+                        - img [ref=e2187]
+                        - generic [ref=e2193]: $79
+                      - img [ref=e2194]
+                  - generic "Tradewinds Carmel, $240" [ref=e2197]:
+                    - generic [ref=e2198]:
+                      - generic [ref=e2199]:
+                        - img [ref=e2201]
+                        - generic [ref=e2207]: $240
+                      - img [ref=e2208]
+                  - generic "The Normandy Inn, $227" [ref=e2211]:
+                    - generic [ref=e2212]:
+                      - generic [ref=e2213]:
+                        - img [ref=e2215]
+                        - generic [ref=e2221]: $227
+                      - img [ref=e2222]
+                  - generic "Briarwood Inn, $173" [ref=e2225]:
+                    - generic [ref=e2226]:
+                      - generic [ref=e2227]:
+                        - img [ref=e2229]
+                        - generic [ref=e2235]: $173
+                      - img [ref=e2236]
+                  - generic "Hotel Pacific, $127" [ref=e2239]:
+                    - generic [ref=e2240]:
+                      - generic [ref=e2241]:
+                        - img [ref=e2243]
+                        - generic [ref=e2249]: $127
+                      - img [ref=e2250]
+                  - generic "Vendange Carmel Inn & Suites, $149" [ref=e2253]:
+                    - generic [ref=e2254]:
+                      - generic [ref=e2255]:
+                        - img [ref=e2257]
+                        - generic [ref=e2263]: $149
+                      - img [ref=e2264]
+                  - generic "Carmel River Inn & Cottages - Carmel, CA, $231" [ref=e2267]:
+                    - generic [ref=e2268]:
+                      - generic [ref=e2269]:
+                        - img [ref=e2271]
+                        - generic [ref=e2277]: $231
+                      - img [ref=e2278]
+                  - generic "Casa Munras Garden Hotel & Spa, $181" [ref=e2281]:
+                    - generic [ref=e2282]:
+                      - generic [ref=e2283]:
+                        - img [ref=e2285]
+                        - generic [ref=e2291]: $181
+                      - img [ref=e2292]
+                  - generic "The Vendange Carmel Inn Suites - King Room with Garden View, $221" [ref=e2295]:
+                    - generic [ref=e2296]:
+                      - generic [ref=e2297]:
+                        - img [ref=e2299]
+                        - generic [ref=e2307]: $221
+                      - img [ref=e2308]
+                  - generic "Lovers Point Inn - Second Floor King Room, $181" [ref=e2311]:
+                    - generic [ref=e2312]:
+                      - generic [ref=e2313]:
+                        - img [ref=e2315]
+                        - generic [ref=e2323]: $181
+                      - img [ref=e2324]
+                  - generic "Seven Gables Inn on Monterey Bay, A Kirkwood Collection Hotel - Jewell Cottage 2 Bedroom King Suite with Premium Ocean Views, $244" [ref=e2327]:
+                    - generic [ref=e2328]:
+                      - generic [ref=e2329]:
+                        - img [ref=e2331]
+                        - generic [ref=e2339]: $244
+                      - img [ref=e2340]
+                  - generic "Carmel Special. Beautiful Private Cottage, $315" [ref=e2343]:
+                    - generic [ref=e2344]:
+                      - generic [ref=e2345]:
+                        - img [ref=e2347]
+                        - generic [ref=e2355]: $315
+                      - img [ref=e2356]
+                  - generic "Luxury Carmel Suite Walk 25min Carmel Beach 109, $225" [ref=e2359]:
+                    - generic [ref=e2361]:
+                      - img [ref=e2363]
+                      - generic [ref=e2371]: $225
+                  - generic "Sea Breeze Inn - Pacific Grove - Standard Queen Room with One Queen Bed, $126" [ref=e2372]:
+                    - generic [ref=e2373]:
+                      - generic [ref=e2374]:
+                        - img [ref=e2376]
+                        - generic [ref=e2384]: $126
+                      - img [ref=e2385]
+                  - generic "Carmel Hill Lodge - Queen Room - Accessible/Non-Smoking, $91" [ref=e2388]:
+                    - generic [ref=e2389]:
+                      - generic [ref=e2390]:
+                        - img [ref=e2392]
+                        - generic [ref=e2400]: $91
+                      - img [ref=e2401]
+                  - generic "Lighthouse Lodge & Cottages, $120" [ref=e2404]:
+                    - generic [ref=e2405]:
+                      - generic [ref=e2406]:
+                        - img [ref=e2408]
+                        - generic [ref=e2414]: $120
+                      - img [ref=e2415]
+                  - generic "Centrella Hotel, A Kirkwood Collection Hotel, $105" [ref=e2418]:
+                    - generic [ref=e2419]:
+                      - generic [ref=e2420]:
+                        - img [ref=e2422]
+                        - generic [ref=e2428]: $105
+                      - img [ref=e2429]
+                  - generic "Asilomar Hotel and Conference Grounds, $146" [ref=e2432]:
+                    - generic [ref=e2433]:
+                      - generic [ref=e2434]:
+                        - img [ref=e2436]
+                        - generic [ref=e2442]: $146
+                      - img [ref=e2443]
+                  - generic "The Quail, $287" [ref=e2446]:
+                    - generic [ref=e2447]:
+                      - generic [ref=e2448]:
+                        - img [ref=e2450]
+                        - generic [ref=e2456]: $287
+                      - img [ref=e2457]
+                  - generic "Hilton Garden Inn Monterey, $193" [ref=e2460]:
+                    - generic [ref=e2461]:
+                      - generic [ref=e2462]:
+                        - img [ref=e2464]
+                        - generic [ref=e2470]: $193
+                      - img [ref=e2471]
+                  - generic "Hyatt Carmel Highlands, $590" [ref=e2474]:
+                    - generic [ref=e2475]:
+                      - generic [ref=e2476]:
+                        - img [ref=e2478]
+                        - generic [ref=e2484]: $590
+                      - img [ref=e2485]
+                  - generic "Monterey Beach Hotel, a Tribute Portfolio Hotel, $302" [ref=e2488]:
+                    - generic [ref=e2489]:
+                      - generic [ref=e2490]:
+                        - img [ref=e2492]
+                        - generic [ref=e2498]: $302
+                      - img [ref=e2499]
+                  - generic "Carmel Beach Hotel, $428" [ref=e2502]:
+                    - generic [ref=e2503]:
+                      - generic [ref=e2504]:
+                        - img [ref=e2506]
+                        - generic [ref=e2512]: $428
+                      - img [ref=e2513]
+                  - generic "Villa Mara Carmel, $715" [ref=e2516]:
+                    - generic [ref=e2517]:
+                      - generic [ref=e2518]:
+                        - img [ref=e2520]
+                        - generic [ref=e2526]: $715
+                      - img [ref=e2527]
+                  - generic "Mariposa Inn and Suites, $131" [ref=e2530]:
+                    - generic [ref=e2531]:
+                      - generic [ref=e2532]:
+                        - img [ref=e2534]
+                        - generic [ref=e2540]: $131
+                      - img [ref=e2541]
+                  - generic "Red Lion Hotel Monterey, $74" [ref=e2544]:
+                    - generic [ref=e2545]:
+                      - generic [ref=e2546]:
+                        - img [ref=e2548]
+                        - generic [ref=e2554]: $74
+                      - img [ref=e2555]
+                  - generic "The Inn at Spanish Bay" [ref=e2558]:
+                    - generic [ref=e2559]:
+                      - img
+                  - generic "Casa Palmero at Pebble Beach" [ref=e2560]:
+                    - generic [ref=e2561]:
+                      - img
+                  - generic "The Lodge at Pebble Beach" [ref=e2562]:
+                    - generic [ref=e2563]:
+                      - img
+                  - generic "La Playa Hotel, $697" [ref=e2564]:
+                    - generic [ref=e2565]:
+                      - generic [ref=e2566]:
+                        - img [ref=e2568]
+                        - generic [ref=e2574]: $697
+                      - img [ref=e2575]
+                  - generic "Carmel Cottage Inn" [ref=e2578]:
+                    - generic [ref=e2579]:
+                      - img
+                  - generic "Bay Breeze Inn, $57" [ref=e2580]:
+                    - generic [ref=e2581]:
+                      - generic [ref=e2582]:
+                        - img [ref=e2584]
+                        - generic [ref=e2590]: $57
+                      - img [ref=e2591]
+                  - generic "Comfort Inn Monterey Peninsula Airport, $106" [ref=e2594]:
+                    - generic [ref=e2595]:
+                      - generic [ref=e2596]:
+                        - img [ref=e2598]
+                        - generic [ref=e2604]: $106
+                      - img [ref=e2605]
+                  - generic "Courtyard by Marriott Sand City Monterey, $264" [ref=e2608]:
+                    - generic [ref=e2609]:
+                      - generic [ref=e2610]:
+                        - img [ref=e2612]
+                        - generic [ref=e2618]: $264
+                      - img [ref=e2619]
+                  - generic "Pebble Beach Resorts" [ref=e2622]:
+                    - generic [ref=e2623]:
+                      - img
+                  - generic "Spindrift Inn, $335" [ref=e2624]:
+                    - generic [ref=e2625]:
+                      - generic [ref=e2626]:
+                        - img [ref=e2628]
+                        - generic [ref=e2634]: $335
+                      - img [ref=e2635]
+                  - generic "Pacific Best Inn Seaside CA Hotel, $64" [ref=e2638]:
+                    - generic [ref=e2639]:
+                      - generic [ref=e2640]:
+                        - img [ref=e2642]
+                        - generic [ref=e2648]: $64
+                      - img [ref=e2649]
+                  - generic "Saddle Mountain Carmel" [ref=e2652]:
+                    - generic [ref=e2653]:
+                      - img
+                  - generic "Economy Inn, $59" [ref=e2654]:
+                    - generic [ref=e2655]:
+                      - generic [ref=e2656]:
+                        - img [ref=e2658]
+                        - generic [ref=e2664]: $59
+                      - img [ref=e2665]
+                  - generic "Fairway One at The Lodge" [ref=e2668]:
+                    - generic [ref=e2669]:
+                      - img
+                  - generic "The Spa at Pebble Beach" [ref=e2670]:
+                    - generic [ref=e2671]:
+                      - img
+                  - generic "Jabberwock Inn, $242" [ref=e2672]:
+                    - generic [ref=e2673]:
+                      - generic [ref=e2674]:
+                        - img [ref=e2676]
+                        - generic [ref=e2682]: $242
+                      - img [ref=e2683]
+                  - generic "IHG Army Hotels Buildings 366 & 367" [ref=e2686]:
+                    - generic [ref=e2687]:
+                      - img
+                  - generic "Pebble Beach Golf Links" [ref=e2688]:
+                    - generic [ref=e2689]:
+                      - img
+          - iframe [ref=e2690]:
+
+          - generic [ref=e2691]:
+            - button "Keyboard shortcuts" [ref=e2697] [cursor=pointer]
+            - generic [ref=e2702]: Map data ©2026 Google
+            - 'button "Map Scale: 1 km per 65 pixels" [ref=e2703] [cursor=pointer]':
+              - generic [ref=e2706]: 1 km
+            - link "Terms (opens in new tab)" [ref=e2718] [cursor=pointer]:
+              - /url: https://www.google.com/intl/en_US/help/terms_maps.html
+              - text: Terms

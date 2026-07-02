@@ -16,6 +16,12 @@ RUN apt-get update && apt-get install -y \
     && apt-get update && apt-get install -y gh \
     && rm -rf /var/lib/apt/lists/*
 
+# Install Playwright system dependencies (all browsers) and Chromium browser
+RUN npx playwright install-deps
+ENV PLAYWRIGHT_BROWSERS_PATH=/opt/playwright-browsers
+RUN npx @playwright/mcp@latest install-browser && \
+    chmod -R 777 /opt/playwright-browsers
+
 # Install Claude CLI and Agent SDK globally
 RUN npm install -g @anthropic-ai/claude-code @anthropic-ai/claude-agent-sdk
 

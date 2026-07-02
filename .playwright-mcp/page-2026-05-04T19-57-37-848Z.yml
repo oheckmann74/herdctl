@@ -1,0 +1,227 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - navigation "Keyboard quick links":
+      - link "Skip to main content" [ref=e3] [cursor=pointer]:
+        - /url: "#main"
+    - generic [ref=e4]:
+      - banner [ref=e6]:
+        - generic [ref=e9]:
+          - generic [ref=e10]:
+            - button "Open main navigation" [ref=e12] [cursor=pointer]
+            - link "Go to the kayak homepage" [ref=e16] [cursor=pointer]:
+              - /url: /
+          - button "Sign in" [ref=e26] [cursor=pointer]:
+            - img [ref=e28]
+            - generic [ref=e30]: Sign in
+          - generic [ref=e33]:
+            - navigation "Search" [ref=e35]:
+              - list [ref=e36]:
+                - listitem [ref=e37]:
+                  - link "Search for flights" [ref=e38] [cursor=pointer]:
+                    - /url: /flights
+                    - img [ref=e39]
+                    - generic: Flights
+                - listitem [ref=e41]:
+                  - link "Search for stays" [ref=e42] [cursor=pointer]:
+                    - /url: /stays
+                    - img [ref=e43]
+                    - generic: Stays
+                - listitem [ref=e45]:
+                  - link "Search for cars" [ref=e46] [cursor=pointer]:
+                    - /url: /cars
+                    - img [ref=e47]
+                    - generic: Cars
+                - listitem [ref=e49]:
+                  - link "Search for packages" [ref=e50] [cursor=pointer]:
+                    - /url: /packages
+                    - img [ref=e51]
+                    - generic: Packages
+                - listitem [ref=e53]:
+                  - link "Search for cruises" [ref=e54] [cursor=pointer]:
+                    - /url: "#"
+                    - img [ref=e55]
+                    - generic: Cruises
+                - listitem [ref=e57]:
+                  - link "Plan with AI" [ref=e58] [cursor=pointer]:
+                    - /url: /ai
+                    - img [ref=e59]
+                    - generic: Plan with AI
+            - navigation "Travel planning" [ref=e63]:
+              - list [ref=e64]:
+                - listitem [ref=e65]:
+                  - link "Travel like a pro with KAYAK Navigator. Check out our favorite tools for planning, booking and organizing your travels." [ref=e66] [cursor=pointer]:
+                    - /url: /c/navigator
+                    - img [ref=e67]
+                    - generic: Plan your trip
+                - listitem [ref=e69]:
+                  - link "Go to Explore" [ref=e70] [cursor=pointer]:
+                    - /url: /explore/
+                    - img [ref=e71]
+                    - generic: Explore
+                - listitem [ref=e73]:
+                  - link "Track a flight" [ref=e74] [cursor=pointer]:
+                    - /url: /tracker
+                    - img [ref=e75]
+                    - generic: Flight Tracker
+                - listitem [ref=e77]:
+                  - link "Travel tips" [ref=e78] [cursor=pointer]:
+                    - /url: https://www.kayak.com/news/
+                    - img [ref=e79]
+                    - generic: Travel tips
+                - listitem [ref=e81]:
+                  - link "KAYAK for Business NEW" [ref=e82] [cursor=pointer]:
+                    - /url: /business
+                    - img [ref=e83]
+                    - generic: KAYAK for Business
+                    - generic [ref=e85]: NEW
+            - link "Trips" [ref=e89] [cursor=pointer]:
+              - /url: /trips
+              - img [ref=e90]
+              - generic: Trips
+            - generic [ref=e93]:
+              - button "Select language" [ref=e94] [cursor=pointer]:
+                - generic: English
+              - button "Select currency" [ref=e98] [cursor=pointer]:
+                - generic [ref=e100]: $
+                - generic: United States dollar
+              - button "Submit feedback about our site" [ref=e101] [cursor=pointer]:
+                - img [ref=e102]
+                - generic: Feedback
+      - main [ref=e104]:
+        - generic [ref=e105]:
+          - paragraph [ref=e106]: If you are seeing this page, it means that KAYAK thinks you are a "bot," and the page you were trying to get to is only useful for humans.
+          - heading "What is a bot?" [level=2] [ref=e107]
+          - paragraph [ref=e108]: A bot, or robot, or crawler is software that visits web sites and collects data from them without a human present. Search engines like Google use robots to build up search results. KAYAK uses bots to search for travel deals. Bots are generally a good thing, but some web pages are for humans only. For example, we don't want bots running about trying to book airline tickets. They tend to try to cram large suitcases in the overhead bin, and they prattle on about celebrities they know while you are trying to watch the movie.
+          - heading "But I am not a bot! I'm human!" [level=2] [ref=e109]
+          - paragraph [ref=e110]:
+            - text: Probably something about the web browser you are using made KAYAK think you are a bot. Please send us a
+            - link "message" [ref=e111] [cursor=pointer]:
+              - /url: /feedback/form
+            - text: and we'll try to figure out what went wrong.
+          - paragraph [ref=e112]: If you've been using KAYAK successfully up until now, try closing your browser and starting again.
+          - paragraph [ref=e113]:
+            - link "Learn more" [ref=e114] [cursor=pointer]:
+              - /url: http://en.wikipedia.org/wiki/Internet_bot
+            - text: about bots on
+            - link "Wikipedia" [ref=e115] [cursor=pointer]:
+              - /url: http://en.wikipedia.org/
+            - text: .
+        - generic [ref=e118]:
+          - paragraph [ref=e119]:
+            - link "Top International Flight Routes" [ref=e120] [cursor=pointer]:
+              - /url: /Top-Flight-Routes.tfr.html
+            - text: .
+          - paragraph [ref=e121]:
+            - text: Cheap flights,
+            - link "hotels" [ref=e122] [cursor=pointer]:
+              - /url: /hotels
+            - text: ", rental cars and travel deals:"
+          - paragraph [ref=e123]: KAYAK searches hundreds of other travel sites at once to find the best deals on airline tickets, cheap hotels, cheap cruises, vacations and rental cars.
+          - paragraph [ref=e124]:
+            - text: Not what you’re looking for? Find thousands of other
+            - link "hotels" [ref=e125] [cursor=pointer]:
+              - /url: /hotels
+            - text: ","
+            - link "flights" [ref=e126] [cursor=pointer]:
+              - /url: /flights
+            - text: ","
+            - link "car rentals" [ref=e127] [cursor=pointer]:
+              - /url: /cars
+            - text: and
+            - link "package deals" [ref=e128] [cursor=pointer]:
+              - /url: /packages
+            - text: with KAYAK.
+      - contentinfo [ref=e131]:
+        - generic [ref=e132]:
+          - navigation "Company" [ref=e133]:
+            - generic [ref=e134]: Company
+            - list [ref=e135]:
+              - listitem [ref=e136]:
+                - link "About" [ref=e137] [cursor=pointer]:
+                  - /url: /about
+              - listitem [ref=e138]:
+                - link "Careers" [ref=e139] [cursor=pointer]:
+                  - /url: /careers
+              - listitem [ref=e140]:
+                - link "Mobile" [ref=e141] [cursor=pointer]:
+                  - /url: /mobile
+              - listitem [ref=e142]:
+                - link "Blog" [ref=e143] [cursor=pointer]:
+                  - /url: https://www.kayak.com/news/
+              - listitem [ref=e144]:
+                - link "How we work" [ref=e145] [cursor=pointer]:
+                  - /url: /c/help/about
+          - navigation "Contact" [ref=e146]:
+            - generic [ref=e147]: Contact
+            - list [ref=e148]:
+              - listitem [ref=e149]:
+                - link "Help/FAQ" [ref=e150] [cursor=pointer]:
+                  - /url: /c/help
+              - listitem [ref=e151]:
+                - link "Press" [ref=e152] [cursor=pointer]:
+                  - /url: /press-contact
+              - listitem [ref=e153]:
+                - link "Affiliates" [ref=e154] [cursor=pointer]:
+                  - /url: https://affiliates.kayak.com/?languagecode=EN
+              - listitem [ref=e155]:
+                - link "Hotel owners" [ref=e156] [cursor=pointer]:
+                  - /url: /hotelowner
+              - listitem [ref=e157]:
+                - link "Partners" [ref=e158] [cursor=pointer]:
+                  - /url: /partners-contact
+              - listitem [ref=e159]:
+                - link "Advertise with us" [ref=e160] [cursor=pointer]:
+                  - /url: https://www.kayak.com/c/advertising/
+          - navigation "More" [ref=e161]:
+            - generic [ref=e162]: More
+            - list [ref=e163]:
+              - listitem [ref=e164]:
+                - link "Airline fees" [ref=e165] [cursor=pointer]:
+                  - /url: /airline-fees
+              - listitem [ref=e166]:
+                - link "Airlines" [ref=e167] [cursor=pointer]:
+                  - /url: /airlines
+              - listitem [ref=e168]:
+                - link "Low fare tips" [ref=e169] [cursor=pointer]:
+                  - /url: /c/help/pricing
+              - listitem [ref=e170]:
+                - link "Badges & Certificates" [ref=e171] [cursor=pointer]:
+                  - /url: /badges
+              - listitem [ref=e172]:
+                - link "Security" [ref=e173] [cursor=pointer]:
+                  - /url: /c/security
+          - navigation "Get the KAYAK app" [ref=e175]:
+            - generic [ref=e176]: Get the KAYAK app
+            - generic [ref=e177]:
+              - link "Get it on Google Play" [ref=e178] [cursor=pointer]:
+                - /url: https://play.google.com/store/apps/details?id=com.kayak.android
+                - img [ref=e179]
+              - link "Download on the App Store" [ref=e191] [cursor=pointer]:
+                - /url: https://apps.apple.com/us/app/kayak-flights-hotels-cars/id305204535
+                - img [ref=e192]
+        - generic [ref=e198]:
+          - generic [ref=e200]:
+            - generic [ref=e201]: ©2026 KAYAK
+            - button "Do Not Sell or Share My Info" [ref=e203] [cursor=pointer]
+            - link "Privacy" [ref=e205] [cursor=pointer]:
+              - /url: /privacy
+            - link "Terms & Conditions" [ref=e207] [cursor=pointer]:
+              - /url: /terms-of-use
+            - link "Ad Choices" [ref=e209] [cursor=pointer]:
+              - /url: /privacy#trackingtools
+          - generic [ref=e211]:
+            - link "Follow on Facebook" [ref=e212] [cursor=pointer]:
+              - /url: https://www.facebook.com/kayak/
+            - link "Follow on Twitter" [ref=e217] [cursor=pointer]:
+              - /url: https://x.com/KAYAK
+            - link "Subscribe on YouTube" [ref=e222] [cursor=pointer]:
+              - /url: https://www.youtube.com/channel/UCs36_o9B5NadGYfiHwT-ekQ
+            - link "Follow on Instagram" [ref=e227] [cursor=pointer]:
+              - /url: https://www.instagram.com/kayak/
+        - generic [ref=e236]:
+          - img [ref=e237]
+          - img [ref=e251]
+          - img [ref=e254]
+          - img [ref=e259]
+          - img [ref=e263]
+  - textbox [ref=e275]
