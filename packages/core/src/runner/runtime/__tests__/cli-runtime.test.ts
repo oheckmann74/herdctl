@@ -113,4 +113,41 @@ describe("CLIRuntime synthetic result aggregation", () => {
     expect(result?.usage?.input_tokens).toBe(110);
     expect(result?.usage?.output_tokens).toBe(30);
   });
+
+  it("uses the newest text when Claude CLI reuses an assistant message id", async () => {
+    watchMessages.push(
+      {
+        type: "assistant",
+        message: {
+          id: "msg-reused",
+          content: [{ type: "text", text: "Updating the health file..." }],
+          usage: { input_tokens: 100, output_tokens: 10 },
+        },
+      } as SDKMessage,
+      {
+        type: "assistant",
+        message: {
+          id: "msg-reused",
+          content: [{ type: "text", text: "Complete Top 10 and final health plan." }],
+          usage: { input_tokens: 100, output_tokens: 20 },
+        },
+      } as SDKMessage,
+    );
+
+    const runtime = new CLIRuntime({
+      processSpawner: (() => makeSubprocess() as never) as never,
+    });
+    const messages: SDKMessage[] = [];
+    for await (const message of runtime.execute({
+      prompt: "Hello",
+      agent: { name: "test-agent", configPath: "/tmp/agent.yaml" } as never,
+    })) {
+      messages.push(message);
+    }
+
+    const result = messages.find((m) => m.type === "result") as
+      | (SDKMessage & { result?: string })
+      | undefined;
+    expect(result?.result).toBe("Complete Top 10 and final health plan.");
+  });
 });

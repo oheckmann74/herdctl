@@ -82,6 +82,10 @@ type SyntheticTextChannel = {
   sendTyping?: () => Promise<void>;
 };
 
+function isFinalAssistantStopReason(stopReason: unknown): boolean {
+  return stopReason === "end_turn" || stopReason === "stop_sequence" || stopReason === "max_tokens";
+}
+
 /**
  * Error event payload from DiscordConnector
  */
@@ -724,6 +728,7 @@ export class DiscordManager implements IChatManager {
       let resultText: string | undefined;
       let sentAnswer = false;
       let lastSeenContent = "";
+      let pendingAnswerContent: string | undefined;
       let streamedDeltaSinceFinal = false;
 
       // Progress indicator: track tool names for in-place-updating embed
@@ -801,7 +806,12 @@ export class DiscordManager implements IChatManager {
                 continue;
               }
 
-              const payload = { content: liveAnswerText };
+              // Discord rejects message creates/edits above 2,000 characters.
+              // Keep the live preview bounded; the finalized snapshot below
+              // sends any remaining chunks as follow-up messages.
+              const payload = {
+                content: liveAnswerText.slice(0, DiscordManager.MAX_MESSAGE_LENGTH),
+              };
               try {
                 if (!liveAnswerHandle) {
                   liveAnswerHandle = await event.replyWithRef(payload);
@@ -855,10 +865,19 @@ export class DiscordManager implements IChatManager {
                 continue;
               }
               if (normalized.messageId) {
-                if (deliveredAssistantIds.has(normalized.messageId)) {
+                // SDK snapshots have a stop reason and may be duplicated verbatim.
+                // CLI messages often omit stop_reason while reusing the same id
+                // for progress and the final answer; do not discard those later
+                // snapshots or Discord will receive an early progress sentence.
+                if (
+                  normalized.stopReason !== undefined &&
+                  deliveredAssistantIds.has(normalized.messageId)
+                ) {
                   continue;
                 }
-                deliveredAssistantIds.add(normalized.messageId);
+                if (normalized.stopReason !== undefined) {
+                  deliveredAssistantIds.add(normalized.messageId);
+                }
               }
 
               if (!content) {
@@ -868,17 +887,31 @@ export class DiscordManager implements IChatManager {
 
               if (assistantMessages === "answers") {
                 if (normalized.toolUses.length === 0) {
-                  await streamer.addMessageAndSend(content);
-                  sentAnswer = true;
+                  if (
+                    normalized.stopReason !== undefined &&
+                    isFinalAssistantStopReason(normalized.stopReason)
+                  ) {
+                    await streamer.addMessageAndSend(content);
+                    sentAnswer = true;
+                    pendingAnswerContent = undefined;
+                  } else {
+                    pendingAnswerContent = content;
+                  }
                 }
               } else if (streamedDeltaSinceFinal && enableDeltaStreaming) {
                 // Sync final content into the live delta message to avoid duplicates.
                 liveAnswerText = content;
+                const { chunks } = splitMessage(content, {
+                  maxLength: DiscordManager.MAX_MESSAGE_LENGTH,
+                });
                 try {
                   if (!liveAnswerHandle) {
-                    liveAnswerHandle = await event.replyWithRef({ content });
+                    liveAnswerHandle = await event.replyWithRef({ content: chunks[0] });
                   } else {
-                    await liveAnswerHandle.edit({ content });
+                    await liveAnswerHandle.edit({ content: chunks[0] });
+                  }
+                  for (const chunk of chunks.slice(1)) {
+                    await event.reply(chunk);
                   }
                   sentAnswer = true;
                 } catch (syncError) {
@@ -1030,6 +1063,15 @@ export class DiscordManager implements IChatManager {
       if (!typingStopped) {
         stopTyping();
         typingStopped = true;
+      }
+
+      // CLI-style runtimes can emit plain assistant text with no stop reason for both
+      // progress and final turns. In answers mode, defer those until the run ends and
+      // deliver only the latest candidate so progress text doesn't hide the real answer.
+      if (!sentAnswer && !streamer.hasSentMessages() && pendingAnswerContent?.trim()) {
+        logger.debug("No final answer turn was sent — using latest buffered assistant content");
+        await streamer.addMessageAndSend(pendingAnswerContent);
+        sentAnswer = true;
       }
 
       // Fall back to SDK result text if no answer turns produced text

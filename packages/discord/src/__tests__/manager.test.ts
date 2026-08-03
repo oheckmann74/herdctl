@@ -1089,6 +1089,86 @@ describe("DiscordManager handleMessage pipeline", () => {
     expect(textCalls[0][0]).toBe("Here is the answer.");
   });
 
+  it("sends the latest CLI-style assistant answer instead of stale result text", async () => {
+    const { manager, connector } = buildManagerWithTrigger(async (...args: unknown[]) => {
+      const options = args[2] as { onMessage?: (m: unknown) => Promise<void> } | undefined;
+      if (options?.onMessage) {
+        await options.onMessage({
+          type: "assistant",
+          content: "Let me read the trip brief to get the accurate hotel schedule.",
+        });
+        await options.onMessage({
+          type: "assistant",
+          content: "Here is the full useful replan with sunrise, sunset, and daytrip options.",
+        });
+        await options.onMessage({
+          type: "result",
+          result: "Let me read the trip brief to get the accurate hotel schedule.",
+          is_error: false,
+        });
+      }
+      return {
+        jobId: "j-cli",
+        agentName: "test-agent",
+        scheduleName: null,
+        startedAt: new Date().toISOString(),
+        success: true,
+        sessionId: "sid-cli",
+      };
+    });
+
+    await manager.start();
+    const { event, reply } = createMessageEvent();
+    connector.emit("message", event);
+    await new Promise((resolve) => setTimeout(resolve, 200));
+
+    const textCalls = reply.mock.calls.filter((call: unknown[]) => typeof call[0] === "string");
+    expect(textCalls).toHaveLength(1);
+    expect(textCalls[0][0]).toBe(
+      "Here is the full useful replan with sunrise, sunset, and daytrip options.",
+    );
+  });
+
+  it("keeps the latest CLI answer when snapshots reuse a message id", async () => {
+    const { manager, connector } = buildManagerWithTrigger(async (...args: unknown[]) => {
+      const options = args[2] as { onMessage?: (m: unknown) => Promise<void> } | undefined;
+      if (options?.onMessage) {
+        await options.onMessage({
+          type: "assistant",
+          message: {
+            id: "msg_reused",
+            content: [{ type: "text", text: "Updating the health file..." }],
+          },
+        });
+        await options.onMessage({
+          type: "assistant",
+          message: {
+            id: "msg_reused",
+            content: [{ type: "text", text: "Complete Top 10 and final health plan." }],
+          },
+        });
+        await options.onMessage({ type: "result", result: "Updating the health file..." });
+      }
+      return {
+        jobId: "j-reused",
+        agentName: "test-agent",
+        scheduleName: null,
+        startedAt: new Date().toISOString(),
+        success: true,
+        sessionId: "sid-reused",
+      };
+    });
+
+    await manager.start();
+    const { event, reply } = createMessageEvent();
+    connector.emit("message", event);
+    await new Promise((resolve) => setTimeout(resolve, 200));
+
+    const textCalls = reply.mock.calls.filter((call: unknown[]) => typeof call[0] === "string");
+    expect(textCalls).toHaveLength(1);
+    expect(textCalls[0][0]).toBe("Complete Top 10 and final health plan.");
+  });
+
   it("sends all answer turns immediately in 'answers' mode", async () => {
     const { manager, connector } = buildManagerWithTrigger(async (...args: unknown[]) => {
       const options = args[2] as { onMessage?: (m: unknown) => Promise<void> } | undefined;
